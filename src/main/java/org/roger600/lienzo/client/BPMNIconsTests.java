@@ -39,7 +39,7 @@ public class BPMNIconsTests extends FlowPanel implements MyLienzoTest {
 
     }
 
-    private Group businessRule() {
+    public static Group businessRule() {
 
         final Group group = new Group();
 
@@ -69,7 +69,7 @@ public class BPMNIconsTests extends FlowPanel implements MyLienzoTest {
         return group;
     }
 
-    private Group script() {
+    public static Group script() {
 
         final Group group = new Group();
 
@@ -96,7 +96,7 @@ public class BPMNIconsTests extends FlowPanel implements MyLienzoTest {
         return group;
     }
 
-    private Group user() {
+    public static Group user() {
 
         final Group group = new Group();
 
@@ -126,7 +126,7 @@ public class BPMNIconsTests extends FlowPanel implements MyLienzoTest {
         return group;
     }
 
-    private Group intermediateTimerEvent() {
+    public static Group intermediateTimerEvent() {
 
         final Group group = new Group();
 
@@ -195,7 +195,7 @@ public class BPMNIconsTests extends FlowPanel implements MyLienzoTest {
         return group;
     }
 
-    private SVGPath createSVGPath( final String path,
+    public static SVGPath createSVGPath( final String path,
                                    final String fillColor,
                                    final double fillAlpha,
                                    final String strokeColor ) {
@@ -213,7 +213,7 @@ public class BPMNIconsTests extends FlowPanel implements MyLienzoTest {
     }
 
 
-    private SVGPath createSVGPath( final String path ) {
+    public static SVGPath createSVGPath( final String path ) {
         return new SVGPath(path)
                 .setDraggable(false);
     }
