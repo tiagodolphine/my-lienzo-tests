@@ -8,17 +8,18 @@ import com.ait.lienzo.client.core.event.IAttributesChangedBatcher;
 import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.shape.IContainer;
 import com.ait.lienzo.client.core.shape.IPrimitive;
+import com.ait.lienzo.client.core.shape.Layer;
 import com.ait.lienzo.client.core.types.Point2D;
 import com.ait.lienzo.shared.core.types.Direction;
 import com.ait.tooling.common.api.flow.Flows;
 import com.ait.tooling.nativetools.client.event.HandlerRegistrationManager;
+import com.google.gwt.core.client.GWT;
 import org.roger600.lienzo.client.toolboxNew.Grid;
 import org.roger600.lienzo.client.toolboxNew.Positions;
-import org.roger600.lienzo.client.toolboxNew.Toolbox;
 
 import static com.ait.lienzo.client.core.AttributeOp.any;
 
-public class IPrimitiveToolbox implements Toolbox<IPrimitive<?>, IPrimitiveToolbox> {
+public class IPrimitiveToolbox extends AbstractToolbox<IPrimitive<?>, IPrimitiveToolbox> {
 
     private static final Flows.BooleanOp XYWH_OP = any(Attribute.X,
                                                        Attribute.Y,
@@ -32,6 +33,8 @@ public class IPrimitiveToolbox implements Toolbox<IPrimitive<?>, IPrimitiveToolb
     private Grid grid;
     private Direction at;
     private Direction towards;
+    private Layer layer;
+    private Runnable repositionCallback;
 
     public IPrimitiveToolbox(final IPrimitive<?> node) {
         this.group = new Group()
@@ -43,7 +46,14 @@ public class IPrimitiveToolbox implements Toolbox<IPrimitive<?>, IPrimitiveToolb
 
     @Override
     public IPrimitiveToolbox attachTo(IContainer<?, IPrimitive<?>> parent) {
+        this.layer = parent.getLayer();
         parent.add(group);
+        return this;
+    }
+
+    @Override
+    public IPrimitiveToolbox onRefresh(final Runnable repositionCallback) {
+        this.repositionCallback = repositionCallback;
         return this;
     }
 
@@ -88,6 +98,7 @@ public class IPrimitiveToolbox implements Toolbox<IPrimitive<?>, IPrimitiveToolb
     }
 
     IPrimitiveToolbox show(final Runnable post) {
+        assert null != layer;
         if (!isVisible()) {
             reposition();
             post.run();
@@ -129,8 +140,12 @@ public class IPrimitiveToolbox implements Toolbox<IPrimitive<?>, IPrimitiveToolb
         return towards;
     }
 
-    Group getGroup() {
+    protected Group getGroup() {
         return group;
+    }
+
+    HandlerRegistrationManager registrations() {
+        return handlerRegistrationManager;
     }
 
     IPrimitiveToolbox checkReposition() {
@@ -141,6 +156,7 @@ public class IPrimitiveToolbox implements Toolbox<IPrimitive<?>, IPrimitiveToolb
     }
 
     private void reposition() {
+        GWT.log("REPOSITIONING!!");
         final Point2D computedLocation = node.getComputedLocation();
         final Point2D anchorPoint = Positions.anchorFor(this.node.getBoundingBox(),
                                                         this.at);
@@ -149,6 +165,12 @@ public class IPrimitiveToolbox implements Toolbox<IPrimitive<?>, IPrimitiveToolb
                                                                   this.towards);
         group.setX(computedLocation.getX() + toolboxPosition.getX());
         group.setY(computedLocation.getY() + toolboxPosition.getY());
+        if (null != repositionCallback) {
+            repositionCallback.run();
+        }
+        if (null != layer) {
+            layer.batch();
+        }
     }
 
     private final AttributesChangedHandler repositionHandler = new AttributesChangedHandler() {

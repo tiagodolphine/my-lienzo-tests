@@ -6,6 +6,13 @@ import com.ait.lienzo.client.core.shape.MultiPath;
 import com.ait.lienzo.client.core.shape.Rectangle;
 import com.ait.lienzo.client.core.shape.wires.WiresManager;
 import com.ait.lienzo.client.core.shape.wires.WiresShape;
+import com.ait.lienzo.client.core.shape.wires.event.AbstractWiresResizeEvent;
+import com.ait.lienzo.client.core.shape.wires.event.WiresResizeEndEvent;
+import com.ait.lienzo.client.core.shape.wires.event.WiresResizeEndHandler;
+import com.ait.lienzo.client.core.shape.wires.event.WiresResizeStartEvent;
+import com.ait.lienzo.client.core.shape.wires.event.WiresResizeStartHandler;
+import com.ait.lienzo.client.core.shape.wires.event.WiresResizeStepEvent;
+import com.ait.lienzo.client.core.shape.wires.event.WiresResizeStepHandler;
 import com.ait.lienzo.shared.core.types.ColorName;
 import com.ait.lienzo.shared.core.types.Direction;
 import com.ait.lienzo.shared.core.types.IColor;
@@ -23,9 +30,13 @@ import org.roger600.lienzo.client.toolbox.event.ToolboxButtonEvent;
 import org.roger600.lienzo.client.toolbox.event.ToolboxButtonEventHandler;
 import org.roger600.lienzo.client.toolbox.grid.GridToolbox;
 import org.roger600.lienzo.client.toolboxNew.Grid;
+import org.roger600.lienzo.client.toolboxNew.ItemsToolbox;
+import org.roger600.lienzo.client.toolboxNew.Toolbox;
+import org.roger600.lienzo.client.toolboxNew.impl.AbstractToolboxIItem;
 import org.roger600.lienzo.client.toolboxNew.impl.ButtonItem;
 import org.roger600.lienzo.client.toolboxNew.impl.DecoratedButtonItem;
 import org.roger600.lienzo.client.toolboxNew.impl.IPrimitiveItemsToolbox;
+import org.roger600.lienzo.client.toolboxNew.impl.WiresShapeItemsToolbox;
 
 public class ToolboxTests implements MyLienzoTest,
                                      HasMediators,
@@ -39,7 +50,7 @@ public class ToolboxTests implements MyLienzoTest,
     private WiresShape shape1;
     private WiresShape shape2;
     private GridToolbox gridToolbox;
-    private IPrimitiveItemsToolbox newToolbox;
+    private ItemsToolbox<IPrimitive<?>, AbstractToolboxIItem, ?> newToolbox;
 
     public void setButtonsPanel(Panel panel) {
 
@@ -78,6 +89,31 @@ public class ToolboxTests implements MyLienzoTest,
             }
         });
         panel.add(hideNewButton);
+
+        Button changeLocationNewButton = new Button("Change new to WEST");
+        changeLocationNewButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                newToolbox.at(Direction.NORTH_WEST)
+                        .towards(Direction.SOUTH_WEST);
+            }
+        });
+        panel.add(changeLocationNewButton);
+
+
+        Button changeGridNewButton = new Button("Change new to one column");
+        changeGridNewButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                final Grid grid = new Grid(BUTTON_PADDING,
+                                     (int) BUTTON_SIZE,
+                                     4,
+                                     1);
+                newToolbox.grid(grid);
+            }
+        });
+        panel.add(changeGridNewButton);
+
     }
 
     public void test(Layer layer) {
@@ -98,13 +134,12 @@ public class ToolboxTests implements MyLienzoTest,
     }
 
     private void buildNewToolbox(final WiresShape shape) {
-        IPrimitive<?> node = shape.getGroup().asPrimitive();
         Grid grid = new Grid(BUTTON_PADDING,
                              (int) BUTTON_SIZE,
                              4,
                              2);
 
-        newToolbox = new IPrimitiveItemsToolbox(node)
+        newToolbox = new WiresShapeItemsToolbox(shape)
                 .attachTo(layer)
                 .at(Direction.NORTH_EAST)
                 .towards(Direction.SOUTH_EAST)
@@ -217,6 +252,9 @@ public class ToolboxTests implements MyLienzoTest,
         gridToolbox = buttonsOrRegister.register();
     }
 
+    private void resizeShape(final AbstractWiresResizeEvent event) {
+    }
+
     private Rectangle createButtonNode() {
         return new Rectangle(BUTTON_SIZE,
                              BUTTON_SIZE)
@@ -228,11 +266,30 @@ public class ToolboxTests implements MyLienzoTest,
         MultiPath path = TestsUtils.rect(new MultiPath().setFillColor(color),
                                          150,
                                          50,
-                                         5);
+                                         0);
         final WiresShape shape = new WiresShape(path);
         wiresManager.register(shape);
         shape.setDraggable(true);
         wiresManager.getMagnetManager().createMagnets(shape);
+        TestsUtils.addResizeHandlers(shape);
+        shape.addWiresResizeStartHandler(new WiresResizeStartHandler() {
+            @Override
+            public void onShapeResizeStart(WiresResizeStartEvent event) {
+                resizeShape(event);
+            }
+        });
+        shape.addWiresResizeStepHandler(new WiresResizeStepHandler() {
+            @Override
+            public void onShapeResizeStep(WiresResizeStepEvent event) {
+                resizeShape(event);
+            }
+        });
+        shape.addWiresResizeEndHandler(new WiresResizeEndHandler() {
+            @Override
+            public void onShapeResizeEnd(WiresResizeEndEvent event) {
+                resizeShape(event);
+            }
+        });
         return shape;
     }
 }

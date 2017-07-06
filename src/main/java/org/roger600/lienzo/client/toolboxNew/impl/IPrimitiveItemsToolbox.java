@@ -4,43 +4,38 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.ait.lienzo.client.core.shape.IContainer;
 import com.ait.lienzo.client.core.shape.IPrimitive;
-import com.ait.lienzo.shared.core.types.Direction;
 import org.roger600.lienzo.client.toolboxNew.Grid;
 import org.roger600.lienzo.client.toolboxNew.ItemsToolbox;
 
-public class IPrimitiveItemsToolbox implements ItemsToolbox<IPrimitive<?>, AbstractToolboxIItem, IPrimitiveItemsToolbox> {
+public class IPrimitiveItemsToolbox
+        extends DelegateToolbox<IPrimitive<?>, IPrimitiveItemsToolbox>
+        implements ItemsToolbox<IPrimitive<?>, AbstractToolboxIItem, IPrimitiveItemsToolbox> {
 
     private final List<AbstractToolboxIItem> items = new LinkedList<>();
-    private final IPrimitiveToolbox toolbox;
+    private final AbstractToolbox<IPrimitive<?>, ?> toolbox;
 
     public IPrimitiveItemsToolbox(final IPrimitive<?> shape) {
-        this.toolbox = new IPrimitiveToolbox(shape);
+        this(new IPrimitiveToolbox(shape));
+    }
+
+    IPrimitiveItemsToolbox(final AbstractToolbox<IPrimitive<?>, ?> toolbox) {
+        this.toolbox = toolbox;
+        init();
+    }
+
+    private void init() {
+        toolbox.onRefresh(new Runnable() {
+            @Override
+            public void run() {
+                repositionItems();
+            }
+        });
     }
 
     @Override
-    public IPrimitiveItemsToolbox attachTo(final IContainer<?, IPrimitive<?>> parent) {
-        toolbox.attachTo(parent);
-        return this;
-    }
-
-    @Override
-    public IPrimitiveItemsToolbox at(final Direction at) {
-        toolbox.at(at);
-        return this;
-    }
-
-    @Override
-    public IPrimitiveItemsToolbox towards(final Direction towards) {
-        toolbox.towards(towards);
-        return this;
-    }
-
-    @Override
-    public IPrimitiveItemsToolbox grid(final Grid grid) {
-        toolbox.grid(grid);
-        return this;
+    protected AbstractToolbox<IPrimitive<?>, ?> getDelegate() {
+        return toolbox;
     }
 
     @Override
@@ -51,7 +46,7 @@ public class IPrimitiveItemsToolbox implements ItemsToolbox<IPrimitive<?>, Abstr
                     .hide();
             this.items.add(button);
         }
-        repositionItem();
+        repositionItems();
         return this;
     }
 
@@ -60,7 +55,7 @@ public class IPrimitiveItemsToolbox implements ItemsToolbox<IPrimitive<?>, Abstr
         final int i = items.indexOf(button);
         if (i > -1) {
             destroyItem(items.get(i));
-            repositionItem();
+            repositionItems();
             return true;
         }
         return false;
@@ -68,27 +63,19 @@ public class IPrimitiveItemsToolbox implements ItemsToolbox<IPrimitive<?>, Abstr
 
     @Override
     public IPrimitiveItemsToolbox show() {
-        toolbox.show(new Runnable() {
-            @Override
-            public void run() {
-                for (final AbstractToolboxIItem item : items) {
-                    item.show();
-                }
-            }
-        });
+        super.show();
+        for (final AbstractToolboxIItem item : items) {
+            item.show();
+        }
         return this;
     }
 
     @Override
     public IPrimitiveItemsToolbox hide() {
-        toolbox.hide(new Runnable() {
-            @Override
-            public void run() {
-                for (final AbstractToolboxIItem item : items) {
-                    item.hide();
-                }
-            }
-        });
+        super.hide();
+        for (final AbstractToolboxIItem item : items) {
+            item.hide();
+        }
         return this;
     }
 
@@ -97,10 +84,10 @@ public class IPrimitiveItemsToolbox implements ItemsToolbox<IPrimitive<?>, Abstr
         for (final AbstractToolboxIItem item : items) {
             destroyItem(item);
         }
-        toolbox.destroy();
+        super.destroy();
     }
 
-    private void repositionItem() {
+    private void repositionItems() {
         final Iterator<Grid.Point> gridIterator = toolbox.getGrid().iterator();
         for (final AbstractToolboxIItem button : items) {
             final Grid.Point point = gridIterator.next();
