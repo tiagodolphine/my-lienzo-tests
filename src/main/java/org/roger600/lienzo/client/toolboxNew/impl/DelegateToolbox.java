@@ -23,12 +23,6 @@ public abstract class DelegateToolbox<N, T extends Toolbox> extends AbstractTool
     }
 
     @Override
-    public T towards(final Direction towards) {
-        getDelegate().towards(towards);
-        return cast();
-    }
-
-    @Override
     public T grid(final Grid grid) {
         getDelegate().grid(grid);
         return cast();
@@ -60,11 +54,6 @@ public abstract class DelegateToolbox<N, T extends Toolbox> extends AbstractTool
     @Override
     public Direction getAt() {
         return getDelegate().getAt();
-    }
-
-    @Override
-    public Direction getTowards() {
-        return getDelegate().getTowards();
     }
 
     @Override

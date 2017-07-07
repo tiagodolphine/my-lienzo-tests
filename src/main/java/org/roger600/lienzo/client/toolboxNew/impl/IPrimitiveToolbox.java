@@ -13,7 +13,6 @@ import com.ait.lienzo.client.core.types.Point2D;
 import com.ait.lienzo.shared.core.types.Direction;
 import com.ait.tooling.common.api.flow.Flows;
 import com.ait.tooling.nativetools.client.event.HandlerRegistrationManager;
-import com.google.gwt.core.client.GWT;
 import org.roger600.lienzo.client.toolboxNew.Grid;
 import org.roger600.lienzo.client.toolboxNew.Positions;
 
@@ -32,7 +31,6 @@ public class IPrimitiveToolbox extends AbstractToolbox<IPrimitive<?>, IPrimitive
     private final IPrimitive<?> node;
     private Grid grid;
     private Direction at;
-    private Direction towards;
     private Layer layer;
     private Runnable repositionCallback;
 
@@ -60,12 +58,6 @@ public class IPrimitiveToolbox extends AbstractToolbox<IPrimitive<?>, IPrimitive
     @Override
     public IPrimitiveToolbox at(final Direction at) {
         this.at = at;
-        return checkReposition();
-    }
-
-    @Override
-    public IPrimitiveToolbox towards(final Direction towards) {
-        this.towards = towards;
         return checkReposition();
     }
 
@@ -136,10 +128,6 @@ public class IPrimitiveToolbox extends AbstractToolbox<IPrimitive<?>, IPrimitive
         return at;
     }
 
-    public Direction getTowards() {
-        return towards;
-    }
-
     protected Group getGroup() {
         return group;
     }
@@ -156,13 +144,11 @@ public class IPrimitiveToolbox extends AbstractToolbox<IPrimitive<?>, IPrimitive
     }
 
     private void reposition() {
-        GWT.log("REPOSITIONING!!");
         final Point2D computedLocation = node.getComputedLocation();
         final Point2D anchorPoint = Positions.anchorFor(this.node.getBoundingBox(),
                                                         this.at);
         final Grid.Point toolboxPosition = this.grid.findPosition(new Grid.Point((int) anchorPoint.getX(),
-                                                                                 (int) anchorPoint.getY()),
-                                                                  this.towards);
+                                                                                 (int) anchorPoint.getY()));
         group.setX(computedLocation.getX() + toolboxPosition.getX());
         group.setY(computedLocation.getY() + toolboxPosition.getY());
         if (null != repositionCallback) {

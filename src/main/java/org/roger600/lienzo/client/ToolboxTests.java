@@ -29,13 +29,11 @@ import org.roger600.lienzo.client.toolbox.builder.On;
 import org.roger600.lienzo.client.toolbox.event.ToolboxButtonEvent;
 import org.roger600.lienzo.client.toolbox.event.ToolboxButtonEventHandler;
 import org.roger600.lienzo.client.toolbox.grid.GridToolbox;
-import org.roger600.lienzo.client.toolboxNew.Grid;
 import org.roger600.lienzo.client.toolboxNew.ItemsToolbox;
-import org.roger600.lienzo.client.toolboxNew.Toolbox;
+import org.roger600.lienzo.client.toolboxNew.LayoutGrid;
 import org.roger600.lienzo.client.toolboxNew.impl.AbstractToolboxIItem;
 import org.roger600.lienzo.client.toolboxNew.impl.ButtonItem;
 import org.roger600.lienzo.client.toolboxNew.impl.DecoratedButtonItem;
-import org.roger600.lienzo.client.toolboxNew.impl.IPrimitiveItemsToolbox;
 import org.roger600.lienzo.client.toolboxNew.impl.WiresShapeItemsToolbox;
 
 public class ToolboxTests implements MyLienzoTest,
@@ -94,26 +92,24 @@ public class ToolboxTests implements MyLienzoTest,
         changeLocationNewButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                newToolbox.at(Direction.NORTH_WEST)
-                        .towards(Direction.SOUTH_WEST);
+                newToolbox.at(Direction.NORTH_WEST);
             }
         });
         panel.add(changeLocationNewButton);
-
 
         Button changeGridNewButton = new Button("Change new to one column");
         changeGridNewButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                final Grid grid = new Grid(BUTTON_PADDING,
-                                     (int) BUTTON_SIZE,
-                                     4,
-                                     1);
+                final LayoutGrid grid = new LayoutGrid(BUTTON_PADDING,
+                                                       (int) BUTTON_SIZE,
+                                                       Direction.SOUTH_WEST,
+                                                       4,
+                                                       1);
                 newToolbox.grid(grid);
             }
         });
         panel.add(changeGridNewButton);
-
     }
 
     public void test(Layer layer) {
@@ -134,15 +130,15 @@ public class ToolboxTests implements MyLienzoTest,
     }
 
     private void buildNewToolbox(final WiresShape shape) {
-        Grid grid = new Grid(BUTTON_PADDING,
-                             (int) BUTTON_SIZE,
-                             4,
-                             2);
+        LayoutGrid grid = new LayoutGrid(BUTTON_PADDING,
+                                         (int) BUTTON_SIZE,
+                                         Direction.SOUTH_EAST,
+                                         4,
+                                         2);
 
         newToolbox = new WiresShapeItemsToolbox(shape)
                 .attachTo(layer)
                 .at(Direction.NORTH_EAST)
-                .towards(Direction.SOUTH_EAST)
                 .grid(grid);
 
         final ButtonItem item1 =
@@ -211,13 +207,13 @@ public class ToolboxTests implements MyLienzoTest,
 
         on.attachTo(shape.getPath());
 
-        ButtonGrid buttonGrid = on.on(Direction.NORTH_EAST)
-                .towards(Direction.SOUTH_EAST);
+        ButtonGrid buttonGrid = on.on(Direction.NORTH)
+                .towards(Direction.SOUTH);
 
         ButtonsOrRegister buttonsOrRegister = buttonGrid.grid(BUTTON_PADDING,
                                                               (int) BUTTON_SIZE,
-                                                              4,
-                                                              2);
+                                                              1,
+                                                              1);
         // Add toolbox buttons.
         ToolboxButton button = new ToolboxButton(layer,
                                                  createButtonNode(),
@@ -250,6 +246,8 @@ public class ToolboxTests implements MyLienzoTest,
         buttonsOrRegister.add(button);
 
         gridToolbox = buttonsOrRegister.register();
+
+        gridToolbox.show();
     }
 
     private void resizeShape(final AbstractWiresResizeEvent event) {

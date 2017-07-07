@@ -9,8 +9,6 @@ public interface Toolbox<N, T extends Toolbox> {
 
     public T at(Direction at);
 
-    public T towards(Direction towards);
-
     public T grid(Grid grid);
 
     public T show();

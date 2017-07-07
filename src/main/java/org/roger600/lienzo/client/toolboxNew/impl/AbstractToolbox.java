@@ -11,8 +11,6 @@ public abstract class AbstractToolbox<N, T extends Toolbox> implements Toolbox<N
 
     public abstract Direction getAt();
 
-    public abstract Direction getTowards();
-
     protected abstract T onRefresh(Runnable callback);
 
     protected abstract Group getGroup();
