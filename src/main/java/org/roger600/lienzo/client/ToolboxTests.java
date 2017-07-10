@@ -1,6 +1,5 @@
 package org.roger600.lienzo.client;
 
-import com.ait.lienzo.client.core.shape.IPrimitive;
 import com.ait.lienzo.client.core.shape.Layer;
 import com.ait.lienzo.client.core.shape.MultiPath;
 import com.ait.lienzo.client.core.shape.Rectangle;
@@ -29,9 +28,7 @@ import org.roger600.lienzo.client.toolbox.builder.On;
 import org.roger600.lienzo.client.toolbox.event.ToolboxButtonEvent;
 import org.roger600.lienzo.client.toolbox.event.ToolboxButtonEventHandler;
 import org.roger600.lienzo.client.toolbox.grid.GridToolbox;
-import org.roger600.lienzo.client.toolboxNew.ItemsToolbox;
 import org.roger600.lienzo.client.toolboxNew.LayoutGrid;
-import org.roger600.lienzo.client.toolboxNew.impl.AbstractToolboxIItem;
 import org.roger600.lienzo.client.toolboxNew.impl.ButtonItem;
 import org.roger600.lienzo.client.toolboxNew.impl.DecoratedButtonItem;
 import org.roger600.lienzo.client.toolboxNew.impl.WiresShapeItemsToolbox;
@@ -48,7 +45,7 @@ public class ToolboxTests implements MyLienzoTest,
     private WiresShape shape1;
     private WiresShape shape2;
     private GridToolbox gridToolbox;
-    private ItemsToolbox<IPrimitive<?>, AbstractToolboxIItem, ?> newToolbox;
+    private WiresShapeItemsToolbox newToolbox;
 
     public void setButtonsPanel(Panel panel) {
 
@@ -92,7 +89,11 @@ public class ToolboxTests implements MyLienzoTest,
         changeLocationNewButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                newToolbox.at(Direction.NORTH_WEST);
+                LayoutGrid aGrid = ((LayoutGrid) newToolbox.getGrid()).towards(Direction.SOUTH_WEST);
+                newToolbox
+                        .at(Direction.NORTH_WEST)
+                        .grid(aGrid);
+
             }
         });
         panel.add(changeLocationNewButton);
@@ -101,12 +102,8 @@ public class ToolboxTests implements MyLienzoTest,
         changeGridNewButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                final LayoutGrid grid = new LayoutGrid(BUTTON_PADDING,
-                                                       (int) BUTTON_SIZE,
-                                                       Direction.SOUTH_WEST,
-                                                       4,
-                                                       1);
-                newToolbox.grid(grid);
+                LayoutGrid aGrid = ((LayoutGrid) newToolbox.getGrid()).setCols(1);
+                newToolbox.grid(aGrid);
             }
         });
         panel.add(changeGridNewButton);

@@ -102,17 +102,17 @@ public class LayoutGrid implements Grid {
         return new GridIterator(this);
     }
 
-    public LayoutGrid towards(Direction towards) {
+    public LayoutGrid towards(final Direction towards) {
         this.towards = towards;
         return this;
     }
 
-    public LayoutGrid setRows(int rows) {
+    public LayoutGrid setRows(final int rows) {
         this.rows = rows;
         return this;
     }
 
-    public LayoutGrid setCols(int cols) {
+    public LayoutGrid setCols(final int cols) {
         this.cols = cols;
         return this;
     }

@@ -24,6 +24,7 @@ public class AutoGrid implements Grid {
         }
         this.delegate = new LayoutGrid(padding,
                                        iconSize);
+        this.direction = direction;
         this.max = max;
     }
 
