@@ -143,6 +143,7 @@ public class IPrimitiveToolbox extends AbstractToolbox<IPrimitive<?>, IPrimitive
         return this;
     }
 
+    // TODO: Reduce number of calls during drags, resizes?
     private void reposition() {
         final Point2D computedLocation = node.getComputedLocation();
         final Point2D anchorPoint = Positions.anchorFor(this.node.getBoundingBox(),
