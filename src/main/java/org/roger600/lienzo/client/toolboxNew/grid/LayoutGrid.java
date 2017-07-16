@@ -21,9 +21,9 @@ import java.util.NoSuchElementException;
 
 import com.ait.lienzo.client.core.types.Point2D;
 import com.ait.lienzo.shared.core.types.Direction;
-import org.roger600.lienzo.client.toolboxNew.Grid;
+import com.google.gwt.core.client.GWT;
 
-public class LayoutGrid implements Grid {
+public class LayoutGrid implements Point2DGrid {
 
     private double padding;
     private double iconSize;
@@ -54,50 +54,6 @@ public class LayoutGrid implements Grid {
              1,
              1);
     }
-
-    /*@Override
-    public Point findPosition(final Point anchorPoint) {
-        int width = getWidth();
-        int height = getHeight();
-        int x = anchorPoint.getX();
-        int y = anchorPoint.getY();
-        switch (towards) {
-            case NORTH:
-                x -= width / 2;
-                y -= height;
-                break;
-            case SOUTH:
-                x -= width / 2;
-                break;
-            case EAST:
-                y -= height / 2;
-                break;
-            case WEST:
-                x -= width;
-                y -= height / 2;
-                break;
-            case NONE:
-                x -= width / 2;
-                y -= height / 2;
-                break;
-            case NORTH_EAST:
-                y -= height;
-                break;
-            case SOUTH_EAST:
-                break;
-            case SOUTH_WEST:
-                x -= width;
-                break;
-            case NORTH_WEST:
-                x -= width;
-                y -= height;
-                break;
-            default:
-                throw new UnsupportedOperationException();
-        }
-        return new Grid.Point(x,
-                              y);
-    }*/
 
     @Override
     public Iterator<Point2D> iterator() {
@@ -135,23 +91,7 @@ public class LayoutGrid implements Grid {
         return iconSize;
     }
 
-    public Direction getTowards() {
-        return towards;
-    }
-
-    public int size() {
-        return getRows() * getCols();
-    }
-
-    public double getWidth() {
-        return calculateDistance(getCols());
-    }
-
-    public double getHeight() {
-        return calculateDistance(getRows());
-    }
-
-    protected static class GridIterator implements Iterator<Point2D> {
+    private static class GridIterator implements Iterator<Point2D> {
 
         private final LayoutGrid grid;
         private int currentRow = 0;
@@ -187,18 +127,32 @@ public class LayoutGrid implements Grid {
             } else {
                 currentColumn++;
             }
-            return this.grid.findPosition(row,
-                                          column);
+            final Point2D location = this.grid.getLocation(row,
+                                                           column);
+            GWT.log("LAYOUT GRID LOCATION = " + location);
+            int ox = isEast(grid.towards) ? 1 : -1;
+            int oy = isNorth(grid.towards) ? -1 : 1;
+            GWT.log("LAYOUT GRID OFFSET = [" + ox + ", " + oy + " ]");
+            return new Point2D(location.getX() * ox,
+                               location.getY() * oy);
         }
 
         @Override
         public void remove() {
             throw new UnsupportedOperationException();
         }
+
+        private double getWidth() {
+            return grid.calculateDistance(currentColumn);
+        }
+
+        private double getHeight() {
+            return grid.calculateDistance(currentRow);
+        }
     }
 
-    private Point2D findPosition(final int row,
-                                 final int col) {
+    private Point2D getLocation(final int row,
+                                final int col) {
         if (!isInRange(row,
                        getRows())) {
             throw new IllegalArgumentException(
@@ -224,5 +178,80 @@ public class LayoutGrid implements Grid {
     private boolean isInRange(final int value,
                               final int max) {
         return value >= 0 && value < max;
+    }
+
+    private static Point2D getOffset(final double width,
+                                     final double height,
+                                     final Direction towards) {
+        double x = 0d;
+        double y = 0d;
+        switch (towards) {
+            case NORTH:
+                x -= width / 2;
+                y -= height;
+                break;
+            case SOUTH:
+                x -= width / 2;
+                break;
+            case EAST:
+                y -= height / 2;
+                break;
+            case WEST:
+                x -= width;
+                y -= height / 2;
+                break;
+            case NONE:
+                x -= width / 2;
+                y -= height / 2;
+                break;
+            case NORTH_EAST:
+                y -= height;
+                break;
+            case SOUTH_EAST:
+                break;
+            case SOUTH_WEST:
+                x -= width;
+                break;
+            case NORTH_WEST:
+                x -= width;
+                y -= height;
+                break;
+            default:
+                throw new UnsupportedOperationException();
+        }
+        return new Point2D(x,
+                           y);
+    }
+
+    private static boolean isEast(final Direction towards) {
+        boolean east = true;
+        switch (towards) {
+            case WEST:
+                east = false;
+                break;
+            case SOUTH_WEST:
+                east = false;
+                break;
+            case NORTH_WEST:
+                east = false;
+                break;
+        }
+        return east;
+    }
+
+    private static boolean isNorth(final Direction towards) {
+        boolean north = true;
+        switch (towards) {
+            case SOUTH:
+                north = false;
+                break;
+            case SOUTH_EAST:
+                north = false;
+                break;
+            case SOUTH_WEST:
+                north = false;
+                break;
+        }
+        return north;
     }
 }

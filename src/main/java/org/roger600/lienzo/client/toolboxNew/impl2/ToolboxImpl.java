@@ -14,6 +14,7 @@ public class ToolboxImpl
 
     private Supplier<BoundingBox> boundingBoxSupplier;
     private Direction at;
+    private Point2D offset;
     private Runnable refreshCallback;
 
     public ToolboxImpl(final Supplier<BoundingBox> boundingBoxSupplier) {
@@ -26,6 +27,8 @@ public class ToolboxImpl
         super(groupItem);
         this.boundingBoxSupplier = boundingBoxSupplier;
         this.at = Direction.NORTH_EAST;
+        this.offset = new Point2D(0d,
+                                  0d);
         this.refreshCallback = new Runnable() {
             @Override
             public void run() {
@@ -37,6 +40,12 @@ public class ToolboxImpl
     @Override
     public ToolboxImpl at(final Direction at) {
         this.at = at;
+        reposition();
+        return this;
+    }
+
+    public ToolboxImpl offset(final Point2D p) {
+        this.offset = p;
         reposition();
         return this;
     }
@@ -83,8 +92,9 @@ public class ToolboxImpl
         GWT.log("BB is = " + boundingBoxSupplier.get());
         Point2D loc = Positions.anchorFor(boundingBoxSupplier.get(),
                                           this.at);
+        GWT.log("OFFSET = " + offset);
         GWT.log("LOC = " + loc);
-        asPrimitive().setLocation(loc);
+        asPrimitive().setLocation(loc.offset(offset));
         if (null != refreshCallback) {
             refreshCallback.run();
         }

@@ -7,27 +7,22 @@ import java.util.List;
 import com.ait.lienzo.client.core.types.Point2D;
 import com.google.gwt.core.client.GWT;
 import org.roger600.lienzo.client.toolboxNew.ContainerItem;
-import org.roger600.lienzo.client.toolboxNew.Grid;
-import org.roger600.lienzo.client.toolboxNew.util.Function;
+import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
 
-public class ItemsGroup<G extends Grid, I extends AbstractItem>
+public class ItemsGroup<G extends Point2DGrid, I extends AbstractItem>
         extends AbstractGroupItem<ItemsGroup>
         implements ContainerItem<ItemsGroup, G, I> {
 
     private final List<I> items = new LinkedList<>();
-    private final Function<G, Iterator<Point2D>> gridLocationProvider;
     private Runnable refreshCallback;
     private G grid;
 
-    public ItemsGroup(final Function<G, Iterator<Point2D>> gridLocationProvider) {
-        this(new GroupItem(),
-             gridLocationProvider);
+    public ItemsGroup() {
+        this(new GroupItem());
     }
 
-    public ItemsGroup(final GroupItem groupItem,
-                      final Function<G, Iterator<Point2D>> gridLocationProvider) {
+    public ItemsGroup(final GroupItem groupItem) {
         super(groupItem);
-        this.gridLocationProvider = gridLocationProvider;
         this.refreshCallback = new Runnable() {
             @Override
             public void run() {
@@ -53,7 +48,11 @@ public class ItemsGroup<G extends Grid, I extends AbstractItem>
     public ItemsGroup add(final I... items) {
         for (final I button : items) {
             this.items.add(button);
-            button.hide();
+            if (getGroupItem().isVisible()) {
+                button.show();
+            } else {
+                button.hide();
+            }
             asPrimitive().add(button.asPrimitive());
         }
         repositionItems();
@@ -97,7 +96,7 @@ public class ItemsGroup<G extends Grid, I extends AbstractItem>
     }
 
     private void repositionItems() {
-        final Iterator<Point2D> gridIterator = gridLocationProvider.apply(grid);
+        final Iterator<Point2D> gridIterator = grid.iterator();
         for (final AbstractItem button : items) {
             final Point2D point = gridIterator.next();
             GWT.log("BUTTON AT = " + point);

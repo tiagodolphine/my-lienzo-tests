@@ -3,23 +3,20 @@ package org.roger600.lienzo.client.toolboxNew.impl2;
 import java.util.Iterator;
 
 import com.ait.lienzo.client.core.types.BoundingBox;
-import com.ait.lienzo.client.core.types.Point2D;
 import com.ait.lienzo.shared.core.types.Direction;
-import org.roger600.lienzo.client.toolboxNew.Grid;
 import org.roger600.lienzo.client.toolboxNew.ItemsToolbox;
-import org.roger600.lienzo.client.toolboxNew.util.Function;
+import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
 import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
-public class ItemsToolboxImpl<G extends Grid, I extends AbstractItem>
+public class ItemsToolboxImpl<G extends Point2DGrid, I extends AbstractItem>
         extends AbstractGroupItem<ItemsToolboxImpl>
         implements ItemsToolbox<ItemsToolboxImpl, G, I> {
 
     private final ToolboxImpl toolbox;
     private final ItemsGroup<G, I> itemsGroup;
 
-    public ItemsToolboxImpl(final Supplier<BoundingBox> boundingBoxSupplier,
-                            final Function<G, Iterator<Point2D>> gridLocationProvider) {
-        this(new ItemsGroup<G, I>(gridLocationProvider),
+    public ItemsToolboxImpl(final Supplier<BoundingBox> boundingBoxSupplier) {
+        this(new ItemsGroup<G, I>(),
              new ToolboxImpl(boundingBoxSupplier));
     }
 

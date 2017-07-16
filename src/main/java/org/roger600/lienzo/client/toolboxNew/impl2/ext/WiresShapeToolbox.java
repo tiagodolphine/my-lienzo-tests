@@ -7,15 +7,16 @@ import com.ait.lienzo.client.core.types.BoundingBox;
 import com.ait.lienzo.client.core.types.Point2D;
 import org.roger600.lienzo.client.toolboxNew.Grid;
 import org.roger600.lienzo.client.toolboxNew.ItemsToolbox;
+import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
 import org.roger600.lienzo.client.toolboxNew.impl2.AbstractItem;
 import org.roger600.lienzo.client.toolboxNew.impl2.DelegateItemsToolbox;
 import org.roger600.lienzo.client.toolboxNew.impl2.ItemsToolboxImpl;
 import org.roger600.lienzo.client.toolboxNew.util.Function;
 import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
-public class WiresShapeToolbox extends DelegateItemsToolbox<WiresShapeToolbox, Grid<Point2D>> {
+public class WiresShapeToolbox extends DelegateItemsToolbox<WiresShapeToolbox, Point2DGrid> {
 
-    private final ItemsToolboxImpl<Grid<Point2D>, AbstractItem> toolbox;
+    private final ItemsToolboxImpl<Point2DGrid, AbstractItem> toolbox;
 
     public WiresShapeToolbox(final WiresShape shape) {
         // Create the toolbox.
@@ -25,8 +26,7 @@ public class WiresShapeToolbox extends DelegateItemsToolbox<WiresShapeToolbox, G
                     public BoundingBox get() {
                         return shape.getPath().getBoundingBox();
                     }
-                },
-                                       new PointsSupplier());
+                });
         // Attach it into the shape.
         shape.addChild(toolbox.asPrimitive());
     }
@@ -40,7 +40,7 @@ public class WiresShapeToolbox extends DelegateItemsToolbox<WiresShapeToolbox, G
     }
 
     @Override
-    protected ItemsToolbox<?, Grid<Point2D>, AbstractItem> getDelegate() {
+    protected ItemsToolbox<?, Point2DGrid, AbstractItem> getDelegate() {
         return toolbox;
     }
 }
