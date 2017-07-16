@@ -15,41 +15,31 @@ import com.ait.lienzo.client.core.shape.wires.event.WiresResizeStepHandler;
 import com.ait.lienzo.shared.core.types.ColorName;
 import com.ait.lienzo.shared.core.types.Direction;
 import com.ait.lienzo.shared.core.types.IColor;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Panel;
-import org.roger600.lienzo.client.toolbox.ToolboxButton;
-import org.roger600.lienzo.client.toolbox.Toolboxes;
-import org.roger600.lienzo.client.toolbox.builder.ButtonGrid;
-import org.roger600.lienzo.client.toolbox.builder.ButtonsOrRegister;
-import org.roger600.lienzo.client.toolbox.builder.On;
-import org.roger600.lienzo.client.toolbox.event.ToolboxButtonEvent;
-import org.roger600.lienzo.client.toolbox.event.ToolboxButtonEventHandler;
-import org.roger600.lienzo.client.toolbox.grid.GridToolbox;
-import org.roger600.lienzo.client.toolboxNew.LayoutGrid;
-import org.roger600.lienzo.client.toolboxNew.impl.ButtonItem;
-import org.roger600.lienzo.client.toolboxNew.impl.DecoratedButtonItem;
-import org.roger600.lienzo.client.toolboxNew.impl.WiresShapeItemsToolbox;
+import org.roger600.lienzo.client.toolboxNew.grid.LayoutGrid;
+import org.roger600.lienzo.client.toolboxNew.impl2.GroupItem;
+import org.roger600.lienzo.client.toolboxNew.impl2.ext.WiresShapeToolbox;
 
 public class ToolboxTests implements MyLienzoTest,
                                      HasMediators,
                                      HasButtons {
 
     private static final double BUTTON_SIZE = 14;
-    private static final int BUTTON_PADDING = 5;
+    private static final double BUTTON_PADDING = 5;
 
     private Layer layer;
     private WiresManager wiresManager;
     private WiresShape shape1;
     private WiresShape shape2;
-    private GridToolbox gridToolbox;
-    private WiresShapeItemsToolbox newToolbox;
+    private LayoutGrid grid2;
+    private WiresShapeToolbox toolbox2;
 
     public void setButtonsPanel(Panel panel) {
 
-        Button showButton = new Button("Show old");
+        /*Button showButton = new Button("Show #1");
         showButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -58,7 +48,7 @@ public class ToolboxTests implements MyLienzoTest,
         });
         panel.add(showButton);
 
-        Button hideButton = new Button("Hide old");
+        Button hideButton = new Button("Hide #1");
         hideButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -66,44 +56,43 @@ public class ToolboxTests implements MyLienzoTest,
             }
         });
         panel.add(hideButton);
-
-        Button showNewButton = new Button("Show new");
+*/
+        Button showNewButton = new Button("Show #2");
         showNewButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                newToolbox.show();
+                toolbox2.show();
             }
         });
         panel.add(showNewButton);
 
-        Button hideNewButton = new Button("Hide new");
+        Button hideNewButton = new Button("Hide #2");
         hideNewButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                newToolbox.hide();
+                toolbox2.hide();
             }
         });
         panel.add(hideNewButton);
 
-        Button changeLocationNewButton = new Button("Change new to WEST");
+        Button changeLocationNewButton = new Button("Change #2 to WEST");
         changeLocationNewButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                LayoutGrid aGrid = ((LayoutGrid) newToolbox.getGrid()).towards(Direction.SOUTH_WEST);
-                newToolbox
+                LayoutGrid aGrid = grid2.towards(Direction.SOUTH_WEST);
+                toolbox2
                         .at(Direction.NORTH_WEST)
                         .grid(aGrid);
-
             }
         });
         panel.add(changeLocationNewButton);
 
-        Button changeGridNewButton = new Button("Change new to one column");
+        Button changeGridNewButton = new Button("Change #2 to one column");
         changeGridNewButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                LayoutGrid aGrid = ((LayoutGrid) newToolbox.getGrid()).setCols(1);
-                newToolbox.grid(aGrid);
+                LayoutGrid aGrid = grid2.setCols(1);
+                toolbox2.grid(aGrid);
             }
         });
         panel.add(changeGridNewButton);
@@ -116,7 +105,7 @@ public class ToolboxTests implements MyLienzoTest,
         shape1 = newShape(ColorName.BLUE);
         shape1.setX(50).setY(100);
 
-        buildGridToolbox(shape1);
+        // buildNewToolbox(shape1);
 
         shape2 = newShape(ColorName.RED);
         shape2.setX(400).setY(100);
@@ -127,20 +116,22 @@ public class ToolboxTests implements MyLienzoTest,
     }
 
     private void buildNewToolbox(final WiresShape shape) {
-        LayoutGrid grid = new LayoutGrid(BUTTON_PADDING,
-                                         (int) BUTTON_SIZE,
-                                         Direction.SOUTH_EAST,
-                                         4,
-                                         2);
+        grid2 = new LayoutGrid(BUTTON_PADDING,
+                               BUTTON_SIZE,
+                               Direction.SOUTH_EAST,
+                               4,
+                               2);
 
-        newToolbox = new WiresShapeItemsToolbox(shape)
-                .attachTo(layer)
+        toolbox2 = new WiresShapeToolbox(shape)
                 .at(Direction.NORTH_EAST)
-                .grid(grid);
+                .grid(grid2);
 
-        final ButtonItem item1 =
-                new ButtonItem(createButtonNode());
-        item1.onFocus(new Runnable() {
+        Rectangle b1 = createButtonNode();
+        final GroupItem item1 = new GroupItem();
+        item1.asPrimitive().add(b1);
+        toolbox2.add(item1);
+
+        /*item1.onFocus(new Runnable() {
             @Override
             public void run() {
                 GWT.log("NEW #FOCUS 1");
@@ -163,88 +154,8 @@ public class ToolboxTests implements MyLienzoTest,
             public void run() {
                 GWT.log("NEW #DOWN 1");
             }
-        });
+        });*/
 
-        final DecoratedButtonItem item2 =
-                new DecoratedButtonItem(createButtonNode(),
-                                        BUTTON_SIZE,
-                                        BUTTON_SIZE);
-        item2.onFocus(new Runnable() {
-            @Override
-            public void run() {
-                GWT.log("NEW #FOCUS 2");
-            }
-        });
-        item2.onUnFocus(new Runnable() {
-            @Override
-            public void run() {
-                GWT.log("NEW #UNFOCUS 2");
-            }
-        });
-        item2.onClick(new Runnable() {
-            @Override
-            public void run() {
-                GWT.log("NEW #CLICK 2");
-            }
-        });
-        item2.onDown(new Runnable() {
-            @Override
-            public void run() {
-                GWT.log("NEW #DOWN 2");
-            }
-        });
-
-        newToolbox.add(item1);
-        newToolbox.add(item2);
-    }
-
-    private void buildGridToolbox(final WiresShape shape) {
-        On on = Toolboxes.staticToolBoxFor(layer,
-                                           shape);
-
-        on.attachTo(shape.getPath());
-
-        ButtonGrid buttonGrid = on.on(Direction.NORTH)
-                .towards(Direction.SOUTH);
-
-        ButtonsOrRegister buttonsOrRegister = buttonGrid.grid(BUTTON_PADDING,
-                                                              (int) BUTTON_SIZE,
-                                                              1,
-                                                              1);
-        // Add toolbox buttons.
-        ToolboxButton button = new ToolboxButton(layer,
-                                                 createButtonNode(),
-                                                 BUTTON_PADDING,
-                                                 (int) BUTTON_SIZE,
-                                                 new ToolboxButtonEventHandler() {
-                                                     @Override
-                                                     public void fire(ToolboxButtonEvent event) {
-                                                         GWT.log("OLD #CLICK");
-                                                     }
-                                                 },
-                                                 new ToolboxButtonEventHandler() {
-                                                     @Override
-                                                     public void fire(ToolboxButtonEvent event) {
-                                                         GWT.log("OLD #MOUSE DOWN");
-                                                     }
-                                                 },
-                                                 new ToolboxButtonEventHandler() {
-                                                     @Override
-                                                     public void fire(ToolboxButtonEvent event) {
-                                                         GWT.log("OLD #MOUSE ENTER");
-                                                     }
-                                                 },
-                                                 new ToolboxButtonEventHandler() {
-                                                     @Override
-                                                     public void fire(ToolboxButtonEvent event) {
-                                                         GWT.log("OLD #MOUSE EXIT");
-                                                     }
-                                                 });
-        buttonsOrRegister.add(button);
-
-        gridToolbox = buttonsOrRegister.register();
-
-        gridToolbox.show();
     }
 
     private void resizeShape(final AbstractWiresResizeEvent event) {
@@ -253,8 +164,8 @@ public class ToolboxTests implements MyLienzoTest,
     private Rectangle createButtonNode() {
         return new Rectangle(BUTTON_SIZE,
                              BUTTON_SIZE)
-                .setFillColor(ColorName.RED)
-                .setFillAlpha(0.7d);
+                .setFillColor(ColorName.BLACK)
+                .setFillAlpha(1d);
     }
 
     private WiresShape newShape(final IColor color) {

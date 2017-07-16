@@ -14,23 +14,25 @@
  * limitations under the License.
  */
 
-package org.roger600.lienzo.client.toolboxNew;
+package org.roger600.lienzo.client.toolboxNew.grid;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import com.ait.lienzo.client.core.types.Point2D;
 import com.ait.lienzo.shared.core.types.Direction;
+import org.roger600.lienzo.client.toolboxNew.Grid;
 
 public class LayoutGrid implements Grid {
 
-    private int padding;
-    private int iconSize;
+    private double padding;
+    private double iconSize;
     private int rows;
     private int cols;
     private Direction towards;
 
-    public LayoutGrid(final int padding,
-                      final int iconSize,
+    public LayoutGrid(final double padding,
+                      final double iconSize,
                       final Direction towards,
                       final int rows,
                       final int cols) {
@@ -44,8 +46,8 @@ public class LayoutGrid implements Grid {
         this.cols = cols;
     }
 
-    LayoutGrid(final int padding,
-               final int iconSize) {
+    LayoutGrid(final double padding,
+               final double iconSize) {
         this(padding,
              iconSize,
              Direction.NORTH,
@@ -53,7 +55,7 @@ public class LayoutGrid implements Grid {
              1);
     }
 
-    @Override
+    /*@Override
     public Point findPosition(final Point anchorPoint) {
         int width = getWidth();
         int height = getHeight();
@@ -95,10 +97,10 @@ public class LayoutGrid implements Grid {
         }
         return new Grid.Point(x,
                               y);
-    }
+    }*/
 
     @Override
-    public Iterator<Grid.Point> iterator() {
+    public Iterator<Point2D> iterator() {
         return new GridIterator(this);
     }
 
@@ -125,11 +127,11 @@ public class LayoutGrid implements Grid {
         return cols;
     }
 
-    public int getPadding() {
+    public double getPadding() {
         return padding;
     }
 
-    public int getIconSize() {
+    public double getIconSize() {
         return iconSize;
     }
 
@@ -141,15 +143,15 @@ public class LayoutGrid implements Grid {
         return getRows() * getCols();
     }
 
-    public int getWidth() {
+    public double getWidth() {
         return calculateDistance(getCols());
     }
 
-    public int getHeight() {
+    public double getHeight() {
         return calculateDistance(getRows());
     }
 
-    protected static class GridIterator implements Iterator<Grid.Point> {
+    protected static class GridIterator implements Iterator<Point2D> {
 
         private final LayoutGrid grid;
         private int currentRow = 0;
@@ -173,7 +175,7 @@ public class LayoutGrid implements Grid {
         }
 
         @Override
-        public Grid.Point next() {
+        public Point2D next() {
             if (!hasNext()) {
                 throw new NoSuchElementException();
             }
@@ -195,8 +197,8 @@ public class LayoutGrid implements Grid {
         }
     }
 
-    private Grid.Point findPosition(final int row,
-                                    final int col) {
+    private Point2D findPosition(final int row,
+                                 final int col) {
         if (!isInRange(row,
                        getRows())) {
             throw new IllegalArgumentException(
@@ -209,13 +211,13 @@ public class LayoutGrid implements Grid {
                     col + " is incorrect col value. Value have to be from 0 to " + (getCols() - 1)
             );
         }
-        int x = calculateDistance(col);
-        int y = calculateDistance(row);
-        return new Grid.Point(x,
-                              y);
+        double x = calculateDistance(col);
+        double y = calculateDistance(row);
+        return new Point2D(x,
+                           y);
     }
 
-    private int calculateDistance(final int position) {
+    private double calculateDistance(final int position) {
         return padding + (position * (padding + iconSize));
     }
 

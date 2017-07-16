@@ -1,8 +1,10 @@
-package org.roger600.lienzo.client.toolboxNew;
+package org.roger600.lienzo.client.toolboxNew.grid;
 
 import java.util.Iterator;
 
+import com.ait.lienzo.client.core.types.Point2D;
 import com.ait.lienzo.shared.core.types.Direction;
+import org.roger600.lienzo.client.toolboxNew.Grid;
 
 public class AutoGrid implements Grid {
 
@@ -15,8 +17,8 @@ public class AutoGrid implements Grid {
     private GridDirection direction;
     private int max;
 
-    public AutoGrid(final int padding,
-                    final int iconSize,
+    public AutoGrid(final double padding,
+                    final double iconSize,
                     final GridDirection direction,
                     final int max) {
         if (padding < 0 || iconSize < 0 || max < 1 || null == direction) {
@@ -27,26 +29,28 @@ public class AutoGrid implements Grid {
         this.direction = direction;
         this.max = max;
     }
-
+/*
     @Override
     public Point findPosition(final Point anchorPoint) {
         return delegate.findPosition(anchorPoint);
     }
 
+   */
+
     @Override
-    public Iterator<Point> iterator() {
+    public Iterator<Point2D> iterator() {
         return delegate.iterator();
     }
 
     public AutoGrid update(final Direction at,
                            final int itemsCount,
                            final int maxSize) {
-        final int padding = delegate.getPadding();
-        final int iconSize = delegate.getIconSize();
-        final int size = padding + iconSize;
+        final double padding = delegate.getPadding();
+        final double iconSize = delegate.getIconSize();
+        final double size = padding + iconSize;
         int fixed = 0;
         int acc = 0;
-        int currentSize = padding;
+        double currentSize = padding;
         for (int i = 0; i < itemsCount; i++) {
             if ((currentSize + size) > maxSize) {
                 currentSize = padding;
