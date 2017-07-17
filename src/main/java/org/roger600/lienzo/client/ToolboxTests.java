@@ -5,16 +5,10 @@ import com.ait.lienzo.client.core.shape.MultiPath;
 import com.ait.lienzo.client.core.shape.Rectangle;
 import com.ait.lienzo.client.core.shape.wires.WiresManager;
 import com.ait.lienzo.client.core.shape.wires.WiresShape;
-import com.ait.lienzo.client.core.shape.wires.event.AbstractWiresResizeEvent;
-import com.ait.lienzo.client.core.shape.wires.event.WiresResizeEndEvent;
-import com.ait.lienzo.client.core.shape.wires.event.WiresResizeEndHandler;
-import com.ait.lienzo.client.core.shape.wires.event.WiresResizeStartEvent;
-import com.ait.lienzo.client.core.shape.wires.event.WiresResizeStartHandler;
-import com.ait.lienzo.client.core.shape.wires.event.WiresResizeStepEvent;
-import com.ait.lienzo.client.core.shape.wires.event.WiresResizeStepHandler;
 import com.ait.lienzo.shared.core.types.ColorName;
 import com.ait.lienzo.shared.core.types.Direction;
 import com.ait.lienzo.shared.core.types.IColor;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -28,8 +22,9 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import org.roger600.lienzo.client.toolboxNew.grid.LayoutGrid;
-import org.roger600.lienzo.client.toolboxNew.impl2.GroupItem;
+import org.roger600.lienzo.client.toolboxNew.impl2.ext.ToolboxFactory;
 import org.roger600.lienzo.client.toolboxNew.impl2.ext.WiresShapeToolbox;
+import org.roger600.lienzo.client.toolboxNew.impl2.item.ButtonItem;
 
 public class ToolboxTests implements MyLienzoTest,
                                      HasMediators,
@@ -66,49 +61,12 @@ public class ToolboxTests implements MyLienzoTest,
                                iTowards,
                                iRows,
                                iCols);
-
-        toolbox1 = new WiresShapeToolbox(shape1)
+        toolbox1 = ToolboxFactory.forWiresShape(shape1)
+                .attachTo(layer.getScene().getTopLayer())
                 .at(iAt)
                 .grid(grid1);
-
-        Rectangle b1 = createButtonNode(ColorName.BLACK);
-        final GroupItem item1 = new GroupItem();
-        item1.asPrimitive().add(b1);
-        toolbox1.add(item1);
-
-        Rectangle b2 = createButtonNode(ColorName.GREY);
-        final GroupItem item2 = new GroupItem();
-        item2.asPrimitive().add(b2);
-        toolbox1.add(item2);
-
-        /*item1.onFocus(new Runnable() {
-            @Override
-            public void run() {
-                GWT.log("NEW #FOCUS 1");
-            }
-        });
-        item1.onUnFocus(new Runnable() {
-            @Override
-            public void run() {
-                GWT.log("NEW #UNFOCUS 1");
-            }
-        });
-        item1.onClick(new Runnable() {
-            @Override
-            public void run() {
-                GWT.log("NEW #CLICK 1");
-            }
-        });
-        item1.onDown(new Runnable() {
-            @Override
-            public void run() {
-                GWT.log("NEW #DOWN 1");
-            }
-        });*/
-
-    }
-
-    private void resizeShape(final AbstractWiresResizeEvent event) {
+        addItem();
+        addItem();
     }
 
     private void at(Direction direction) {
@@ -137,8 +95,13 @@ public class ToolboxTests implements MyLienzoTest,
 
     private void addItem() {
         Rectangle b1 = createButtonNode(ColorName.values()[Random.nextInt(ColorName.values().length)]);
-        final GroupItem item1 = new GroupItem();
-        item1.asPrimitive().add(b1);
+        final ButtonItem item1 = new ButtonItem(b1);
+        item1.onClick(new Runnable() {
+            @Override
+            public void run() {
+                GWT.log("BUTTON CLICK!!");
+            }
+        });
         itemCount++;
 
         toolbox1.add(item1);
@@ -167,24 +130,6 @@ public class ToolboxTests implements MyLienzoTest,
         shape.setDraggable(true);
         wiresManager.getMagnetManager().createMagnets(shape);
         TestsUtils.addResizeHandlers(shape);
-        shape.addWiresResizeStartHandler(new WiresResizeStartHandler() {
-            @Override
-            public void onShapeResizeStart(WiresResizeStartEvent event) {
-                resizeShape(event);
-            }
-        });
-        shape.addWiresResizeStepHandler(new WiresResizeStepHandler() {
-            @Override
-            public void onShapeResizeStep(WiresResizeStepEvent event) {
-                resizeShape(event);
-            }
-        });
-        shape.addWiresResizeEndHandler(new WiresResizeEndHandler() {
-            @Override
-            public void onShapeResizeEnd(WiresResizeEndEvent event) {
-                resizeShape(event);
-            }
-        });
         return shape;
     }
 

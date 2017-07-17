@@ -1,7 +1,9 @@
-package org.roger600.lienzo.client.toolboxNew.impl2;
+package org.roger600.lienzo.client.toolboxNew.impl2.item;
 
 import com.ait.lienzo.client.core.shape.Group;
+import com.ait.lienzo.client.core.shape.IPrimitive;
 import org.roger600.lienzo.client.toolboxNew.Item;
+import org.roger600.lienzo.client.toolboxNew.impl2.AbstractItem;
 
 public class GroupItem extends AbstractItem<GroupItem, Group> implements Item<GroupItem> {
 
@@ -32,7 +34,17 @@ public class GroupItem extends AbstractItem<GroupItem, Group> implements Item<Gr
         });
     }
 
-    GroupItem show(final Runnable pre) {
+    public GroupItem add(final IPrimitive<?> iPrimitive) {
+        group.add(iPrimitive);
+        return this;
+    }
+
+    public GroupItem remove(final IPrimitive<?> iPrimitive) {
+        group.remove(iPrimitive);
+        return this;
+    }
+
+    public GroupItem show(final Runnable pre) {
         if (!isVisible()) {
             pre.run();
             group.setAlpha(1);
@@ -40,7 +52,7 @@ public class GroupItem extends AbstractItem<GroupItem, Group> implements Item<Gr
         return this;
     }
 
-    GroupItem hide(final Runnable pre) {
+    public GroupItem hide(final Runnable pre) {
         if (isVisible()) {
             pre.run();
             group.setAlpha(0);

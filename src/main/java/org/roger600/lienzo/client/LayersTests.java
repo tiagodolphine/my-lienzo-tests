@@ -7,10 +7,12 @@ import com.ait.lienzo.client.core.event.AttributesChangedHandler;
 import com.ait.lienzo.client.core.event.IAttributesChangedBatcher;
 import com.ait.lienzo.client.core.event.NodeMouseClickEvent;
 import com.ait.lienzo.client.core.event.NodeMouseClickHandler;
+import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.shape.IPrimitive;
 import com.ait.lienzo.client.core.shape.Layer;
 import com.ait.lienzo.client.core.shape.Rectangle;
 import com.ait.lienzo.client.core.types.BoundingBox;
+import com.ait.lienzo.client.core.types.Point2D;
 import com.ait.lienzo.client.widget.LienzoPanel;
 import com.ait.lienzo.shared.core.types.ColorName;
 import com.ait.tooling.common.api.flow.Flows;
@@ -32,6 +34,7 @@ public class LayersTests implements MyLienzoTest,
     private LienzoPanel lienzoPanel;
     private Layer layer;
     private Rectangle shape;
+    private Group group;
     private Rectangle item1;
 
     @Override
@@ -54,11 +57,16 @@ public class LayersTests implements MyLienzoTest,
 
         shape = new Rectangle(50,
                               50)
-                .setX(50)
-                .setY(50)
+                .setX(0)
+                .setY(0)
                 .setFillColor(ColorName.RED)
                 .setDraggable(true);
-        layer.add(shape);
+
+        group = new Group()
+                .setX(100)
+                .setY(100);
+        group.add(shape);
+        layer.add(group);
 
         initAttChangedHandler(shape,
                               new Runnable() {
@@ -70,8 +78,6 @@ public class LayersTests implements MyLienzoTest,
 
         item1 = new Rectangle(15,
                               15)
-                .setX(100)
-                .setY(50)
                 .setFillColor(ColorName.BLACK)
                 .setDraggable(true);
 
@@ -82,12 +88,16 @@ public class LayersTests implements MyLienzoTest,
             }
         });
         topLayer.add(item1);
+
+        updateItems();
     }
 
     private void updateItems() {
         GWT.log("UPDATE TOOLBOX ITEMS!!");
-        item1.setX(shape.getX() + shape.getWidth());
-        item1.setY(shape.getY());
+        Point2D groupLoc = group.getComputedLocation();
+        Point2D loc = new Point2D(shape.getX() + shape.getWidth(),
+                                  shape.getY());
+        item1.setLocation(loc.offset(groupLoc));
         item1.getLayer().batch();
     }
 

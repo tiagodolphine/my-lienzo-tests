@@ -3,6 +3,7 @@ package org.roger600.lienzo.client.toolboxNew.impl2;
 import java.util.Iterator;
 
 import com.ait.lienzo.client.core.types.BoundingBox;
+import com.ait.lienzo.client.core.types.Point2D;
 import com.ait.lienzo.shared.core.types.Direction;
 import org.roger600.lienzo.client.toolboxNew.ItemsToolbox;
 import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
@@ -36,7 +37,7 @@ public class ItemsToolboxImpl<G extends Point2DGrid, I extends AbstractItem>
     };
 
     private void init() {
-        toolbox.asPrimitive().add(itemsGroup.asPrimitive());
+        toolbox.getGroupItem().add(itemsGroup.asPrimitive());
         toolbox.onRefresh(refreshCallback);
         itemsGroup.onRefresh(refreshCallback);
     }
@@ -44,6 +45,11 @@ public class ItemsToolboxImpl<G extends Point2DGrid, I extends AbstractItem>
     @Override
     public ItemsToolboxImpl at(final Direction at) {
         toolbox.at(at);
+        return this;
+    }
+
+    public ItemsToolboxImpl offset(final Point2D p) {
+        toolbox.offset(p);
         return this;
     }
 

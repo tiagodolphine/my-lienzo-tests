@@ -8,6 +8,7 @@ import com.ait.lienzo.client.core.types.Point2D;
 import com.google.gwt.core.client.GWT;
 import org.roger600.lienzo.client.toolboxNew.ContainerItem;
 import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
+import org.roger600.lienzo.client.toolboxNew.impl2.item.GroupItem;
 
 public class ItemsGroup<G extends Point2DGrid, I extends AbstractItem>
         extends AbstractGroupItem<ItemsGroup>
@@ -39,8 +40,7 @@ public class ItemsGroup<G extends Point2DGrid, I extends AbstractItem>
     @Override
     public ItemsGroup grid(final G grid) {
         this.grid = grid;
-        repositionItems();
-        return this;
+        return checkReposition();
     }
 
     @Override
@@ -53,27 +53,36 @@ public class ItemsGroup<G extends Point2DGrid, I extends AbstractItem>
             } else {
                 button.hide();
             }
-            asPrimitive().add(button.asPrimitive());
+            getGroupItem().add(button.asPrimitive());
         }
-        repositionItems();
-        return this;
+        return checkReposition();
     }
 
     @Override
     public ItemsGroup show() {
-        super.show();
-        for (final I button : items) {
-            button.show();
-        }
+        super.getGroupItem().show(new Runnable() {
+            @Override
+            public void run() {
+                repositionItems();
+                for (final I button : items) {
+                    button.show();
+                }
+            }
+        });
         return this;
     }
 
     @Override
     public ItemsGroup hide() {
-        super.hide();
-        for (final I button : items) {
-            button.hide();
-        }
+        super.getGroupItem().hide(new Runnable() {
+            @Override
+            public void run() {
+                for (final I button : items) {
+                    button.hide();
+                }
+                fireRefresh();
+            }
+        });
         return this;
     }
 
@@ -83,7 +92,7 @@ public class ItemsGroup<G extends Point2DGrid, I extends AbstractItem>
             @Override
             protected void remove(final I item) {
                 items.remove(item);
-                repositionItems();
+                checkReposition();
             }
         };
     }
@@ -93,15 +102,28 @@ public class ItemsGroup<G extends Point2DGrid, I extends AbstractItem>
         super.destroy();
         items.clear();
         grid = null;
+        refreshCallback = null;
     }
 
-    private void repositionItems() {
+    private ItemsGroup checkReposition() {
+        if (getGroupItem().isVisible()) {
+            return repositionItems();
+        }
+        return this;
+    }
+
+    private ItemsGroup repositionItems() {
         final Iterator<Point2D> gridIterator = grid.iterator();
         for (final AbstractItem button : items) {
             final Point2D point = gridIterator.next();
             GWT.log("BUTTON AT = " + point);
             button.asPrimitive().setLocation(point);
         }
+        fireRefresh();
+        return this;
+    }
+
+    private void fireRefresh() {
         if (null != refreshCallback) {
             refreshCallback.run();
         }

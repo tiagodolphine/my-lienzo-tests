@@ -6,6 +6,7 @@ import com.ait.lienzo.shared.core.types.Direction;
 import com.google.gwt.core.client.GWT;
 import org.roger600.lienzo.client.toolboxNew.Positions;
 import org.roger600.lienzo.client.toolboxNew.Toolbox;
+import org.roger600.lienzo.client.toolboxNew.impl2.item.GroupItem;
 import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
 public class ToolboxImpl
@@ -40,14 +41,12 @@ public class ToolboxImpl
     @Override
     public ToolboxImpl at(final Direction at) {
         this.at = at;
-        reposition();
-        return this;
+        return checkReposition();
     }
 
     public ToolboxImpl offset(final Point2D p) {
         this.offset = p;
-        reposition();
-        return this;
+        return checkReposition();
     }
 
     @Override
@@ -66,15 +65,14 @@ public class ToolboxImpl
         super.getGroupItem().hide(new Runnable() {
             @Override
             public void run() {
-                reposition();
+                fireRefresh();
             }
         });
         return this;
     }
 
     public ToolboxImpl refresh() {
-        reposition();
-        return this;
+        return checkReposition();
     }
 
     public ToolboxImpl onRefresh(final Runnable refreshCallback) {
@@ -86,6 +84,14 @@ public class ToolboxImpl
     public void destroy() {
         super.destroy();
         at = null;
+        refreshCallback = null;
+    }
+
+    private ToolboxImpl checkReposition() {
+        if (getGroupItem().isVisible()) {
+            reposition();
+        }
+        return this;
     }
 
     private void reposition() {
@@ -95,6 +101,10 @@ public class ToolboxImpl
         GWT.log("OFFSET = " + offset);
         GWT.log("LOC = " + loc);
         asPrimitive().setLocation(loc.offset(offset));
+        fireRefresh();
+    }
+
+    private void fireRefresh() {
         if (null != refreshCallback) {
             refreshCallback.run();
         }

@@ -1,10 +1,15 @@
 package org.roger600.lienzo.client.toolboxNew.impl2;
 
 import com.ait.lienzo.client.core.shape.Group;
+import org.roger600.lienzo.client.toolboxNew.impl2.item.GroupItem;
 
 public abstract class AbstractGroupItem<T extends AbstractGroupItem> extends AbstractItem<T, Group> {
 
     private final GroupItem groupItem;
+
+    protected AbstractGroupItem() {
+        this(new GroupItem());
+    }
 
     protected AbstractGroupItem(final GroupItem groupItem) {
         this.groupItem = groupItem;
@@ -32,7 +37,7 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem> extends Abs
         return groupItem.asPrimitive();
     }
 
-    GroupItem getGroupItem() {
+    public GroupItem getGroupItem() {
         return groupItem;
     }
 
