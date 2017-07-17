@@ -21,7 +21,8 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import org.roger600.lienzo.client.toolboxNew.grid.LayoutGrid;
+import org.roger600.lienzo.client.toolboxNew.grid.AutoGrid;
+import org.roger600.lienzo.client.toolboxNew.grid.FixedLayoutGrid;
 import org.roger600.lienzo.client.toolboxNew.impl2.ext.ToolboxFactory;
 import org.roger600.lienzo.client.toolboxNew.impl2.ext.WiresShapeToolbox;
 import org.roger600.lienzo.client.toolboxNew.impl2.item.ButtonItem;
@@ -36,11 +37,13 @@ public class ToolboxTests implements MyLienzoTest,
     private static final int iRows = 4;
     private static final Direction iAt = Direction.NORTH_EAST;
     private static final Direction iTowards = Direction.SOUTH_EAST;
+    private static final AutoGrid.GridDirection iAutoDirection = AutoGrid.GridDirection.VERTICAL;
 
     private Layer layer;
     private WiresManager wiresManager;
     private WiresShape shape1;
-    private LayoutGrid grid1;
+    private FixedLayoutGrid grid1;
+    private AutoGrid autoGrid1;
     private WiresShapeToolbox toolbox1;
     private int itemCount = 0;
 
@@ -56,17 +59,30 @@ public class ToolboxTests implements MyLienzoTest,
     }
 
     private void buildToolbox1() {
-        grid1 = new LayoutGrid(BUTTON_PADDING,
-                               BUTTON_SIZE,
-                               iTowards,
-                               iRows,
-                               iCols);
+
+        grid1 = new FixedLayoutGrid(BUTTON_PADDING,
+                                    BUTTON_SIZE,
+                                    iTowards,
+                                    iRows,
+                                    iCols);
+
+        autoGrid1 = new AutoGrid.Builder()
+                .withPadding(BUTTON_PADDING)
+                .withIconSize(BUTTON_SIZE)
+                .towardsDirection(iAutoDirection)
+                .forShape(shape1)
+                .build();
+
         toolbox1 = ToolboxFactory.forWiresShape(shape1)
                 .attachTo(layer.getScene().getTopLayer())
                 .at(iAt)
                 .grid(grid1);
         addItem();
         addItem();
+    }
+
+    private void autoDirection(AutoGrid.GridDirection direction) {
+        toolbox1.grid(autoGrid1.direction(direction));
     }
 
     private void at(Direction direction) {
@@ -78,11 +94,11 @@ public class ToolboxTests implements MyLienzoTest,
     }
 
     private void rows(int rows) {
-        toolbox1.grid(grid1.setRows(rows));
+        toolbox1.grid(grid1.rows(rows));
     }
 
     private void cols(int cols) {
-        toolbox1.grid(grid1.setCols(cols));
+        toolbox1.grid(grid1.columns(cols));
     }
 
     private void show() {
@@ -111,6 +127,14 @@ public class ToolboxTests implements MyLienzoTest,
         toolbox1.iterator().remove();
     }
 
+    private void useFixedGrid() {
+        toolbox1.grid(grid1);
+    }
+
+    private void useAutoGrid() {
+        toolbox1.grid(autoGrid1);
+    }
+
     private Rectangle createButtonNode(final IColor color) {
         return new Rectangle(BUTTON_SIZE,
                              BUTTON_SIZE)
@@ -122,8 +146,8 @@ public class ToolboxTests implements MyLienzoTest,
 
     private WiresShape newShape(final IColor color) {
         MultiPath path = TestsUtils.rect(new MultiPath().setFillColor(color),
-                                         150,
                                          50,
+                                         100,
                                          0);
         final WiresShape shape = new WiresShape(path);
         wiresManager.register(shape);
@@ -177,6 +201,24 @@ public class ToolboxTests implements MyLienzoTest,
             }
         });
         hPanel1.add(removeItemButton);
+
+        Button useFixedGridButton = new Button("Fixed grid");
+        useFixedGridButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                useFixedGrid();
+            }
+        });
+        hPanel1.add(useFixedGridButton);
+
+        Button useAutoGridButton = new Button("Auto grid");
+        useAutoGridButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                useAutoGrid();
+            }
+        });
+        hPanel1.add(useAutoGridButton);
 
         final HorizontalPanel hPanel2 = new HorizontalPanel();
         hPanel2.setSpacing(5);
@@ -245,6 +287,27 @@ public class ToolboxTests implements MyLienzoTest,
         });
         hPanel3.add(colsLabel);
         hPanel3.add(colsBox);
+
+        final HorizontalPanel hPanel4 = new HorizontalPanel();
+        hPanel4.setSpacing(5);
+        vPanel.add(hPanel4);
+
+        final Label autoDirectionLabel = new Label("Auto direction: ");
+        final ListBox autoDirectionButton = new ListBox();
+        for (AutoGrid.GridDirection d : AutoGrid.GridDirection.values()) {
+            autoDirectionButton.addItem(d.name());
+        }
+        autoDirectionButton.addChangeHandler(new ChangeHandler() {
+            @Override
+            public void onChange(ChangeEvent event) {
+                int index = autoDirectionButton.getSelectedIndex();
+                AutoGrid.GridDirection direction = AutoGrid.GridDirection.values()[index];
+                autoDirection(direction);
+            }
+        });
+        autoDirectionButton.setSelectedIndex(iAutoDirection.ordinal());
+        hPanel4.add(autoDirectionLabel);
+        hPanel4.add(autoDirectionButton);
 
         panel.add(vPanel);
     }

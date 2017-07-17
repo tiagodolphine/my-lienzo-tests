@@ -10,7 +10,7 @@ import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
 import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
 public class ItemsToolboxImpl<G extends Point2DGrid, I extends AbstractItem>
-        extends AbstractGroupItem<ItemsToolboxImpl>
+        extends AbstractGroupContainerItem<ItemsToolboxImpl, G, I>
         implements ItemsToolbox<ItemsToolboxImpl, G, I> {
 
     private final ToolboxImpl toolbox;
@@ -79,6 +79,7 @@ public class ItemsToolboxImpl<G extends Point2DGrid, I extends AbstractItem>
 
     public ItemsToolboxImpl refresh() {
         toolbox.refresh();
+        itemsGroup.refresh();
         return this;
     }
 
@@ -94,5 +95,10 @@ public class ItemsToolboxImpl<G extends Point2DGrid, I extends AbstractItem>
         super.destroy();
         itemsGroup.destroy();
         toolbox.destroy();
+    }
+
+    @Override
+    public G getGrid() {
+        return itemsGroup.getGrid();
     }
 }

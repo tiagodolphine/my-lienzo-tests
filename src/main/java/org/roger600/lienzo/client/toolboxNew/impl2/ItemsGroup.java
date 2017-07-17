@@ -11,12 +11,12 @@ import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
 import org.roger600.lienzo.client.toolboxNew.impl2.item.GroupItem;
 
 public class ItemsGroup<G extends Point2DGrid, I extends AbstractItem>
-        extends AbstractGroupItem<ItemsGroup>
+        extends AbstractGroupContainerItem<ItemsGroup, G, I>
         implements ContainerItem<ItemsGroup, G, I> {
 
     private final List<I> items = new LinkedList<>();
-    private Runnable refreshCallback;
     private G grid;
+    private Runnable refreshCallback;
 
     public ItemsGroup() {
         this(new GroupItem());
@@ -30,11 +30,6 @@ public class ItemsGroup<G extends Point2DGrid, I extends AbstractItem>
                 asPrimitive().getLayer().batch();
             }
         };
-    }
-
-    public ItemsGroup onRefresh(final Runnable refreshCallback) {
-        this.refreshCallback = refreshCallback;
-        return this;
     }
 
     @Override
@@ -72,6 +67,15 @@ public class ItemsGroup<G extends Point2DGrid, I extends AbstractItem>
         return this;
     }
 
+    public ItemsGroup onRefresh(final Runnable refreshCallback) {
+        this.refreshCallback = refreshCallback;
+        return this;
+    }
+
+    public ItemsGroup refresh() {
+        return checkReposition();
+    }
+
     @Override
     public ItemsGroup hide() {
         super.getGroupItem().hide(new Runnable() {
@@ -101,8 +105,12 @@ public class ItemsGroup<G extends Point2DGrid, I extends AbstractItem>
     public void destroy() {
         super.destroy();
         items.clear();
-        grid = null;
         refreshCallback = null;
+    }
+
+    @Override
+    public G getGrid() {
+        return grid;
     }
 
     private ItemsGroup checkReposition() {
@@ -113,7 +121,7 @@ public class ItemsGroup<G extends Point2DGrid, I extends AbstractItem>
     }
 
     private ItemsGroup repositionItems() {
-        final Iterator<Point2D> gridIterator = grid.iterator();
+        final Iterator<Point2D> gridIterator = getGrid().iterator();
         for (final AbstractItem button : items) {
             final Point2D point = gridIterator.next();
             GWT.log("BUTTON AT = " + point);

@@ -1,130 +1,192 @@
 package org.roger600.lienzo.client.toolboxNew.grid;
 
-import java.util.Iterator;
-
+import com.ait.lienzo.client.core.shape.wires.WiresShape;
+import com.ait.lienzo.client.core.types.BoundingBox;
 import com.ait.lienzo.client.core.types.Point2D;
 import com.ait.lienzo.shared.core.types.Direction;
-import org.roger600.lienzo.client.toolboxNew.Grid;
 
-public class AutoGrid implements Grid {
+public class AutoGrid extends AbstractLayoutGrid<AutoGrid> implements SizeConstrainedGrid<Point2D> {
 
     public enum GridDirection {
         HORIZONTAL,
         VERTICAL;
+
+        public static boolean isHorizontal(final GridDirection direction) {
+            return GridDirection.HORIZONTAL.equals(direction);
+        }
+
+        public static boolean isVertical(final GridDirection direction) {
+            return GridDirection.VERTICAL.equals(direction);
+        }
     }
 
-    private final LayoutGrid delegate;
+    public static class Builder {
+
+        private double pad = 5d;
+        private double size = 15d;
+        private GridDirection direction = GridDirection.HORIZONTAL;
+        private WiresShape shape = null;
+
+        public Builder withPadding(double size) {
+            this.pad = size;
+            return this;
+        }
+
+        public Builder withIconSize(double size) {
+            this.size = size;
+            return this;
+        }
+
+        public Builder towardsDirection(GridDirection direction) {
+            this.direction = direction;
+            return this;
+        }
+
+        public Builder forShape(WiresShape shape) {
+            this.shape = shape;
+            return this;
+        }
+
+        public AutoGrid build() {
+            assert null != shape;
+            final BoundingBox boundingBox = shape.getPath().getBoundingBox();
+            final double max = GridDirection.isHorizontal(direction) ?
+                    boundingBox.getWidth() :
+                    boundingBox.getHeight();
+            return new AutoGrid(pad,
+                                size,
+                                direction,
+                                max);
+        }
+    }
+
     private GridDirection direction;
-    private int max;
+    private double maxSize;
 
     public AutoGrid(final double padding,
                     final double iconSize,
                     final GridDirection direction,
-                    final int max) {
-        if (padding < 0 || iconSize < 0 || max < 1 || null == direction) {
+                    final double maxSize) {
+        super(padding,
+              iconSize);
+        if (maxSize < 1 || null == direction) {
             throw new IllegalArgumentException("Not possible to instantiate grid.");
         }
-        this.delegate = new LayoutGrid(padding,
-                                       iconSize);
         this.direction = direction;
-        this.max = max;
-    }
-/*
-    @Override
-    public Point findPosition(final Point anchorPoint) {
-        return delegate.findPosition(anchorPoint);
+        this.maxSize = maxSize;
     }
 
-   */
-
-    @Override
-    public Iterator<Point2D> iterator() {
-        return delegate.iterator();
-    }
-
-    public AutoGrid update(final Direction at,
-                           final int itemsCount,
-                           final int maxSize) {
-        final double padding = delegate.getPadding();
-        final double iconSize = delegate.getIconSize();
-        final double size = padding + iconSize;
-        int fixed = 0;
-        int acc = 0;
-        double currentSize = padding;
-        for (int i = 0; i < itemsCount; i++) {
-            if ((currentSize + size) > maxSize) {
-                currentSize = padding;
-                acc = 0;
-                fixed += 1;
-            }
-            currentSize += size;
-            acc++;
-        }
-
-        final int rows = isH() ? fixed : acc;
-        final int cols = isV() ? acc : fixed;
-        final Direction direction = translateDirection(at,
-                                                       this.direction);
-        delegate.towards(direction)
-                .setRows(rows)
-                .setCols(cols);
+    public AutoGrid direction(final GridDirection direction) {
+        this.direction = direction;
         return this;
     }
 
-    private static Direction translateDirection(final Direction at,
-                                                final GridDirection direction) {
-        switch (direction) {
-            case HORIZONTAL:
-                return isN(at) || isNE(at)
-                        || isS(at) || isSE(at) ?
-                        Direction.EAST :
-                        Direction.WEST;
-            case VERTICAL:
-                return isN(at) || isNE(at)
-                        || isNW(at) ?
-                        Direction.SOUTH :
-                        Direction.NORTH;
+    @Override
+    public void setSize(final double width,
+                        final double height) {
+        if (GridDirection.isHorizontal(getDirection())) {
+            maxSize(width);
+        } else {
+            maxSize(height);
         }
-        return Direction.NONE;
     }
 
-    private boolean isH() {
-        return GridDirection.HORIZONTAL.equals(direction);
+    public AutoGrid maxSize(final double size) {
+        this.maxSize = size;
+        return this;
     }
 
-    private boolean isV() {
-        return GridDirection.VERTICAL.equals(direction);
+    public GridDirection getDirection() {
+        return direction;
     }
 
-    private static boolean isN(final Direction at) {
-        return Direction.NORTH.equals(at);
+    public double getMaxSize() {
+        return maxSize;
     }
 
-    private static boolean isNE(final Direction at) {
-        return Direction.NORTH_EAST.equals(at);
+    @Override
+    protected AbstractGridLayoutIterator createIterator() {
+        return new AutoGridLayoutIterator(getPadding(),
+                                          getIconSize(),
+                                          getDirection(),
+                                          getMaxSize());
     }
 
-    private static boolean isNW(final Direction at) {
-        return Direction.NORTH_WEST.equals(at);
+    private static class AutoGridLayoutIterator extends AbstractGridLayoutIterator {
+
+        private final double padding;
+        private final double iconSize;
+        private final Direction towards;
+        private final int maxRows;
+        private final int maxCols;
+        private int currentRow;
+        private int currentColumn;
+
+        private AutoGridLayoutIterator(final double padding,
+                                       final double iconSize,
+                                       final GridDirection direction,
+                                       final double maxSize) {
+            this.padding = padding;
+            this.iconSize = iconSize;
+            this.towards = translateDirection(direction);
+
+            final double d1 = getPadding() + getIconSize();
+            final int maxItems = (int) (maxSize / d1); // Round down to an integer index value.
+            if (GridDirection.isHorizontal(direction)) {
+                maxRows = -1;
+                currentRow = 0;
+                maxCols = maxItems;
+                currentColumn = -1;
+            } else {
+                maxRows = maxItems;
+                currentColumn = 0;
+                maxCols = -1;
+                currentRow = -1;
+            }
+        }
+
+        @Override
+        protected double getPadding() {
+            return padding;
+        }
+
+        @Override
+        protected double getIconSize() {
+            return iconSize;
+        }
+
+        @Override
+        protected Direction getTowards() {
+            return towards;
+        }
+
+        // Provides an infinite grid, it just grows.
+        @Override
+        public boolean hasNext() {
+            return true;
+        }
+
+        @Override
+        protected int[] getNextIndex() {
+            if (currentRow == (maxRows - 1)) {
+                currentRow = -1;
+                currentColumn++;
+            } else if (currentColumn == (maxCols - 1)) {
+                currentColumn = -1;
+                currentRow++;
+            }
+            if (maxCols > -1) {
+                currentColumn++;
+            } else if (maxRows > -1) {
+                currentRow++;
+            }
+            return new int[]{currentRow, currentColumn};
+        }
     }
 
-    private static boolean isS(final Direction at) {
-        return Direction.SOUTH.equals(at);
-    }
-
-    private static boolean isSE(final Direction at) {
-        return Direction.SOUTH_EAST.equals(at);
-    }
-
-    private static boolean isSW(final Direction at) {
-        return Direction.SOUTH_WEST.equals(at);
-    }
-
-    private static boolean isE(final Direction at) {
-        return Direction.EAST.equals(at);
-    }
-
-    private static boolean isW(final Direction at) {
-        return Direction.WEST.equals(at);
+    private static Direction translateDirection(final GridDirection direction) {
+        return GridDirection.isHorizontal(direction) ?
+                Direction.EAST :
+                Direction.SOUTH;
     }
 }

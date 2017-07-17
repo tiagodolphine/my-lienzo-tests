@@ -24,6 +24,7 @@ import com.ait.lienzo.client.core.types.Point2D;
 import com.ait.tooling.nativetools.client.event.HandlerRegistrationManager;
 import org.roger600.lienzo.client.toolboxNew.ItemsToolbox;
 import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
+import org.roger600.lienzo.client.toolboxNew.grid.SizeConstrainedGrid;
 import org.roger600.lienzo.client.toolboxNew.impl2.AbstractItem;
 import org.roger600.lienzo.client.toolboxNew.impl2.DelegateItemsToolbox;
 import org.roger600.lienzo.client.toolboxNew.impl2.ItemsToolboxImpl;
@@ -113,6 +114,12 @@ public class WiresShapeToolbox extends DelegateItemsToolbox<WiresShapeToolbox, P
 
     private void onResize(final AbstractWiresResizeEvent event) {
         offset((WiresContainer) event.getShape());
+        // If the grid is constrained by size, update it.
+        final Point2DGrid grid = toolbox.getGrid();
+        if (grid instanceof SizeConstrainedGrid) {
+            ((SizeConstrainedGrid) grid).setSize(event.getWidth(),
+                                                 event.getHeight());
+        }
         toolbox.refresh();
     }
 
