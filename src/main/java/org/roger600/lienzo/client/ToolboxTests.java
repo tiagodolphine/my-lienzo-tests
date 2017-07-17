@@ -37,7 +37,7 @@ public class ToolboxTests implements MyLienzoTest,
     private static final int iRows = 4;
     private static final Direction iAt = Direction.NORTH_EAST;
     private static final Direction iTowards = Direction.SOUTH_EAST;
-    private static final AutoGrid.GridDirection iAutoDirection = AutoGrid.GridDirection.VERTICAL;
+    private static final Direction iAutoDirection = Direction.SOUTH;
 
     private Layer layer;
     private WiresManager wiresManager;
@@ -69,7 +69,7 @@ public class ToolboxTests implements MyLienzoTest,
         autoGrid1 = new AutoGrid.Builder()
                 .withPadding(BUTTON_PADDING)
                 .withIconSize(BUTTON_SIZE)
-                .towardsDirection(iAutoDirection)
+                .towards(iAutoDirection)
                 .forShape(shape1)
                 .build();
 
@@ -81,7 +81,7 @@ public class ToolboxTests implements MyLienzoTest,
         addItem();
     }
 
-    private void autoDirection(AutoGrid.GridDirection direction) {
+    private void autoDirection(Direction direction) {
         toolbox1.grid(autoGrid1.direction(direction));
     }
 
@@ -294,14 +294,14 @@ public class ToolboxTests implements MyLienzoTest,
 
         final Label autoDirectionLabel = new Label("Auto direction: ");
         final ListBox autoDirectionButton = new ListBox();
-        for (AutoGrid.GridDirection d : AutoGrid.GridDirection.values()) {
+        for (Direction d : Direction.values()) {
             autoDirectionButton.addItem(d.name());
         }
         autoDirectionButton.addChangeHandler(new ChangeHandler() {
             @Override
             public void onChange(ChangeEvent event) {
                 int index = autoDirectionButton.getSelectedIndex();
-                AutoGrid.GridDirection direction = AutoGrid.GridDirection.values()[index];
+                Direction direction = Direction.values()[index];
                 autoDirection(direction);
             }
         });

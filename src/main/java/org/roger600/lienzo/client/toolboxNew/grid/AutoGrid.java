@@ -7,24 +7,20 @@ import com.ait.lienzo.shared.core.types.Direction;
 
 public class AutoGrid extends AbstractLayoutGrid<AutoGrid> implements SizeConstrainedGrid<Point2D> {
 
-    public enum GridDirection {
-        HORIZONTAL,
-        VERTICAL;
-
-        public static boolean isHorizontal(final GridDirection direction) {
-            return GridDirection.HORIZONTAL.equals(direction);
+    public static boolean isHorizontal(final Direction direction) {
+        switch (direction) {
+            case SOUTH:
+            case NORTH:
+                return false;
         }
-
-        public static boolean isVertical(final GridDirection direction) {
-            return GridDirection.VERTICAL.equals(direction);
-        }
+        return true;
     }
 
     public static class Builder {
 
         private double pad = 5d;
         private double size = 15d;
-        private GridDirection direction = GridDirection.HORIZONTAL;
+        private Direction direction = Direction.SOUTH;
         private WiresShape shape = null;
 
         public Builder withPadding(double size) {
@@ -37,7 +33,7 @@ public class AutoGrid extends AbstractLayoutGrid<AutoGrid> implements SizeConstr
             return this;
         }
 
-        public Builder towardsDirection(GridDirection direction) {
+        public Builder towards(Direction direction) {
             this.direction = direction;
             return this;
         }
@@ -50,7 +46,7 @@ public class AutoGrid extends AbstractLayoutGrid<AutoGrid> implements SizeConstr
         public AutoGrid build() {
             assert null != shape;
             final BoundingBox boundingBox = shape.getPath().getBoundingBox();
-            final double max = GridDirection.isHorizontal(direction) ?
+            final double max = isHorizontal(direction) ?
                     boundingBox.getWidth() :
                     boundingBox.getHeight();
             return new AutoGrid(pad,
@@ -60,12 +56,12 @@ public class AutoGrid extends AbstractLayoutGrid<AutoGrid> implements SizeConstr
         }
     }
 
-    private GridDirection direction;
+    private Direction direction;
     private double maxSize;
 
     public AutoGrid(final double padding,
                     final double iconSize,
-                    final GridDirection direction,
+                    final Direction direction,
                     final double maxSize) {
         super(padding,
               iconSize);
@@ -76,7 +72,7 @@ public class AutoGrid extends AbstractLayoutGrid<AutoGrid> implements SizeConstr
         this.maxSize = maxSize;
     }
 
-    public AutoGrid direction(final GridDirection direction) {
+    public AutoGrid direction(final Direction direction) {
         this.direction = direction;
         return this;
     }
@@ -84,7 +80,7 @@ public class AutoGrid extends AbstractLayoutGrid<AutoGrid> implements SizeConstr
     @Override
     public void setSize(final double width,
                         final double height) {
-        if (GridDirection.isHorizontal(getDirection())) {
+        if (isHorizontal(getDirection())) {
             maxSize(width);
         } else {
             maxSize(height);
@@ -96,7 +92,7 @@ public class AutoGrid extends AbstractLayoutGrid<AutoGrid> implements SizeConstr
         return this;
     }
 
-    public GridDirection getDirection() {
+    public Direction getDirection() {
         return direction;
     }
 
@@ -124,15 +120,15 @@ public class AutoGrid extends AbstractLayoutGrid<AutoGrid> implements SizeConstr
 
         private AutoGridLayoutIterator(final double padding,
                                        final double iconSize,
-                                       final GridDirection direction,
+                                       final Direction direction,
                                        final double maxSize) {
             this.padding = padding;
             this.iconSize = iconSize;
-            this.towards = translateDirection(direction);
+            this.towards = direction;
 
             final double d1 = getPadding() + getIconSize();
             final int maxItems = (int) (maxSize / d1); // Round down to an integer index value.
-            if (GridDirection.isHorizontal(direction)) {
+            if (isHorizontal(direction)) {
                 maxRows = -1;
                 currentRow = 0;
                 maxCols = maxItems;
@@ -184,9 +180,4 @@ public class AutoGrid extends AbstractLayoutGrid<AutoGrid> implements SizeConstr
         }
     }
 
-    private static Direction translateDirection(final GridDirection direction) {
-        return GridDirection.isHorizontal(direction) ?
-                Direction.EAST :
-                Direction.SOUTH;
-    }
 }

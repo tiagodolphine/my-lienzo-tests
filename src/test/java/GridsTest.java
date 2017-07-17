@@ -47,7 +47,7 @@ public class GridsTest {
     public void testAuto() {
         AutoGrid grid = new AutoGrid(5,
                                      5,
-                                     AutoGrid.GridDirection.HORIZONTAL,
+                                     Direction.SOUTH,
                                      25);
         int i = 0;
         Iterator<Point2D> points = grid.iterator();
