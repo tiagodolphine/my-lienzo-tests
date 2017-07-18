@@ -8,7 +8,6 @@ import com.ait.lienzo.client.core.types.Point2D;
 import com.google.gwt.core.client.GWT;
 import org.roger600.lienzo.client.toolboxNew.ContainerItem;
 import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
-import org.roger600.lienzo.client.toolboxNew.impl2.item.GroupItem;
 
 public class ItemsGroup<G extends Point2DGrid, I extends AbstractItem>
         extends AbstractGroupContainerItem<ItemsGroup, G, I>
@@ -102,8 +101,8 @@ public class ItemsGroup<G extends Point2DGrid, I extends AbstractItem>
     }
 
     @Override
-    public void destroy() {
-        super.destroy();
+    public void preDestroy() {
+        super.preDestroy();
         items.clear();
         refreshCallback = null;
     }

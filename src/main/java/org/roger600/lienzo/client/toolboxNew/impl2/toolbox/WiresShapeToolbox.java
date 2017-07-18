@@ -1,4 +1,4 @@
-package org.roger600.lienzo.client.toolboxNew.impl2.ext;
+package org.roger600.lienzo.client.toolboxNew.impl2.toolbox;
 
 import com.ait.lienzo.client.core.shape.Layer;
 import com.ait.lienzo.client.core.shape.wires.WiresContainer;
@@ -26,8 +26,6 @@ import org.roger600.lienzo.client.toolboxNew.ItemsToolbox;
 import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
 import org.roger600.lienzo.client.toolboxNew.grid.SizeConstrainedGrid;
 import org.roger600.lienzo.client.toolboxNew.impl2.AbstractItem;
-import org.roger600.lienzo.client.toolboxNew.impl2.DelegateItemsToolbox;
-import org.roger600.lienzo.client.toolboxNew.impl2.ItemsToolboxImpl;
 import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
 public class WiresShapeToolbox extends DelegateItemsToolbox<WiresShapeToolbox, Point2DGrid> {

@@ -1,4 +1,4 @@
-package org.roger600.lienzo.client.toolboxNew.impl2;
+package org.roger600.lienzo.client.toolboxNew.impl2.toolbox;
 
 import java.util.Iterator;
 
@@ -7,6 +7,9 @@ import com.ait.lienzo.client.core.types.Point2D;
 import com.ait.lienzo.shared.core.types.Direction;
 import org.roger600.lienzo.client.toolboxNew.ItemsToolbox;
 import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
+import org.roger600.lienzo.client.toolboxNew.impl2.AbstractGroupContainerItem;
+import org.roger600.lienzo.client.toolboxNew.impl2.AbstractItem;
+import org.roger600.lienzo.client.toolboxNew.impl2.ItemsGroup;
 import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
 public class ItemsToolboxImpl<G extends Point2DGrid, I extends AbstractItem>
@@ -91,8 +94,8 @@ public class ItemsToolboxImpl<G extends Point2DGrid, I extends AbstractItem>
     }
 
     @Override
-    public void destroy() {
-        super.destroy();
+    public void preDestroy() {
+        super.preDestroy();
         itemsGroup.destroy();
         toolbox.destroy();
     }

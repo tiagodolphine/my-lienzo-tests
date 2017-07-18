@@ -1,4 +1,4 @@
-package org.roger600.lienzo.client.toolboxNew.impl2;
+package org.roger600.lienzo.client.toolboxNew.impl2.toolbox;
 
 import com.ait.lienzo.client.core.types.BoundingBox;
 import com.ait.lienzo.client.core.types.Point2D;
@@ -6,7 +6,8 @@ import com.ait.lienzo.shared.core.types.Direction;
 import com.google.gwt.core.client.GWT;
 import org.roger600.lienzo.client.toolboxNew.Positions;
 import org.roger600.lienzo.client.toolboxNew.Toolbox;
-import org.roger600.lienzo.client.toolboxNew.impl2.item.GroupItem;
+import org.roger600.lienzo.client.toolboxNew.impl2.AbstractGroupItem;
+import org.roger600.lienzo.client.toolboxNew.impl2.GroupItem;
 import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
 public class ToolboxImpl
@@ -81,8 +82,8 @@ public class ToolboxImpl
     }
 
     @Override
-    public void destroy() {
-        super.destroy();
+    public void preDestroy() {
+        super.preDestroy();
         at = null;
         refreshCallback = null;
     }

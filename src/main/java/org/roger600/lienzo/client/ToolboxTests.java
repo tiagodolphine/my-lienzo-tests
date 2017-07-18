@@ -1,5 +1,7 @@
 package org.roger600.lienzo.client;
 
+import com.ait.lienzo.client.core.event.NodeMouseClickEvent;
+import com.ait.lienzo.client.core.event.NodeMouseClickHandler;
 import com.ait.lienzo.client.core.shape.Layer;
 import com.ait.lienzo.client.core.shape.MultiPath;
 import com.ait.lienzo.client.core.shape.Rectangle;
@@ -23,9 +25,11 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import org.roger600.lienzo.client.toolboxNew.grid.AutoGrid;
 import org.roger600.lienzo.client.toolboxNew.grid.FixedLayoutGrid;
-import org.roger600.lienzo.client.toolboxNew.impl2.ext.ToolboxFactory;
-import org.roger600.lienzo.client.toolboxNew.impl2.ext.WiresShapeToolbox;
+import org.roger600.lienzo.client.toolboxNew.impl2.BoxDecorator;
 import org.roger600.lienzo.client.toolboxNew.impl2.item.ButtonItem;
+import org.roger600.lienzo.client.toolboxNew.impl2.item.ItemFactory;
+import org.roger600.lienzo.client.toolboxNew.impl2.toolbox.ToolboxFactory;
+import org.roger600.lienzo.client.toolboxNew.impl2.toolbox.WiresShapeToolbox;
 
 public class ToolboxTests implements MyLienzoTest,
                                      HasMediators,
@@ -59,7 +63,6 @@ public class ToolboxTests implements MyLienzoTest,
     }
 
     private void buildToolbox1() {
-
         grid1 = new FixedLayoutGrid(BUTTON_PADDING,
                                     BUTTON_SIZE,
                                     iTowards,
@@ -110,14 +113,18 @@ public class ToolboxTests implements MyLienzoTest,
     }
 
     private void addItem() {
-        Rectangle b1 = createButtonNode(ColorName.values()[Random.nextInt(ColorName.values().length)]);
-        final ButtonItem item1 = new ButtonItem(b1);
-        item1.onClick(new Runnable() {
-            @Override
-            public void run() {
-                GWT.log("BUTTON CLICK!!");
-            }
-        });
+        Rectangle prim = createButtonNode(ColorName.values()[Random.nextInt(ColorName.values().length)]);
+
+        final ButtonItem item1 =
+                ItemFactory.buttonFor(prim)
+                        .decorate(BoxDecorator.Builder.build(grid1))
+                        .onClick(new NodeMouseClickHandler() {
+                            @Override
+                            public void onNodeMouseClick(NodeMouseClickEvent event) {
+                                GWT.log("BUTTON CLICK!!");
+                            }
+                        });
+
         itemCount++;
 
         toolbox1.add(item1);
@@ -138,10 +145,10 @@ public class ToolboxTests implements MyLienzoTest,
     private Rectangle createButtonNode(final IColor color) {
         return new Rectangle(BUTTON_SIZE,
                              BUTTON_SIZE)
-                .setStrokeWidth(1)
+                .setStrokeWidth(0)
                 .setStrokeColor(ColorName.BLACK)
                 .setFillColor(color)
-                .setFillAlpha(1d);
+                .setFillAlpha(0.2d);
     }
 
     private WiresShape newShape(final IColor color) {

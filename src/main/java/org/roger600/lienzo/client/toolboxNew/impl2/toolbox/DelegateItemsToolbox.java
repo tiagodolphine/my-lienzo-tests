@@ -1,10 +1,11 @@
-package org.roger600.lienzo.client.toolboxNew.impl2;
+package org.roger600.lienzo.client.toolboxNew.impl2.toolbox;
 
 import java.util.Iterator;
 
 import com.ait.lienzo.shared.core.types.Direction;
 import org.roger600.lienzo.client.toolboxNew.Grid;
 import org.roger600.lienzo.client.toolboxNew.ItemsToolbox;
+import org.roger600.lienzo.client.toolboxNew.impl2.AbstractItem;
 
 public abstract class DelegateItemsToolbox<T extends DelegateItemsToolbox, G extends Grid>
         implements ItemsToolbox<T, G, AbstractItem> {

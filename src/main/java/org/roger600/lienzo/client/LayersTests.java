@@ -7,6 +7,14 @@ import com.ait.lienzo.client.core.event.AttributesChangedHandler;
 import com.ait.lienzo.client.core.event.IAttributesChangedBatcher;
 import com.ait.lienzo.client.core.event.NodeMouseClickEvent;
 import com.ait.lienzo.client.core.event.NodeMouseClickHandler;
+import com.ait.lienzo.client.core.event.NodeMouseEnterEvent;
+import com.ait.lienzo.client.core.event.NodeMouseEnterHandler;
+import com.ait.lienzo.client.core.event.NodeMouseExitEvent;
+import com.ait.lienzo.client.core.event.NodeMouseExitHandler;
+import com.ait.lienzo.client.core.event.NodeMouseOutEvent;
+import com.ait.lienzo.client.core.event.NodeMouseOutHandler;
+import com.ait.lienzo.client.core.event.NodeMouseOverEvent;
+import com.ait.lienzo.client.core.event.NodeMouseOverHandler;
 import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.shape.IPrimitive;
 import com.ait.lienzo.client.core.shape.Layer;
@@ -35,7 +43,8 @@ public class LayersTests implements MyLienzoTest,
     private Layer layer;
     private Rectangle shape;
     private Group group;
-    private Rectangle item1;
+    private Group group1;
+    // private Rectangle item1;
 
     @Override
     public void setButtonsPanel(Panel panel) {
@@ -76,18 +85,48 @@ public class LayersTests implements MyLienzoTest,
                                   }
                               });
 
-        item1 = new Rectangle(15,
-                              15)
+        final Rectangle item1 = new Rectangle(15,
+                                              15)
                 .setFillColor(ColorName.BLACK)
                 .setDraggable(true);
 
-        item1.addNodeMouseClickHandler(new NodeMouseClickHandler() {
+        group1 = new Group();
+        group1.setListening(true);
+        group1.add(item1);
+
+        group1.addNodeMouseClickHandler(new NodeMouseClickHandler() {
             @Override
             public void onNodeMouseClick(NodeMouseClickEvent nodeMouseClickEvent) {
                 GWT.log("ITEM #1 CLICK!!");
             }
         });
-        topLayer.add(item1);
+
+        item1.addNodeMouseEnterHandler(new NodeMouseEnterHandler() {
+            @Override
+            public void onNodeMouseEnter(NodeMouseEnterEvent event) {
+                GWT.log("ITEM #1 ENTER!!");
+            }
+        });
+        item1.addNodeMouseExitHandler(new NodeMouseExitHandler() {
+            @Override
+            public void onNodeMouseExit(NodeMouseExitEvent event) {
+                GWT.log("ITEM #1 EXIT!!");
+            }
+        });
+        item1.addNodeMouseOverHandler(new NodeMouseOverHandler() {
+            @Override
+            public void onNodeMouseOver(NodeMouseOverEvent event) {
+                GWT.log("ITEM #1 OVER!!");
+            }
+        });
+        item1.addNodeMouseOutHandler(new NodeMouseOutHandler() {
+            @Override
+            public void onNodeMouseOut(NodeMouseOutEvent event) {
+                GWT.log("ITEM #1 OUT!!");
+            }
+        });
+
+        topLayer.add(group1);
 
         updateItems();
     }
@@ -97,8 +136,8 @@ public class LayersTests implements MyLienzoTest,
         Point2D groupLoc = group.getComputedLocation();
         Point2D loc = new Point2D(shape.getX() + shape.getWidth(),
                                   shape.getY());
-        item1.setLocation(loc.offset(groupLoc));
-        item1.getLayer().batch();
+        group1.setLocation(loc.offset(groupLoc));
+        group1.getLayer().batch();
     }
 
     private void initAttChangedHandler(final IPrimitive node,

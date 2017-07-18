@@ -1,7 +1,6 @@
 package org.roger600.lienzo.client.toolboxNew.impl2;
 
 import com.ait.lienzo.client.core.shape.Group;
-import org.roger600.lienzo.client.toolboxNew.impl2.item.GroupItem;
 
 public abstract class AbstractGroupItem<T extends AbstractGroupItem> extends AbstractItem<T, Group> {
 
@@ -28,7 +27,8 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem> extends Abs
     }
 
     @Override
-    public void destroy() {
+    public final void destroy() {
+        preDestroy();
         groupItem.destroy();
     }
 
@@ -41,6 +41,10 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem> extends Abs
         return groupItem;
     }
 
+    protected void preDestroy() {
+    }
+
+    @SuppressWarnings("unchecked")
     private T cast() {
         return (T) this;
     }

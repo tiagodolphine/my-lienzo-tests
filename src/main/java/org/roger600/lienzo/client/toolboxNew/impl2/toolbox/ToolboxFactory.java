@@ -1,4 +1,4 @@
-package org.roger600.lienzo.client.toolboxNew.impl2.ext;
+package org.roger600.lienzo.client.toolboxNew.impl2.toolbox;
 
 import com.ait.lienzo.client.core.shape.wires.WiresShape;
 

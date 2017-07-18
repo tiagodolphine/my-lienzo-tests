@@ -1,16 +1,17 @@
 package org.roger600.lienzo.client.toolboxNew.impl2.item;
 
-import com.ait.lienzo.client.core.shape.IPrimitive;
-import org.roger600.lienzo.client.toolboxNew.impl2.AbstractGroupItem;
+import com.ait.lienzo.client.core.shape.Group;
+import org.roger600.lienzo.client.toolboxNew.Item;
+import org.roger600.lienzo.client.toolboxNew.impl2.AbstractItem;
+import org.roger600.lienzo.client.toolboxNew.impl2.DecoratorItem;
 
-public class PrimitiveItem extends AbstractGroupItem<PrimitiveItem> {
+public abstract class PrimitiveItem<T extends PrimitiveItem>
+        extends AbstractItem<T, Group>
+        implements Item<T> {
 
-    public PrimitiveItem(final IPrimitive<?> prim) {
-        super();
-        init(prim);
-    }
+    public abstract T focus();
 
-    private void init(final IPrimitive<?> prim) {
-        getGroupItem().add(prim);
-    }
+    public abstract T unFocus();
+
+    public abstract T decorate(DecoratorItem<?> decorator);
 }
