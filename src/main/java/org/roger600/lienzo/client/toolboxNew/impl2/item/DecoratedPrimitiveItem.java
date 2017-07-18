@@ -5,8 +5,8 @@ import com.ait.lienzo.client.core.event.NodeMouseEnterHandler;
 import com.ait.lienzo.client.core.event.NodeMouseExitEvent;
 import com.ait.lienzo.client.core.event.NodeMouseExitHandler;
 import com.ait.lienzo.client.core.shape.IPrimitive;
+import com.ait.lienzo.client.core.types.BoundingBox;
 import com.ait.tooling.nativetools.client.event.HandlerRegistrationManager;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.shared.HandlerRegistration;
 import org.roger600.lienzo.client.toolboxNew.impl2.AbstractGroupItem;
 import org.roger600.lienzo.client.toolboxNew.impl2.DecoratorItem;
@@ -22,7 +22,7 @@ class DecoratedPrimitiveItem<T extends DecoratedPrimitiveItem>
     DecoratedPrimitiveItem(final IPrimitive<?> primitive) {
         super(new GroupItem());
         this.primitive = primitive;
-        getGroupItem().add(primitive);
+        asPrimitive().add(primitive);
         initHandlers(primitive);
     }
 
@@ -39,7 +39,6 @@ class DecoratedPrimitiveItem<T extends DecoratedPrimitiveItem>
     }
 
     public DecoratedPrimitiveItem focus() {
-        GWT.log("FOCUSING");
         if (isDecorated()) {
             showDecorator();
         }
@@ -47,7 +46,6 @@ class DecoratedPrimitiveItem<T extends DecoratedPrimitiveItem>
     }
 
     public DecoratedPrimitiveItem unFocus() {
-        GWT.log("UN-FOCUSING");
         if (isDecorated()) {
             hideDecorator();
         }
@@ -81,23 +79,30 @@ class DecoratedPrimitiveItem<T extends DecoratedPrimitiveItem>
         }
         this.decorator = decorator;
         if (isDecorated()) {
-            asPrimitive().add(decorator.asPrimitive());
-            if (getGroupItem().isVisible()) {
-                showDecorator();
-            } else {
-                hideDecorator();
-            }
+            attachDecorator();
+        }
+    }
+
+    private void attachDecorator() {
+        final BoundingBox boundingBox = this.primitive.getBoundingBox();
+        decorator.setSize(boundingBox.getWidth(),
+                          boundingBox.getHeight());
+        asPrimitive().add(decorator.asPrimitive());
+        if (getGroupItem().isVisible()) {
+            showDecorator();
+        } else {
+            hideDecorator();
         }
     }
 
     private void showDecorator() {
-        if (null != this.decorator) {
+        if (isDecorated()) {
             this.decorator.show();
         }
     }
 
     private void hideDecorator() {
-        if (null != this.decorator) {
+        if (isDecorated()) {
             this.decorator.hide();
         }
     }

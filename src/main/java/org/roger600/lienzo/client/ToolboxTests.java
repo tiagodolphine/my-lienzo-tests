@@ -25,8 +25,8 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import org.roger600.lienzo.client.toolboxNew.grid.AutoGrid;
 import org.roger600.lienzo.client.toolboxNew.grid.FixedLayoutGrid;
-import org.roger600.lienzo.client.toolboxNew.impl2.BoxDecorator;
 import org.roger600.lienzo.client.toolboxNew.impl2.item.ButtonItem;
+import org.roger600.lienzo.client.toolboxNew.impl2.item.DecoratorsFactory;
 import org.roger600.lienzo.client.toolboxNew.impl2.item.ItemFactory;
 import org.roger600.lienzo.client.toolboxNew.impl2.toolbox.ToolboxFactory;
 import org.roger600.lienzo.client.toolboxNew.impl2.toolbox.WiresShapeToolbox;
@@ -117,7 +117,7 @@ public class ToolboxTests implements MyLienzoTest,
 
         final ButtonItem item1 =
                 ItemFactory.buttonFor(prim)
-                        .decorate(BoxDecorator.Builder.build(grid1))
+                        .decorate(DecoratorsFactory.box())
                         .onClick(new NodeMouseClickHandler() {
                             @Override
                             public void onNodeMouseClick(NodeMouseClickEvent event) {
