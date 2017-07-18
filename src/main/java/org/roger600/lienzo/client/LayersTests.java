@@ -85,15 +85,9 @@ public class LayersTests implements MyLienzoTest,
                                   }
                               });
 
-        final Rectangle item1 = new Rectangle(15,
-                                              15)
-                .setFillColor(ColorName.BLACK)
-                .setDraggable(true);
 
         group1 = new Group();
         group1.setListening(true);
-        group1.add(item1);
-
         group1.addNodeMouseClickHandler(new NodeMouseClickHandler() {
             @Override
             public void onNodeMouseClick(NodeMouseClickEvent nodeMouseClickEvent) {
@@ -101,6 +95,10 @@ public class LayersTests implements MyLienzoTest,
             }
         });
 
+        final Rectangle item1 = new Rectangle(15,
+                                              15)
+                .setFillColor(ColorName.BLACK)
+                .setDraggable(true);
         item1.addNodeMouseEnterHandler(new NodeMouseEnterHandler() {
             @Override
             public void onNodeMouseEnter(NodeMouseEnterEvent event) {
@@ -125,10 +123,50 @@ public class LayersTests implements MyLienzoTest,
                 GWT.log("ITEM #1 OUT!!");
             }
         });
+        group1.add(item1);
 
         topLayer.add(group1);
-
         updateItems();
+
+        //initGroupDecorator();
+    }
+
+    private void initGroupDecorator() {
+        BoundingBox boundingBox = group1.getBoundingBox();
+        Rectangle dec = new Rectangle(boundingBox.getWidth(),
+                                      boundingBox.getHeight())
+                .setFillAlpha(0.1)
+                .setStrokeAlpha(1)
+                .setStrokeWidth(3)
+                .setStrokeColor(ColorName.BLUE)
+                .setListening(true)
+                .setFillBoundsForSelection(true);
+
+        dec.addNodeMouseEnterHandler(new NodeMouseEnterHandler() {
+            @Override
+            public void onNodeMouseEnter(NodeMouseEnterEvent event) {
+                GWT.log("GROUP ENTER!!");
+            }
+        });
+        dec.addNodeMouseExitHandler(new NodeMouseExitHandler() {
+            @Override
+            public void onNodeMouseExit(NodeMouseExitEvent event) {
+                GWT.log("GROUP EXIT!!");
+            }
+        });
+        dec.addNodeMouseOverHandler(new NodeMouseOverHandler() {
+            @Override
+            public void onNodeMouseOver(NodeMouseOverEvent event) {
+                GWT.log("GROUP OVER!!");
+            }
+        });
+        dec.addNodeMouseOutHandler(new NodeMouseOutHandler() {
+            @Override
+            public void onNodeMouseOut(NodeMouseOutEvent event) {
+                GWT.log("GROUP OUT!!");
+            }
+        });
+        group1.add(dec);
     }
 
     private void updateItems() {

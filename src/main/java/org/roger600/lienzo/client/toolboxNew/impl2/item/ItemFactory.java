@@ -11,4 +11,8 @@ public class ItemFactory {
     public static ButtonItem<? extends ButtonItem> buttonFor(final IPrimitive<?> icon) {
         return new ButtonItemImpl(icon);
     }
+
+    public static CompositeItem<? extends CompositeItem> dropDownFor(final IPrimitive<?> icon) {
+        return new DropDownItem(icon);
+    }
 }

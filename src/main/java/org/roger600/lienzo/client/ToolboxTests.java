@@ -8,6 +8,7 @@ import com.ait.lienzo.client.core.event.NodeDragStartEvent;
 import com.ait.lienzo.client.core.event.NodeDragStartHandler;
 import com.ait.lienzo.client.core.event.NodeMouseClickEvent;
 import com.ait.lienzo.client.core.event.NodeMouseClickHandler;
+import com.ait.lienzo.client.core.shape.Circle;
 import com.ait.lienzo.client.core.shape.Layer;
 import com.ait.lienzo.client.core.shape.MultiPath;
 import com.ait.lienzo.client.core.shape.Rectangle;
@@ -32,6 +33,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import org.roger600.lienzo.client.toolboxNew.grid.AutoGrid;
 import org.roger600.lienzo.client.toolboxNew.grid.FixedLayoutGrid;
 import org.roger600.lienzo.client.toolboxNew.impl2.item.ButtonItem;
+import org.roger600.lienzo.client.toolboxNew.impl2.item.CompositeItem;
 import org.roger600.lienzo.client.toolboxNew.impl2.item.DecoratorsFactory;
 import org.roger600.lienzo.client.toolboxNew.impl2.item.ItemFactory;
 import org.roger600.lienzo.client.toolboxNew.impl2.toolbox.ToolboxFactory;
@@ -86,8 +88,8 @@ public class ToolboxTests implements MyLienzoTest,
                 .attachTo(layer.getScene().getTopLayer())
                 .at(iAt)
                 .grid(grid1);
-        addItem();
-        addItem();
+        addButtonItem();
+        addButtonItem();
     }
 
     private void autoDirection(Direction direction) {
@@ -118,9 +120,8 @@ public class ToolboxTests implements MyLienzoTest,
         toolbox1.hide();
     }
 
-    private void addItem() {
+    private ButtonItem createButtonItem() {
         Rectangle prim = createButtonNode(ColorName.values()[Random.nextInt(ColorName.values().length)]);
-
         final ButtonItem item1 =
                 ItemFactory.buttonFor(prim)
                         .decorate(DecoratorsFactory.box())
@@ -130,30 +131,64 @@ public class ToolboxTests implements MyLienzoTest,
                                 GWT.log("BUTTON CLICK!!");
                             }
                         })
-                .onDragStart(new NodeDragStartHandler() {
-                    @Override
-                    public void onNodeDragStart(NodeDragStartEvent event) {
-                        GWT.log("BUTTON DRAG START!!");
-                    }
-                })
-                .onDragMove(new NodeDragMoveHandler() {
-                    @Override
-                    public void onNodeDragMove(NodeDragMoveEvent event) {
-                        GWT.log("BUTTON DRAG MOVE!!");
+                        .onDragStart(new NodeDragStartHandler() {
+                            @Override
+                            public void onNodeDragStart(NodeDragStartEvent event) {
+                                GWT.log("BUTTON DRAG START!!");
+                            }
+                        })
+                        .onDragMove(new NodeDragMoveHandler() {
+                            @Override
+                            public void onNodeDragMove(NodeDragMoveEvent event) {
+                                GWT.log("BUTTON DRAG MOVE!!");
+                            }
+                        })
+                        .onDragEnd(new NodeDragEndHandler() {
+                            @Override
+                            public void onNodeDragEnd(NodeDragEndEvent event) {
+                                GWT.log("BUTTON DRAG END!!");
+                                event.getDragContext().reset();
+                            }
+                        });
+        itemCount++;
+        return item1;
+    }
 
-                    }
-                })
-                .onDragEnd(new NodeDragEndHandler() {
-                    @Override
-                    public void onNodeDragEnd(NodeDragEndEvent event) {
-                        GWT.log("BUTTON DRAG END!!");
-                        event.getDragContext().reset();
-                    }
-                });
+    private void addButtonItem() {
+        final ButtonItem item1 = createButtonItem();
+        toolbox1.add(item1);
+    }
+
+    private void addDropDownItem() {
+
+        final double radius = BUTTON_SIZE / 2;
+        final Circle circle = new Circle(radius)
+                .setX(radius)
+                .setY(radius)
+                .setStrokeWidth(0)
+                .setStrokeColor(ColorName.BLACK)
+                .setFillColor(ColorName.GREEN)
+                .setFillAlpha(0.8d);
+
+        final CompositeItem<? extends CompositeItem> item =
+                ItemFactory.dropDownFor(circle);
+
+        final FixedLayoutGrid grid = new FixedLayoutGrid(BUTTON_PADDING,
+                                                   BUTTON_SIZE,
+                                                   iTowards,
+                                                   iRows,
+                                                   iCols);
+
+        final ButtonItem item1 = createButtonItem();
+        final ButtonItem item2 = createButtonItem();
+
+        item
+            .add(item1, item2)
+            .grid(grid);
 
         itemCount++;
 
-        toolbox1.add(item1);
+        toolbox1.add(item);
     }
 
     private void removeItem() {
@@ -174,7 +209,7 @@ public class ToolboxTests implements MyLienzoTest,
                 .setStrokeWidth(0)
                 .setStrokeColor(ColorName.BLACK)
                 .setFillColor(color)
-                .setFillAlpha(0.2d);
+                .setFillAlpha(0.8d);
     }
 
     private WiresShape newShape(final IColor color) {
@@ -217,14 +252,23 @@ public class ToolboxTests implements MyLienzoTest,
         });
         hPanel1.add(hideNewButton);
 
-        Button addItemButton = new Button("Add");
+        Button addItemButton = new Button("Add button");
         addItemButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                addItem();
+                addButtonItem();
             }
         });
         hPanel1.add(addItemButton);
+
+        Button addItemDropDown = new Button("Add drop-down");
+        addItemDropDown.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                addDropDownItem();
+            }
+        });
+        hPanel1.add(addItemDropDown);
 
         Button removeItemButton = new Button("Remove");
         removeItemButton.addClickHandler(new ClickHandler() {

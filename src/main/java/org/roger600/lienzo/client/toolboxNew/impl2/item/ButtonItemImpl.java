@@ -4,6 +4,8 @@ import com.ait.lienzo.client.core.event.NodeDragEndHandler;
 import com.ait.lienzo.client.core.event.NodeDragMoveHandler;
 import com.ait.lienzo.client.core.event.NodeDragStartHandler;
 import com.ait.lienzo.client.core.event.NodeMouseClickHandler;
+import com.ait.lienzo.client.core.event.NodeMouseEnterHandler;
+import com.ait.lienzo.client.core.event.NodeMouseExitHandler;
 import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.shape.IPrimitive;
 import com.google.gwt.event.shared.HandlerRegistration;
@@ -11,73 +13,100 @@ import org.roger600.lienzo.client.toolboxNew.impl2.DecoratorItem;
 
 class ButtonItemImpl extends ButtonItem<ButtonItemImpl> {
 
-    private final DecoratedPrimitiveItem<?> decoratedItem;
+    private final PrimitiveItemImpl primitiveItem;
     private HandlerRegistration clickHandlerRegistration;
     private HandlerRegistration dragStartHandlerRegistration;
     private HandlerRegistration dragMoveHandlerRegistration;
     private HandlerRegistration dragEndHandlerRegistration;
 
     ButtonItemImpl(final IPrimitive<?> prim) {
-        this.decoratedItem = new DecoratedPrimitiveItem<>(prim);
+        this.primitiveItem = new PrimitiveItemImpl(prim);
     }
 
     @Override
     public ButtonItemImpl focus() {
-        decoratedItem.focus();
+        primitiveItem.focus();
         return this;
     }
 
     @Override
     public ButtonItemImpl unFocus() {
-        decoratedItem.unFocus();
+        primitiveItem.unFocus();
         return this;
     }
 
     @Override
     public ButtonItemImpl decorate(final DecoratorItem<?> decorator) {
-        decoratedItem.decorate(decorator);
+        primitiveItem.decorate(decorator);
+        return this;
+    }
+
+    @Override
+    public ButtonItemImpl onMouseEnter(final NodeMouseEnterHandler handler) {
+        primitiveItem.onMouseEnter(handler);
+        return this;
+    }
+
+    @Override
+    public ButtonItemImpl onMouseExit(final NodeMouseExitHandler handler) {
+        primitiveItem.onMouseExit(handler);
+        return this;
+    }
+
+    @Override
+    ButtonItemImpl onFocus(final Runnable focusCallback) {
+        primitiveItem.onFocus(focusCallback);
+        return this;
+    }
+
+    @Override
+    ButtonItemImpl onUnFocus(final Runnable unFocusCallback) {
+        primitiveItem.onUnFocus(unFocusCallback);
         return this;
     }
 
     @Override
     public ButtonItemImpl show() {
-        decoratedItem.show();
+        primitiveItem.show();
         return this;
     }
 
     @Override
     public ButtonItemImpl hide() {
-        decoratedItem.hide();
+        primitiveItem.hide();
         return this;
     }
 
     public ButtonItemImpl onDragStart(final NodeDragStartHandler handler) {
         assert null != handler;
         removeDragStartHandlerRegistration();
-        dragStartHandlerRegistration = decoratedItem.getPrimitive()
+        dragStartHandlerRegistration = primitiveItem.getDecoratedItem()
+                .getPrimitive()
                 .setDraggable(true)
                 .addNodeDragStartHandler(handler);
-        decoratedItem.register(dragStartHandlerRegistration);
+        primitiveItem.getDecoratedItem().register(dragStartHandlerRegistration);
         return this;
     }
 
     public ButtonItemImpl onDragMove(final NodeDragMoveHandler handler) {
         assert null != handler;
         removeDragMoveHandlerRegistration();
-        dragMoveHandlerRegistration = decoratedItem.getPrimitive()
+        dragMoveHandlerRegistration = primitiveItem.getDecoratedItem()
+                .getPrimitive()
                 .setDraggable(true)
                 .addNodeDragMoveHandler(handler);
-        decoratedItem.register(dragMoveHandlerRegistration);
+        primitiveItem.getDecoratedItem().register(dragMoveHandlerRegistration);
         return this;
     }
 
     public ButtonItemImpl onDragEnd(final NodeDragEndHandler handler) {
         assert null != handler;
         removeDragEndHandlerRegistration();
-        dragEndHandlerRegistration = decoratedItem.getPrimitive()
+        dragEndHandlerRegistration = primitiveItem.getDecoratedItem()
+                .getPrimitive()
                 .setDraggable(true)
                 .addNodeDragEndHandler(handler);
-        decoratedItem.register(dragEndHandlerRegistration);
+        primitiveItem.getDecoratedItem().register(dragEndHandlerRegistration);
         return this;
     }
 
@@ -85,21 +114,22 @@ class ButtonItemImpl extends ButtonItem<ButtonItemImpl> {
     public ButtonItemImpl onClick(final NodeMouseClickHandler handler) {
         assert null != handler;
         removeClickHandlerRegistration();
-        clickHandlerRegistration = decoratedItem.getPrimitive()
+        clickHandlerRegistration = primitiveItem.getDecoratedItem()
+                .getPrimitive()
                 .setListening(true)
                 .addNodeMouseClickHandler(handler);
-        decoratedItem.register(clickHandlerRegistration);
+        primitiveItem.getDecoratedItem().register(clickHandlerRegistration);
         return this;
     }
 
     @Override
     public void destroy() {
-        decoratedItem.destroy();
+        primitiveItem.destroy();
     }
 
     @Override
     public Group asPrimitive() {
-        return decoratedItem.asPrimitive();
+        return primitiveItem.asPrimitive();
     }
 
     private void removeClickHandlerRegistration() {
@@ -125,5 +155,4 @@ class ButtonItemImpl extends ButtonItem<ButtonItemImpl> {
             dragEndHandlerRegistration.removeHandler();
         }
     }
-
 }

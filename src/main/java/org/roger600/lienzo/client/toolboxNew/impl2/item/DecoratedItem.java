@@ -12,21 +12,23 @@ import org.roger600.lienzo.client.toolboxNew.impl2.AbstractGroupItem;
 import org.roger600.lienzo.client.toolboxNew.impl2.DecoratorItem;
 import org.roger600.lienzo.client.toolboxNew.impl2.GroupItem;
 
-class DecoratedPrimitiveItem<T extends DecoratedPrimitiveItem>
+class DecoratedItem<T extends DecoratedItem>
         extends AbstractGroupItem<T> {
 
     private final HandlerRegistrationManager registrations = new HandlerRegistrationManager();
     private final IPrimitive<?> primitive;
     private DecoratorItem<?> decorator;
+    private Runnable focusCallback;
+    private Runnable unFocusCallback;
 
-    DecoratedPrimitiveItem(final IPrimitive<?> primitive) {
+    DecoratedItem(final IPrimitive<?> primitive) {
         super(new GroupItem());
         this.primitive = primitive;
         asPrimitive().add(primitive);
         initHandlers(primitive);
     }
 
-    public DecoratedPrimitiveItem decorate(final DecoratorItem<?> decorator) {
+    public DecoratedItem decorate(final DecoratorItem<?> decorator) {
         initDecorator(decorator);
         return cast();
     }
@@ -38,14 +40,20 @@ class DecoratedPrimitiveItem<T extends DecoratedPrimitiveItem>
         return cast();
     }
 
-    public DecoratedPrimitiveItem focus() {
+    public DecoratedItem focus() {
+        if (null != focusCallback) {
+            focusCallback.run();
+        }
         if (isDecorated()) {
             showDecorator();
         }
         return cast();
     }
 
-    public DecoratedPrimitiveItem unFocus() {
+    public DecoratedItem unFocus() {
+        if (null != unFocusCallback) {
+            unFocusCallback.run();
+        }
         if (isDecorated()) {
             hideDecorator();
         }
@@ -54,6 +62,16 @@ class DecoratedPrimitiveItem<T extends DecoratedPrimitiveItem>
 
     public IPrimitive<?> getPrimitive() {
         return primitive;
+    }
+
+    T onFocus(final Runnable callback) {
+        this.focusCallback = callback;
+        return cast();
+    }
+
+    T onUnFocus(final Runnable callback) {
+        this.unFocusCallback = callback;
+        return cast();
     }
 
     T register(final HandlerRegistration registration) {
