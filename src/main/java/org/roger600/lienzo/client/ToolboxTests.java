@@ -1,5 +1,11 @@
 package org.roger600.lienzo.client;
 
+import com.ait.lienzo.client.core.event.NodeDragEndEvent;
+import com.ait.lienzo.client.core.event.NodeDragEndHandler;
+import com.ait.lienzo.client.core.event.NodeDragMoveEvent;
+import com.ait.lienzo.client.core.event.NodeDragMoveHandler;
+import com.ait.lienzo.client.core.event.NodeDragStartEvent;
+import com.ait.lienzo.client.core.event.NodeDragStartHandler;
 import com.ait.lienzo.client.core.event.NodeMouseClickEvent;
 import com.ait.lienzo.client.core.event.NodeMouseClickHandler;
 import com.ait.lienzo.client.core.shape.Layer;
@@ -123,7 +129,27 @@ public class ToolboxTests implements MyLienzoTest,
                             public void onNodeMouseClick(NodeMouseClickEvent event) {
                                 GWT.log("BUTTON CLICK!!");
                             }
-                        });
+                        })
+                .onDragStart(new NodeDragStartHandler() {
+                    @Override
+                    public void onNodeDragStart(NodeDragStartEvent event) {
+                        GWT.log("BUTTON DRAG START!!");
+                    }
+                })
+                .onDragMove(new NodeDragMoveHandler() {
+                    @Override
+                    public void onNodeDragMove(NodeDragMoveEvent event) {
+                        GWT.log("BUTTON DRAG MOVE!!");
+
+                    }
+                })
+                .onDragEnd(new NodeDragEndHandler() {
+                    @Override
+                    public void onNodeDragEnd(NodeDragEndEvent event) {
+                        GWT.log("BUTTON DRAG END!!");
+                        event.getDragContext().reset();
+                    }
+                });
 
         itemCount++;
 
