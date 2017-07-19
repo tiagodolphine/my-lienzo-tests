@@ -1,8 +1,8 @@
-package org.roger600.lienzo.client.toolboxNew.impl2.item;
+package org.roger600.lienzo.client.toolboxNew.primitive.impl;
 
 import com.ait.lienzo.client.core.shape.Rectangle;
 import com.ait.lienzo.shared.core.types.ColorName;
-import org.roger600.lienzo.client.toolboxNew.impl2.DecoratorItem;
+import org.roger600.lienzo.client.toolboxNew.primitive.DefaultDecoratorItem;
 
 public class DecoratorsFactory {
 
@@ -18,7 +18,7 @@ public class DecoratorsFactory {
     }
 
     public static class BoxDecorator
-            extends DecoratorItem<BoxDecorator> {
+            extends DefaultDecoratorItem<BoxDecorator> {
 
         //private static final String DECORATOR_STROKE_COLOR = "#BBBBBB";
         private static final String DECORATOR_STROKE_COLOR = "#FF0000";

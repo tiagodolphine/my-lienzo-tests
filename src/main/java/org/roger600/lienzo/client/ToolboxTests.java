@@ -23,7 +23,6 @@ import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Random;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
@@ -32,12 +31,12 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import org.roger600.lienzo.client.toolboxNew.grid.AutoGrid;
 import org.roger600.lienzo.client.toolboxNew.grid.FixedLayoutGrid;
-import org.roger600.lienzo.client.toolboxNew.impl2.item.ButtonItem;
-import org.roger600.lienzo.client.toolboxNew.impl2.item.CompositeItem;
-import org.roger600.lienzo.client.toolboxNew.impl2.item.DecoratorsFactory;
-import org.roger600.lienzo.client.toolboxNew.impl2.item.ItemFactory;
-import org.roger600.lienzo.client.toolboxNew.impl2.toolbox.ToolboxFactory;
-import org.roger600.lienzo.client.toolboxNew.impl2.toolbox.WiresShapeToolbox;
+import org.roger600.lienzo.client.toolboxNew.primitive.Button;
+import org.roger600.lienzo.client.toolboxNew.primitive.DefaultToolbox;
+import org.roger600.lienzo.client.toolboxNew.primitive.factory.ItemFactory;
+import org.roger600.lienzo.client.toolboxNew.primitive.factory.ToolboxFactory;
+import org.roger600.lienzo.client.toolboxNew.primitive.impl.DecoratorsFactory;
+import org.roger600.lienzo.client.toolboxNew.primitive.impl.WiresShapeToolbox;
 
 public class ToolboxTests implements MyLienzoTest,
                                      HasMediators,
@@ -56,7 +55,7 @@ public class ToolboxTests implements MyLienzoTest,
     private WiresShape shape1;
     private FixedLayoutGrid grid1;
     private AutoGrid autoGrid1;
-    private WiresShapeToolbox toolbox1;
+    private DefaultToolbox<?> toolbox1;
     private int itemCount = 0;
 
     public void test(Layer layer) {
@@ -120,9 +119,9 @@ public class ToolboxTests implements MyLienzoTest,
         toolbox1.hide();
     }
 
-    private ButtonItem createButtonItem() {
+    private Button createButtonItem() {
         Rectangle prim = createButtonNode(ColorName.values()[Random.nextInt(ColorName.values().length)]);
-        final ButtonItem item1 =
+        final Button item1 =
                 ItemFactory.buttonFor(prim)
                         .decorate(DecoratorsFactory.box())
                         .onClick(new NodeMouseClickHandler() {
@@ -155,13 +154,14 @@ public class ToolboxTests implements MyLienzoTest,
     }
 
     private void addButtonItem() {
-        final ButtonItem item1 = createButtonItem();
+        final Button item1 = createButtonItem();
         toolbox1.add(item1);
     }
 
     private void addDropDownItem() {
 
-        final double radius = BUTTON_SIZE / 2;
+        // TODO
+        /*final double radius = BUTTON_SIZE / 2;
         final Circle circle = new Circle(radius)
                 .setX(radius)
                 .setY(radius)
@@ -179,8 +179,8 @@ public class ToolboxTests implements MyLienzoTest,
                                                    iRows,
                                                    iCols);
 
-        final ButtonItem item1 = createButtonItem();
-        final ButtonItem item2 = createButtonItem();
+        final Button item1 = createButtonItem();
+        final Button item2 = createButtonItem();
 
         item
             .add(item1, item2)
@@ -188,7 +188,7 @@ public class ToolboxTests implements MyLienzoTest,
 
         itemCount++;
 
-        toolbox1.add(item);
+        toolbox1.add(item);*/
     }
 
     private void removeItem() {
@@ -234,7 +234,7 @@ public class ToolboxTests implements MyLienzoTest,
         hPanel1.setSpacing(5);
         vPanel.add(hPanel1);
 
-        Button showNewButton = new Button("Show");
+        com.google.gwt.user.client.ui.Button showNewButton = new com.google.gwt.user.client.ui.Button("Show");
         showNewButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -243,7 +243,7 @@ public class ToolboxTests implements MyLienzoTest,
         });
         hPanel1.add(showNewButton);
 
-        Button hideNewButton = new Button("Hide");
+        com.google.gwt.user.client.ui.Button hideNewButton = new com.google.gwt.user.client.ui.Button("Hide");
         hideNewButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -252,7 +252,7 @@ public class ToolboxTests implements MyLienzoTest,
         });
         hPanel1.add(hideNewButton);
 
-        Button addItemButton = new Button("Add button");
+        com.google.gwt.user.client.ui.Button addItemButton = new com.google.gwt.user.client.ui.Button("Add button");
         addItemButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -261,7 +261,7 @@ public class ToolboxTests implements MyLienzoTest,
         });
         hPanel1.add(addItemButton);
 
-        Button addItemDropDown = new Button("Add drop-down");
+        com.google.gwt.user.client.ui.Button addItemDropDown = new com.google.gwt.user.client.ui.Button("Add drop-down");
         addItemDropDown.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -270,7 +270,7 @@ public class ToolboxTests implements MyLienzoTest,
         });
         hPanel1.add(addItemDropDown);
 
-        Button removeItemButton = new Button("Remove");
+        com.google.gwt.user.client.ui.Button removeItemButton = new com.google.gwt.user.client.ui.Button("Remove");
         removeItemButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -279,7 +279,7 @@ public class ToolboxTests implements MyLienzoTest,
         });
         hPanel1.add(removeItemButton);
 
-        Button useFixedGridButton = new Button("Fixed grid");
+        com.google.gwt.user.client.ui.Button useFixedGridButton = new com.google.gwt.user.client.ui.Button("Fixed grid");
         useFixedGridButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -288,7 +288,7 @@ public class ToolboxTests implements MyLienzoTest,
         });
         hPanel1.add(useFixedGridButton);
 
-        Button useAutoGridButton = new Button("Auto grid");
+        com.google.gwt.user.client.ui.Button useAutoGridButton = new com.google.gwt.user.client.ui.Button("Auto grid");
         useAutoGridButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {

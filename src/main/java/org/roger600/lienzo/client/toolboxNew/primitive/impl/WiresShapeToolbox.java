@@ -1,5 +1,9 @@
-package org.roger600.lienzo.client.toolboxNew.impl2.toolbox;
+package org.roger600.lienzo.client.toolboxNew.primitive.impl;
 
+import java.util.Iterator;
+
+import com.ait.lienzo.client.core.event.NodeMouseEnterHandler;
+import com.ait.lienzo.client.core.event.NodeMouseExitHandler;
 import com.ait.lienzo.client.core.shape.Layer;
 import com.ait.lienzo.client.core.shape.wires.WiresContainer;
 import com.ait.lienzo.client.core.shape.wires.WiresShape;
@@ -21,34 +25,111 @@ import com.ait.lienzo.client.core.shape.wires.event.WiresResizeStepEvent;
 import com.ait.lienzo.client.core.shape.wires.event.WiresResizeStepHandler;
 import com.ait.lienzo.client.core.types.BoundingBox;
 import com.ait.lienzo.client.core.types.Point2D;
+import com.ait.lienzo.shared.core.types.Direction;
 import com.ait.tooling.nativetools.client.event.HandlerRegistrationManager;
-import org.roger600.lienzo.client.toolboxNew.ItemsToolbox;
 import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
 import org.roger600.lienzo.client.toolboxNew.grid.SizeConstrainedGrid;
-import org.roger600.lienzo.client.toolboxNew.impl2.AbstractItem;
+import org.roger600.lienzo.client.toolboxNew.primitive.DecoratorItem;
+import org.roger600.lienzo.client.toolboxNew.primitive.DefaultItem;
+import org.roger600.lienzo.client.toolboxNew.primitive.DefaultToolbox;
 import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
-public class WiresShapeToolbox extends DelegateItemsToolbox<WiresShapeToolbox, Point2DGrid> {
+public class WiresShapeToolbox
+        implements DefaultToolbox<WiresShapeToolbox> {
 
     private final HandlerRegistrationManager registrations = new HandlerRegistrationManager();
-    private final ItemsToolboxImpl<Point2DGrid, AbstractItem> toolbox;
+    private final ToolboxImpl toolbox;
 
-    WiresShapeToolbox(final WiresShape shape) {
-        // Create the toolbox.
-        this.toolbox =
-                new ItemsToolboxImpl<>(new Supplier<BoundingBox>() {
-                    @Override
-                    public BoundingBox get() {
-                        return shape.getPath().getBoundingBox();
-                    }
-                });
+    public WiresShapeToolbox(final WiresShape shape) {
+        this.toolbox = new ToolboxImpl(new Supplier<BoundingBox>() {
+            @Override
+            public BoundingBox get() {
+                return shape.getPath().getBoundingBox();
+            }
+        });
         initHandlers(shape);
         hide();
     }
 
+    @Override
     public WiresShapeToolbox attachTo(final Layer layer) {
-        layer.add(toolbox.asPrimitive());
+        toolbox.attachTo(layer);
         return this;
+    }
+
+    @Override
+    public WiresShapeToolbox at(final Direction at) {
+        toolbox.at(at);
+        return this;
+    }
+
+    @Override
+    public WiresShapeToolbox offset(final Point2D offset) {
+        toolbox.offset(offset);
+        return this;
+    }
+
+    @Override
+    public WiresShapeToolbox grid(final Point2DGrid grid) {
+        toolbox.grid(grid);
+        return this;
+    }
+
+    @Override
+    public WiresShapeToolbox add(final DefaultItem... items) {
+        toolbox.add(items);
+        return this;
+    }
+
+    @Override
+    public Iterator<DefaultItem> iterator() {
+        return toolbox.iterator();
+    }
+
+    @Override
+    public WiresShapeToolbox show() {
+        toolbox.show();
+        return this;
+    }
+
+    @Override
+    public WiresShapeToolbox hide() {
+        toolbox.hide();
+        return this;
+    }
+
+    @Override
+    public boolean isVisible() {
+        return toolbox.isVisible();
+    }
+
+    @Override
+    public WiresShapeToolbox decorate(final DecoratorItem<?> decorator) {
+        toolbox.decorate(decorator);
+        return this;
+    }
+
+    @Override
+    public WiresShapeToolbox onMouseEnter(final NodeMouseEnterHandler handler) {
+        toolbox.onMouseEnter(handler);
+        return this;
+    }
+
+    @Override
+    public WiresShapeToolbox onMouseExit(final NodeMouseExitHandler handler) {
+        toolbox.onMouseExit(handler);
+        return this;
+    }
+
+    @Override
+    public void destroy() {
+        toolbox.destroy();
+        registrations.removeHandler();
+    }
+
+    @Override
+    public Point2DGrid getGrid() {
+        return toolbox.getGrid();
     }
 
     private void initHandlers(final WiresShape shape) {
@@ -113,7 +194,7 @@ public class WiresShapeToolbox extends DelegateItemsToolbox<WiresShapeToolbox, P
     private void onResize(final AbstractWiresResizeEvent event) {
         offset((WiresContainer) event.getShape());
         // If the grid is constrained by size, update it.
-        final Point2DGrid grid = toolbox.getGrid();
+        final Point2DGrid grid = getGrid();
         if (grid instanceof SizeConstrainedGrid) {
             ((SizeConstrainedGrid) grid).setSize(event.getWidth(),
                                                  event.getHeight());
@@ -133,22 +214,4 @@ public class WiresShapeToolbox extends DelegateItemsToolbox<WiresShapeToolbox, P
         offset(shape.getGroup().getComputedLocation());
     }
 
-    private void offset(final Point2D offset) {
-        toolbox.offset(offset);
-    }
-
-    @Override
-    public void destroy() {
-        super.destroy();
-        registrations.removeHandler();
-    }
-
-    @Override
-    protected ItemsToolbox<?, Point2DGrid, AbstractItem> getDelegate() {
-        return toolbox;
-    }
-
-    private ItemsToolboxImpl getItemsToolbox() {
-        return (ItemsToolboxImpl) getDelegate();
-    }
 }

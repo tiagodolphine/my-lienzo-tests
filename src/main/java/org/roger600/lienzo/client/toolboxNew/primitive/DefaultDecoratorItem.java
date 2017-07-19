@@ -1,11 +1,11 @@
-package org.roger600.lienzo.client.toolboxNew.impl2;
+package org.roger600.lienzo.client.toolboxNew.primitive;
 
 import com.ait.lienzo.client.core.shape.IPrimitive;
+import org.roger600.lienzo.client.toolboxNew.AbstractItem;
 
-public abstract class DecoratorItem<T extends DecoratorItem> extends AbstractItem<T, IPrimitive<?>> {
-
-    public abstract T setSize(double width,
-                              double height);
+public abstract class DefaultDecoratorItem<T extends DefaultDecoratorItem>
+        extends AbstractItem<T, IPrimitive<?>>
+        implements DecoratorItem<T> {
 
     @Override
     public final T show() {

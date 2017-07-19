@@ -1,8 +1,7 @@
-package org.roger600.lienzo.client.toolboxNew.impl2;
+package org.roger600.lienzo.client.toolboxNew;
 
 import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.shape.IPrimitive;
-import org.roger600.lienzo.client.toolboxNew.Item;
 
 public class GroupItem extends AbstractItem<GroupItem, Group> implements Item<GroupItem> {
 

@@ -1,4 +1,4 @@
-package org.roger600.lienzo.client.toolboxNew.impl2.item;
+package org.roger600.lienzo.client.toolboxNew.primitive;
 
 import com.ait.lienzo.client.core.event.NodeMouseEnterEvent;
 import com.ait.lienzo.client.core.event.NodeMouseEnterHandler;
@@ -8,39 +8,40 @@ import com.ait.lienzo.client.core.shape.IPrimitive;
 import com.ait.lienzo.client.core.types.BoundingBox;
 import com.ait.tooling.nativetools.client.event.HandlerRegistrationManager;
 import com.google.gwt.event.shared.HandlerRegistration;
-import org.roger600.lienzo.client.toolboxNew.impl2.AbstractGroupItem;
-import org.roger600.lienzo.client.toolboxNew.impl2.DecoratorItem;
-import org.roger600.lienzo.client.toolboxNew.impl2.GroupItem;
+import org.roger600.lienzo.client.toolboxNew.AbstractGroupItem;
+import org.roger600.lienzo.client.toolboxNew.GroupItem;
 
-class DecoratedItem<T extends DecoratedItem>
-        extends AbstractGroupItem<T> {
+public abstract class AbstractDefaultItem<T extends AbstractDefaultItem>
+        extends AbstractGroupItem<T>
+        implements DefaultItem<T> {
 
     private final HandlerRegistrationManager registrations = new HandlerRegistrationManager();
-    private final IPrimitive<?> primitive;
-    private DecoratorItem<?> decorator;
+    private DefaultDecoratorItem<?> decorator;
+    private HandlerRegistration mouseEnterHandlerRegistration;
+    private HandlerRegistration mouseExitHandlerRegistration;
     private Runnable focusCallback;
     private Runnable unFocusCallback;
 
-    DecoratedItem(final IPrimitive<?> primitive) {
+    public AbstractDefaultItem() {
         super(new GroupItem());
-        this.primitive = primitive;
-        asPrimitive().add(primitive);
-        initHandlers(primitive);
+        asPrimitive().add(getPrimitive());
+        initHandlers(getPrimitive());
     }
 
-    public DecoratedItem decorate(final DecoratorItem<?> decorator) {
-        initDecorator(decorator);
-        return cast();
-    }
+    public abstract IPrimitive<?> getPrimitive();
 
     @Override
-    public T hide() {
-        super.hide();
-        hideDecorator();
+    public T decorate(final DecoratorItem<?> decorator) {
+        try {
+            initDecorator((DefaultDecoratorItem<?>) decorator);
+        } catch (final ClassCastException e) {
+            throw new UnsupportedOperationException("This item only supports decorators " +
+                                                            "of type " + DefaultDecoratorItem.class.getName());
+        }
         return cast();
     }
 
-    public DecoratedItem focus() {
+    public T focus() {
         if (null != focusCallback) {
             focusCallback.run();
         }
@@ -50,7 +51,7 @@ class DecoratedItem<T extends DecoratedItem>
         return cast();
     }
 
-    public DecoratedItem unFocus() {
+    public T unFocus() {
         if (null != unFocusCallback) {
             unFocusCallback.run();
         }
@@ -60,38 +61,74 @@ class DecoratedItem<T extends DecoratedItem>
         return cast();
     }
 
-    public IPrimitive<?> getPrimitive() {
-        return primitive;
+    @Override
+    public boolean isVisible() {
+        return getGroupItem().isVisible();
     }
 
-    T onFocus(final Runnable callback) {
+    @Override
+    public T hide() {
+        super.hide();
+        hideDecorator();
+        return cast();
+    }
+
+    @Override
+    public T onMouseEnter(final NodeMouseEnterHandler handler) {
+        assert null != handler;
+        if (null != mouseEnterHandlerRegistration) {
+            mouseEnterHandlerRegistration.removeHandler();
+        }
+        mouseEnterHandlerRegistration = getPrimitive()
+                .addNodeMouseEnterHandler(handler);
+        register(mouseEnterHandlerRegistration);
+        return cast();
+    }
+
+    @Override
+    public T onMouseExit(final NodeMouseExitHandler handler) {
+        assert null != handler;
+        if (null != mouseExitHandlerRegistration) {
+            mouseExitHandlerRegistration.removeHandler();
+        }
+        mouseExitHandlerRegistration = getPrimitive()
+                .addNodeMouseExitHandler(handler);
+        register(mouseExitHandlerRegistration);
+        return cast();
+    }
+
+    public T onFocus(final Runnable callback) {
         this.focusCallback = callback;
         return cast();
     }
 
-    T onUnFocus(final Runnable callback) {
+    public T onUnFocus(final Runnable callback) {
         this.unFocusCallback = callback;
         return cast();
     }
 
-    T register(final HandlerRegistration registration) {
+    public HandlerRegistrationManager registrations() {
+        return registrations;
+    }
+
+    private T register(final HandlerRegistration registration) {
         registrations.register(registration);
         return cast();
     }
 
     @Override
-    protected final void preDestroy() {
+    protected void preDestroy() {
         super.preDestroy();
         initDecorator(null);
         destroyHandlers();
-        primitive.removeFromParent();
+        getPrimitive().removeFromParent();
     }
 
     private boolean isDecorated() {
         return null != this.decorator;
     }
 
-    private void initDecorator(final DecoratorItem<?> decorator) {
+    private void initDecorator(final DefaultDecoratorItem<?> decorator) {
         if (isDecorated()) {
             this.decorator.destroy();
         }
@@ -102,11 +139,11 @@ class DecoratedItem<T extends DecoratedItem>
     }
 
     private void attachDecorator() {
-        final BoundingBox boundingBox = this.primitive.getBoundingBox();
+        final BoundingBox boundingBox = getPrimitive().getBoundingBox();
         decorator.setSize(boundingBox.getWidth(),
                           boundingBox.getHeight());
         asPrimitive().add(decorator.asPrimitive());
-        if (getGroupItem().isVisible()) {
+        if (isVisible()) {
             showDecorator();
         } else {
             hideDecorator();
