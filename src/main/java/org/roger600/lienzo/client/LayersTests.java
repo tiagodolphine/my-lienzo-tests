@@ -18,6 +18,7 @@ import com.ait.lienzo.client.core.event.NodeMouseOverHandler;
 import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.shape.IPrimitive;
 import com.ait.lienzo.client.core.shape.Layer;
+import com.ait.lienzo.client.core.shape.MultiPath;
 import com.ait.lienzo.client.core.shape.Rectangle;
 import com.ait.lienzo.client.core.types.BoundingBox;
 import com.ait.lienzo.client.core.types.Point2D;
@@ -85,7 +86,6 @@ public class LayersTests implements MyLienzoTest,
                                   }
                               });
 
-
         group1 = new Group();
         group1.setListening(true);
         group1.addNodeMouseClickHandler(new NodeMouseClickHandler() {
@@ -99,7 +99,7 @@ public class LayersTests implements MyLienzoTest,
                                               15)
                 .setFillColor(ColorName.BLACK)
                 .setDraggable(true);
-        item1.addNodeMouseEnterHandler(new NodeMouseEnterHandler() {
+       /* item1.addNodeMouseEnterHandler(new NodeMouseEnterHandler() {
             @Override
             public void onNodeMouseEnter(NodeMouseEnterEvent event) {
                 GWT.log("ITEM #1 ENTER!!");
@@ -122,21 +122,24 @@ public class LayersTests implements MyLienzoTest,
             public void onNodeMouseOut(NodeMouseOutEvent event) {
                 GWT.log("ITEM #1 OUT!!");
             }
-        });
+        });*/
         group1.add(item1);
 
         topLayer.add(group1);
         updateItems();
 
-        //initGroupDecorator();
+        initGroupDecorator();
     }
 
     private void initGroupDecorator() {
         BoundingBox boundingBox = group1.getBoundingBox();
-        Rectangle dec = new Rectangle(boundingBox.getWidth(),
-                                      boundingBox.getHeight())
-                .setFillAlpha(0.1)
-                .setStrokeAlpha(1)
+        MultiPath dec = new MultiPath().rect(0,
+                                             0,
+                                             boundingBox.getWidth(),
+                                             boundingBox.getHeight())
+                //Rectangle dec = new Rectangle(boundingBox.getWidth(), boundingBox.getHeight())
+                .setFillAlpha(0)
+                .setStrokeAlpha(0.1)
                 .setStrokeWidth(3)
                 .setStrokeColor(ColorName.BLUE)
                 .setListening(true)

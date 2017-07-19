@@ -6,6 +6,7 @@ import com.ait.lienzo.client.core.event.NodeMouseEnterHandler;
 import com.ait.lienzo.client.core.event.NodeMouseExitHandler;
 import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.shape.IPrimitive;
+import com.ait.lienzo.client.core.shape.Shape;
 import com.ait.lienzo.client.core.types.BoundingBox;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Timer;
@@ -31,9 +32,13 @@ public class ButtonItemsImpl
                 }
             };
 
-    public ButtonItemsImpl(final
-                           IPrimitive<?> prim) {
+    public ButtonItemsImpl(final Shape<?> prim) {
         this(new ItemImpl(prim),
+             new ItemsImpl());
+    }
+
+    public ButtonItemsImpl(final Group group) {
+        this(new GroupItem(group),
              new ItemsImpl());
     }
 

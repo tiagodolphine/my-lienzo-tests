@@ -8,7 +8,11 @@ public class GroupItem extends AbstractItem<GroupItem, Group> implements Item<Gr
     private final Group group;
 
     public GroupItem() {
-        this.group = new Group();
+        this(new Group());
+    }
+
+    public GroupItem(final Group group) {
+        this.group = group;
         doHide();
     }
 

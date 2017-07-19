@@ -6,7 +6,9 @@ import com.ait.lienzo.client.core.event.NodeDragStartHandler;
 import com.ait.lienzo.client.core.event.NodeMouseClickHandler;
 import com.ait.lienzo.client.core.event.NodeMouseEnterHandler;
 import com.ait.lienzo.client.core.event.NodeMouseExitHandler;
+import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.shape.IPrimitive;
+import com.ait.lienzo.client.core.shape.Shape;
 import com.google.gwt.event.shared.HandlerRegistration;
 import org.roger600.lienzo.client.toolboxNew.primitive.AbstractPrimitiveItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.Button;
@@ -22,9 +24,13 @@ public class ButtonImpl
     private HandlerRegistration dragMoveHandlerRegistration;
     private HandlerRegistration dragEndHandlerRegistration;
 
-    public ButtonImpl(final
-                      IPrimitive<?> prim) {
+    public ButtonImpl(final Shape<?> prim) {
         this(new ItemImpl(prim));
+    }
+
+    public ButtonImpl(final
+                      Group group) {
+        this(new GroupItem(group));
     }
 
     ButtonImpl(final AbstractGroupItem item) {

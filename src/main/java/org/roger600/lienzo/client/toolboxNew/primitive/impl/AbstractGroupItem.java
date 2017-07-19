@@ -8,6 +8,7 @@ import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.shape.IPrimitive;
 import com.ait.lienzo.client.core.types.BoundingBox;
 import com.ait.tooling.nativetools.client.event.HandlerRegistrationManager;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.shared.HandlerRegistration;
 import org.roger600.lienzo.client.toolboxNew.GroupItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.AbstractPrimitiveItem;
@@ -43,6 +44,7 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
     }
 
     public T focus() {
+        GWT.log("FOCUSSS");
         if (null != focusCallback) {
             focusCallback.run();
         }
@@ -53,6 +55,7 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
     }
 
     public T unFocus() {
+        GWT.log("UN-FOCUSSS");
         if (null != unFocusCallback) {
             unFocusCallback.run();
         }

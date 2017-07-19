@@ -9,9 +9,11 @@ import com.ait.lienzo.client.core.event.NodeDragStartHandler;
 import com.ait.lienzo.client.core.event.NodeMouseClickEvent;
 import com.ait.lienzo.client.core.event.NodeMouseClickHandler;
 import com.ait.lienzo.client.core.shape.Circle;
+import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.shape.Layer;
 import com.ait.lienzo.client.core.shape.MultiPath;
 import com.ait.lienzo.client.core.shape.Rectangle;
+import com.ait.lienzo.client.core.shape.Shape;
 import com.ait.lienzo.client.core.shape.wires.WiresManager;
 import com.ait.lienzo.client.core.shape.wires.WiresShape;
 import com.ait.lienzo.shared.core.types.ColorName;
@@ -120,9 +122,11 @@ public class ToolboxTests implements MyLienzoTest,
     }
 
     private Button createButtonItem() {
-        Rectangle prim = createButtonNode(ColorName.values()[Random.nextInt(ColorName.values().length)]);
+        Shape<?> prim = createButtonNode(ColorName.values()[Random.nextInt(ColorName.values().length)]);
+        Group bGroup = new Group()
+                .add(prim);
         final Button item1 =
-                ItemFactory.buttonFor(prim)
+                ItemFactory.buttonFor(bGroup)
                         .decorate(DecoratorsFactory.box())
                         .onClick(new NodeMouseClickHandler() {
                             @Override
