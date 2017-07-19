@@ -9,7 +9,7 @@ public class GroupItem extends AbstractItem<GroupItem, Group> implements Item<Gr
 
     public GroupItem() {
         this.group = new Group();
-        hide();
+        doHide();
     }
 
     @Override
@@ -45,7 +45,7 @@ public class GroupItem extends AbstractItem<GroupItem, Group> implements Item<Gr
     public GroupItem show(final Runnable pre) {
         if (!isVisible()) {
             pre.run();
-            group.setAlpha(1);
+            doShow();
         }
         return this;
     }
@@ -53,7 +53,7 @@ public class GroupItem extends AbstractItem<GroupItem, Group> implements Item<Gr
     public GroupItem hide(final Runnable pre) {
         if (isVisible()) {
             pre.run();
-            group.setAlpha(0);
+            doHide();
         }
         return this;
     }
@@ -71,5 +71,13 @@ public class GroupItem extends AbstractItem<GroupItem, Group> implements Item<Gr
     @Override
     public Group asPrimitive() {
         return group;
+    }
+
+    private void doShow() {
+        group.setAlpha(1);
+    }
+
+    private void doHide() {
+        group.setAlpha(0);
     }
 }

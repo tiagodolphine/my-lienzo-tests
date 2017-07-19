@@ -99,12 +99,15 @@ public class ItemsImpl implements DefaultItems<ItemsImpl> {
 
     @Override
     public ItemsImpl show() {
-        groupPrimitiveItem.show();
-        // TODO ONLY DO NEXT USING CALLBACKS
-        repositionItems();
-        for (final DefaultItem button : items) {
-            button.show();
-        }
+        groupPrimitiveItem.show(new Runnable() {
+            @Override
+            public void run() {
+                repositionItems();
+                for (final DefaultItem button : items) {
+                    button.show();
+                }
+            }
+        });
         return this;
     }
 
@@ -119,12 +122,15 @@ public class ItemsImpl implements DefaultItems<ItemsImpl> {
 
     @Override
     public ItemsImpl hide() {
-        groupPrimitiveItem.hide();
-        // TODO ONLY DO NEXT USING CALLBACKS
-        for (final DefaultItem button : items) {
-            button.hide();
-        }
-        fireRefresh();
+        groupPrimitiveItem.hide(new Runnable() {
+            @Override
+            public void run() {
+                for (final DefaultItem button : items) {
+                    button.hide();
+                }
+                fireRefresh();
+            }
+        });
         return this;
     }
 

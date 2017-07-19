@@ -68,22 +68,30 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
 
     @Override
     public T show() {
-        groupItem.show(new Runnable() {
+        return show(new Runnable() {
             @Override
             public void run() {
             }
         });
-        return cast();
     }
 
     @Override
     public T hide() {
-        groupItem.hide(new Runnable() {
+        return hide(new Runnable() {
             @Override
             public void run() {
                 hideDecorator();
             }
         });
+    }
+
+    T show(final Runnable runnable) {
+        groupItem.show(runnable);
+        return cast();
+    }
+
+    T hide(final Runnable runnable) {
+        groupItem.hide(runnable);
         return cast();
     }
 

@@ -55,7 +55,7 @@ public class ToolboxImpl
 
     @Override
     public ToolboxImpl attachTo(final Layer layer) {
-        //layer.add(groupPrimitiveItem.asPrimitive());
+        layer.add(groupPrimitiveItem.asPrimitive());
         return this;
     }
 
@@ -101,10 +101,13 @@ public class ToolboxImpl
 
     @Override
     public ToolboxImpl show() {
-        groupPrimitiveItem.show();
-        // TODO: Only do if show is executed (callback)
-        reposition();
-        items.show();
+        groupPrimitiveItem.show(new Runnable() {
+            @Override
+            public void run() {
+                reposition();
+                items.show();
+            }
+        });
         return this;
     }
 
