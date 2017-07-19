@@ -1,4 +1,4 @@
-package org.roger600.lienzo.client.toolboxNew.primitive;
+package org.roger600.lienzo.client.toolboxNew.primitive.impl;
 
 import com.ait.lienzo.client.core.event.NodeMouseEnterEvent;
 import com.ait.lienzo.client.core.event.NodeMouseEnterHandler;
@@ -8,13 +8,15 @@ import com.ait.lienzo.client.core.shape.IPrimitive;
 import com.ait.lienzo.client.core.types.BoundingBox;
 import com.ait.tooling.nativetools.client.event.HandlerRegistrationManager;
 import com.google.gwt.event.shared.HandlerRegistration;
-import org.roger600.lienzo.client.toolboxNew.AbstractGroupItem;
 import org.roger600.lienzo.client.toolboxNew.GroupItem;
+import org.roger600.lienzo.client.toolboxNew.primitive.AbstractPrimitiveItem;
+import org.roger600.lienzo.client.toolboxNew.primitive.DecoratorItem;
+import org.roger600.lienzo.client.toolboxNew.primitive.DefaultDecoratorItem;
 
-public abstract class AbstractDefaultItem<T extends AbstractDefaultItem>
-        extends AbstractGroupItem<T>
-        implements DefaultItem<T> {
+public abstract class AbstractGroupItem<T extends AbstractGroupItem>
+        extends AbstractPrimitiveItem<T> {
 
+    private final GroupItem groupItem;
     private final HandlerRegistrationManager registrations = new HandlerRegistrationManager();
     private DefaultDecoratorItem<?> decorator;
     private HandlerRegistration mouseEnterHandlerRegistration;
@@ -22,10 +24,8 @@ public abstract class AbstractDefaultItem<T extends AbstractDefaultItem>
     private Runnable focusCallback;
     private Runnable unFocusCallback;
 
-    public AbstractDefaultItem() {
-        super(new GroupItem());
-        asPrimitive().add(getPrimitive());
-        initHandlers(getPrimitive());
+    protected AbstractGroupItem(final GroupItem groupItem) {
+        this.groupItem = groupItem;
     }
 
     public abstract IPrimitive<?> getPrimitive();
@@ -63,13 +63,27 @@ public abstract class AbstractDefaultItem<T extends AbstractDefaultItem>
 
     @Override
     public boolean isVisible() {
-        return getGroupItem().isVisible();
+        return groupItem.isVisible();
+    }
+
+    @Override
+    public T show() {
+        groupItem.show(new Runnable() {
+            @Override
+            public void run() {
+            }
+        });
+        return cast();
     }
 
     @Override
     public T hide() {
-        super.hide();
-        hideDecorator();
+        groupItem.hide(new Runnable() {
+            @Override
+            public void run() {
+                hideDecorator();
+            }
+        });
         return cast();
     }
 
@@ -117,11 +131,20 @@ public abstract class AbstractDefaultItem<T extends AbstractDefaultItem>
     }
 
     @Override
-    protected void preDestroy() {
-        super.preDestroy();
+    public void destroy() {
+        groupItem.destroy();
         initDecorator(null);
         destroyHandlers();
         getPrimitive().removeFromParent();
+    }
+
+    @Override
+    public IPrimitive<?> asPrimitive() {
+        return groupItem.asPrimitive();
+    }
+
+    protected GroupItem getGroupItem() {
+        return groupItem;
     }
 
     private boolean isDecorated() {
@@ -142,7 +165,7 @@ public abstract class AbstractDefaultItem<T extends AbstractDefaultItem>
         final BoundingBox boundingBox = getPrimitive().getBoundingBox();
         decorator.setSize(boundingBox.getWidth(),
                           boundingBox.getHeight());
-        asPrimitive().add(decorator.asPrimitive());
+        groupItem.add(decorator.asPrimitive());
         if (isVisible()) {
             showDecorator();
         } else {
@@ -162,7 +185,7 @@ public abstract class AbstractDefaultItem<T extends AbstractDefaultItem>
         }
     }
 
-    private void initHandlers(final IPrimitive<?> prim) {
+    protected void initHandlers(final IPrimitive<?> prim) {
         prim.setListening(true);
         registrations.register(
                 prim.addNodeMouseEnterHandler(new NodeMouseEnterHandler() {

@@ -9,15 +9,15 @@ import com.ait.lienzo.client.core.event.NodeMouseExitHandler;
 import com.ait.lienzo.client.core.types.Point2D;
 import com.google.gwt.core.client.GWT;
 import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
-import org.roger600.lienzo.client.toolboxNew.primitive.AbstractDefaultItem;
+import org.roger600.lienzo.client.toolboxNew.primitive.AbstractPrimitiveItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratorItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DefaultItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DefaultItems;
 
 public class ItemsImpl implements DefaultItems<ItemsImpl> {
 
-    private final AbstractDefaultItem groupPrimitiveItem;
-    private final List<AbstractDefaultItem> items = new LinkedList<>();
+    private final AbstractGroupItem groupPrimitiveItem;
+    private final List<AbstractPrimitiveItem> items = new LinkedList<>();
     private Point2DGrid grid;
     private Runnable refreshCallback;
 
@@ -25,12 +25,14 @@ public class ItemsImpl implements DefaultItems<ItemsImpl> {
         this(new GroupItem());
     }
 
-    ItemsImpl(final AbstractDefaultItem groupPrimitiveItem) {
+    ItemsImpl(final AbstractGroupItem groupPrimitiveItem) {
         this.groupPrimitiveItem = groupPrimitiveItem;
         this.refreshCallback = new Runnable() {
             @Override
             public void run() {
-                groupPrimitiveItem.asPrimitive().getLayer().batch();
+                if (null != groupPrimitiveItem.asPrimitive().getLayer()) {
+                    groupPrimitiveItem.asPrimitive().getLayer().batch();
+                }
             }
         };
     }
@@ -45,7 +47,7 @@ public class ItemsImpl implements DefaultItems<ItemsImpl> {
     public ItemsImpl add(final DefaultItem... items) {
         for (final DefaultItem item : items) {
             try {
-                final AbstractDefaultItem button = (AbstractDefaultItem) item;
+                final AbstractGroupItem button = (AbstractGroupItem) item;
                 this.items.add(button);
                 if (isVisible()) {
                     button.show();
@@ -55,7 +57,7 @@ public class ItemsImpl implements DefaultItems<ItemsImpl> {
                 groupPrimitiveItem.getGroupItem().add(button.asPrimitive());
             } catch (final ClassCastException e) {
                 throw new UnsupportedOperationException("This item only supports subtypes " +
-                                                                "of " + AbstractDefaultItem.class.getName());
+                                                                "of " + AbstractGroupItem.class.getName());
             }
         }
         return checkReposition();
@@ -63,9 +65,9 @@ public class ItemsImpl implements DefaultItems<ItemsImpl> {
 
     @Override
     public Iterator<DefaultItem> iterator() {
-        return new ListItemsIterator<AbstractDefaultItem>(items) {
+        return new ListItemsIterator<AbstractPrimitiveItem>(items) {
             @Override
-            protected void remove(final AbstractDefaultItem item) {
+            protected void remove(final AbstractPrimitiveItem item) {
                 items.remove(item);
                 checkReposition();
             }
@@ -138,7 +140,7 @@ public class ItemsImpl implements DefaultItems<ItemsImpl> {
         return grid;
     }
 
-    AbstractDefaultItem getGroup() {
+    AbstractGroupItem getGroup() {
         return groupPrimitiveItem;
     }
 
@@ -151,7 +153,7 @@ public class ItemsImpl implements DefaultItems<ItemsImpl> {
 
     private ItemsImpl repositionItems() {
         final Iterator<Point2D> gridIterator = grid.iterator();
-        for (final AbstractDefaultItem button : items) {
+        for (final AbstractPrimitiveItem button : items) {
             final Point2D point = gridIterator.next();
             GWT.log("BUTTON AT = " + point);
             button.asPrimitive().setLocation(point);
@@ -166,7 +168,7 @@ public class ItemsImpl implements DefaultItems<ItemsImpl> {
         }
     }
 
-    private abstract static class ListItemsIterator<I extends AbstractDefaultItem> implements Iterator<DefaultItem> {
+    private abstract static class ListItemsIterator<I extends AbstractPrimitiveItem> implements Iterator<DefaultItem> {
 
         private final List<I> items;
         private int index;

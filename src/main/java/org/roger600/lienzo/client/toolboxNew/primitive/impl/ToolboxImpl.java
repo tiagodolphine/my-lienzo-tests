@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import com.ait.lienzo.client.core.event.NodeMouseEnterHandler;
 import com.ait.lienzo.client.core.event.NodeMouseExitHandler;
+import com.ait.lienzo.client.core.shape.IPrimitive;
 import com.ait.lienzo.client.core.shape.Layer;
 import com.ait.lienzo.client.core.types.BoundingBox;
 import com.ait.lienzo.client.core.types.Point2D;
@@ -11,16 +12,17 @@ import com.ait.lienzo.shared.core.types.Direction;
 import com.google.gwt.core.client.GWT;
 import org.roger600.lienzo.client.toolboxNew.Positions;
 import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
-import org.roger600.lienzo.client.toolboxNew.primitive.AbstractDefaultItem;
+import org.roger600.lienzo.client.toolboxNew.primitive.AbstractPrimitiveItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratorItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DefaultItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DefaultToolbox;
 import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
 public class ToolboxImpl
+        extends AbstractPrimitiveItem<ToolboxImpl>
         implements DefaultToolbox<ToolboxImpl> {
 
-    private final AbstractDefaultItem groupPrimitiveItem;
+    private final AbstractGroupItem groupPrimitiveItem;
     private Supplier<BoundingBox> boundingBoxSupplier;
     private Direction at;
     private Point2D offset;
@@ -33,7 +35,7 @@ public class ToolboxImpl
     }
 
     ToolboxImpl(final Supplier<BoundingBox> boundingBoxSupplier,
-                final AbstractDefaultItem groupPrimitiveItem) {
+                final AbstractGroupItem groupPrimitiveItem) {
         this.boundingBoxSupplier = boundingBoxSupplier;
         this.groupPrimitiveItem = groupPrimitiveItem;
         this.at = Direction.NORTH_EAST;
@@ -42,15 +44,18 @@ public class ToolboxImpl
         this.refreshCallback = new Runnable() {
             @Override
             public void run() {
-                groupPrimitiveItem.getPrimitive().getLayer().batch();
+                if (null != groupPrimitiveItem.getPrimitive().getLayer()) {
+                    groupPrimitiveItem.getPrimitive().getLayer().batch();
+                }
             }
         };
-        this.items = new ItemsImpl(groupPrimitiveItem);
+        this.items = new ItemsImpl(groupPrimitiveItem)
+                .onRefresh(refreshCallback);
     }
 
     @Override
     public ToolboxImpl attachTo(final Layer layer) {
-        layer.add(groupPrimitiveItem.asPrimitive());
+        //layer.add(groupPrimitiveItem.asPrimitive());
         return this;
     }
 
@@ -167,5 +172,10 @@ public class ToolboxImpl
         if (null != refreshCallback) {
             refreshCallback.run();
         }
+    }
+
+    @Override
+    public IPrimitive<?> asPrimitive() {
+        return groupPrimitiveItem.asPrimitive();
     }
 }

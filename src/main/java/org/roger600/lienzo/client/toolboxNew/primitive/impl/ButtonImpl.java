@@ -8,13 +8,14 @@ import com.ait.lienzo.client.core.event.NodeMouseEnterHandler;
 import com.ait.lienzo.client.core.event.NodeMouseExitHandler;
 import com.ait.lienzo.client.core.shape.IPrimitive;
 import com.google.gwt.event.shared.HandlerRegistration;
-import org.roger600.lienzo.client.toolboxNew.primitive.AbstractDefaultItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.Button;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratorItem;
 
-public class ButtonImpl implements Button<ButtonImpl> {
+public class ButtonImpl
+        extends AbstractGroupItem<ButtonImpl>
+        implements Button<ButtonImpl> {
 
-    private final AbstractDefaultItem item;
+    private final AbstractGroupItem item;
     private HandlerRegistration clickHandlerRegistration;
     private HandlerRegistration dragStartHandlerRegistration;
     private HandlerRegistration dragMoveHandlerRegistration;
@@ -25,7 +26,8 @@ public class ButtonImpl implements Button<ButtonImpl> {
         this(new ItemImpl(prim));
     }
 
-    ButtonImpl(final AbstractDefaultItem item) {
+    ButtonImpl(final AbstractGroupItem item) {
+        super(item.getGroupItem());
         this.item = item;
     }
 
@@ -44,6 +46,11 @@ public class ButtonImpl implements Button<ButtonImpl> {
     @Override
     public boolean isVisible() {
         return item.isVisible();
+    }
+
+    @Override
+    public IPrimitive<?> getPrimitive() {
+        return item.asPrimitive();
     }
 
     @Override
