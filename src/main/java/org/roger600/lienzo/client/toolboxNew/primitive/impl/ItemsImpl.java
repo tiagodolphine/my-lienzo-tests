@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.ait.lienzo.client.core.event.NodeMouseEnterHandler;
 import com.ait.lienzo.client.core.event.NodeMouseExitHandler;
+import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.types.Point2D;
 import com.google.gwt.core.client.GWT;
 import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
@@ -14,7 +15,9 @@ import org.roger600.lienzo.client.toolboxNew.primitive.DecoratorItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DefaultItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DefaultItems;
 
-public class ItemsImpl implements DefaultItems<ItemsImpl> {
+public class ItemsImpl
+        extends AbstractPrimitiveItem<ItemsImpl>
+        implements DefaultItems<ItemsImpl> {
 
     private final AbstractGroupItem groupPrimitiveItem;
     private final List<AbstractPrimitiveItem> items = new LinkedList<>();
@@ -47,7 +50,7 @@ public class ItemsImpl implements DefaultItems<ItemsImpl> {
     public ItemsImpl add(final DefaultItem... items) {
         for (final DefaultItem item : items) {
             try {
-                final AbstractGroupItem button = (AbstractGroupItem) item;
+                final AbstractPrimitiveItem button = (AbstractPrimitiveItem) item;
                 this.items.add(button);
                 if (isVisible()) {
                     button.show();
@@ -57,7 +60,7 @@ public class ItemsImpl implements DefaultItems<ItemsImpl> {
                 groupPrimitiveItem.getGroupItem().add(button.asPrimitive());
             } catch (final ClassCastException e) {
                 throw new UnsupportedOperationException("This item only supports subtypes " +
-                                                                "of " + AbstractGroupItem.class.getName());
+                                                                "of " + AbstractPrimitiveItem.class.getName());
             }
         }
         return checkReposition();
@@ -108,6 +111,18 @@ public class ItemsImpl implements DefaultItems<ItemsImpl> {
                 }
             }
         });
+        return this;
+    }
+
+    @Override
+    public ItemsImpl onFocus(final Runnable callback) {
+        groupPrimitiveItem.onFocus(callback);
+        return this;
+    }
+
+    @Override
+    public ItemsImpl onUnFocus(final Runnable callback) {
+        groupPrimitiveItem.onUnFocus(callback);
         return this;
     }
 
@@ -172,6 +187,11 @@ public class ItemsImpl implements DefaultItems<ItemsImpl> {
         if (null != refreshCallback) {
             refreshCallback.run();
         }
+    }
+
+    @Override
+    public Group asPrimitive() {
+        return groupPrimitiveItem.asPrimitive();
     }
 
     private abstract static class ListItemsIterator<I extends AbstractPrimitiveItem> implements Iterator<DefaultItem> {

@@ -35,7 +35,7 @@ import org.roger600.lienzo.client.toolboxNew.primitive.DefaultToolbox;
 import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
 public class WiresShapeToolbox
-        implements DefaultToolbox<WiresShapeToolbox> {
+        implements DefaultToolbox {
 
     private final HandlerRegistrationManager registrations = new HandlerRegistrationManager();
     private final ToolboxImpl toolbox;
@@ -213,5 +213,4 @@ public class WiresShapeToolbox
     private void offset(final WiresContainer shape) {
         offset(shape.getGroup().getComputedLocation());
     }
-
 }

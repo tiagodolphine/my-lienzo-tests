@@ -4,7 +4,6 @@ import java.util.Iterator;
 
 import com.ait.lienzo.client.core.event.NodeMouseEnterHandler;
 import com.ait.lienzo.client.core.event.NodeMouseExitHandler;
-import com.ait.lienzo.client.core.shape.IPrimitive;
 import com.ait.lienzo.client.core.shape.Layer;
 import com.ait.lienzo.client.core.types.BoundingBox;
 import com.ait.lienzo.client.core.types.Point2D;
@@ -12,15 +11,13 @@ import com.ait.lienzo.shared.core.types.Direction;
 import com.google.gwt.core.client.GWT;
 import org.roger600.lienzo.client.toolboxNew.Positions;
 import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
-import org.roger600.lienzo.client.toolboxNew.primitive.AbstractPrimitiveItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratorItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DefaultItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DefaultToolbox;
 import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
 public class ToolboxImpl
-        extends AbstractPrimitiveItem<ToolboxImpl>
-        implements DefaultToolbox<ToolboxImpl> {
+        implements DefaultToolbox {
 
     private final AbstractGroupItem groupPrimitiveItem;
     private Supplier<BoundingBox> boundingBoxSupplier;
@@ -175,10 +172,5 @@ public class ToolboxImpl
         if (null != refreshCallback) {
             refreshCallback.run();
         }
-    }
-
-    @Override
-    public IPrimitive<?> asPrimitive() {
-        return groupPrimitiveItem.asPrimitive();
     }
 }

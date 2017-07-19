@@ -4,6 +4,7 @@ import com.ait.lienzo.client.core.event.NodeMouseEnterEvent;
 import com.ait.lienzo.client.core.event.NodeMouseEnterHandler;
 import com.ait.lienzo.client.core.event.NodeMouseExitEvent;
 import com.ait.lienzo.client.core.event.NodeMouseExitHandler;
+import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.shape.IPrimitive;
 import com.ait.lienzo.client.core.types.BoundingBox;
 import com.ait.tooling.nativetools.client.event.HandlerRegistrationManager;
@@ -119,11 +120,13 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
         return cast();
     }
 
+    @Override
     public T onFocus(final Runnable callback) {
         this.focusCallback = callback;
         return cast();
     }
 
+    @Override
     public T onUnFocus(final Runnable callback) {
         this.unFocusCallback = callback;
         return cast();
@@ -147,7 +150,7 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
     }
 
     @Override
-    public IPrimitive<?> asPrimitive() {
+    public Group asPrimitive() {
         return groupItem.asPrimitive();
     }
 

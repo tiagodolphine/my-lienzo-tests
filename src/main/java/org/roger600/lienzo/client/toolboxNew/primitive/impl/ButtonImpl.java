@@ -8,12 +8,13 @@ import com.ait.lienzo.client.core.event.NodeMouseEnterHandler;
 import com.ait.lienzo.client.core.event.NodeMouseExitHandler;
 import com.ait.lienzo.client.core.shape.IPrimitive;
 import com.google.gwt.event.shared.HandlerRegistration;
+import org.roger600.lienzo.client.toolboxNew.primitive.AbstractPrimitiveItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.Button;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratorItem;
 
 public class ButtonImpl
-        extends AbstractGroupItem<ButtonImpl>
-        implements Button<ButtonImpl> {
+        extends AbstractPrimitiveItem<Button>
+        implements Button {
 
     private final AbstractGroupItem item;
     private HandlerRegistration clickHandlerRegistration;
@@ -27,7 +28,6 @@ public class ButtonImpl
     }
 
     ButtonImpl(final AbstractGroupItem item) {
-        super(item.getGroupItem());
         this.item = item;
     }
 
@@ -49,7 +49,19 @@ public class ButtonImpl
     }
 
     @Override
-    public IPrimitive<?> getPrimitive() {
+    public Button onFocus(final Runnable callback) {
+        item.onFocus(callback);
+        return this;
+    }
+
+    @Override
+    public Button onUnFocus(final Runnable callback) {
+        item.onUnFocus(callback);
+        return this;
+    }
+
+    @Override
+    public IPrimitive<?> asPrimitive() {
         return item.asPrimitive();
     }
 

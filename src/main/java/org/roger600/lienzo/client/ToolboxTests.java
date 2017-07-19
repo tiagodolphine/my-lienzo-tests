@@ -32,11 +32,11 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import org.roger600.lienzo.client.toolboxNew.grid.AutoGrid;
 import org.roger600.lienzo.client.toolboxNew.grid.FixedLayoutGrid;
 import org.roger600.lienzo.client.toolboxNew.primitive.Button;
+import org.roger600.lienzo.client.toolboxNew.primitive.ButtonItems;
 import org.roger600.lienzo.client.toolboxNew.primitive.DefaultToolbox;
 import org.roger600.lienzo.client.toolboxNew.primitive.factory.ItemFactory;
 import org.roger600.lienzo.client.toolboxNew.primitive.factory.ToolboxFactory;
 import org.roger600.lienzo.client.toolboxNew.primitive.impl.DecoratorsFactory;
-import org.roger600.lienzo.client.toolboxNew.primitive.impl.WiresShapeToolbox;
 
 public class ToolboxTests implements MyLienzoTest,
                                      HasMediators,
@@ -55,7 +55,7 @@ public class ToolboxTests implements MyLienzoTest,
     private WiresShape shape1;
     private FixedLayoutGrid grid1;
     private AutoGrid autoGrid1;
-    private DefaultToolbox<?> toolbox1;
+    private DefaultToolbox toolbox1;
     private int itemCount = 0;
 
     public void test(Layer layer) {
@@ -160,8 +160,7 @@ public class ToolboxTests implements MyLienzoTest,
 
     private void addDropDownItem() {
 
-        // TODO
-        /*final double radius = BUTTON_SIZE / 2;
+        final double radius = BUTTON_SIZE / 2;
         final Circle circle = new Circle(radius)
                 .setX(radius)
                 .setY(radius)
@@ -170,25 +169,27 @@ public class ToolboxTests implements MyLienzoTest,
                 .setFillColor(ColorName.GREEN)
                 .setFillAlpha(0.8d);
 
-        final CompositeItem<? extends CompositeItem> item =
-                ItemFactory.dropDownFor(circle);
+        final ButtonItems item =
+                ItemFactory.buttonItemsFor(circle);
 
         final FixedLayoutGrid grid = new FixedLayoutGrid(BUTTON_PADDING,
-                                                   BUTTON_SIZE,
-                                                   iTowards,
-                                                   iRows,
-                                                   iCols);
+                                                         BUTTON_SIZE,
+                                                         iTowards,
+                                                         iRows,
+                                                         iCols);
 
         final Button item1 = createButtonItem();
         final Button item2 = createButtonItem();
 
         item
-            .add(item1, item2)
-            .grid(grid);
+                .decorate(DecoratorsFactory.box())
+                .add(item1,
+                     item2)
+                .grid(grid);
 
         itemCount++;
 
-        toolbox1.add(item);*/
+        toolbox1.add(item);
     }
 
     private void removeItem() {

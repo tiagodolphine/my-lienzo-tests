@@ -5,13 +5,13 @@ import com.ait.lienzo.client.core.event.NodeDragMoveHandler;
 import com.ait.lienzo.client.core.event.NodeDragStartHandler;
 import com.ait.lienzo.client.core.event.NodeMouseClickHandler;
 
-public interface Button<T extends Button> extends DefaultItem<T> {
+public interface Button extends DefaultItem<Button> {
 
-    T onClick(NodeMouseClickHandler clickHandler);
+    Button onClick(NodeMouseClickHandler clickHandler);
 
-    T onDragStart(NodeDragStartHandler handler);
+    Button onDragStart(NodeDragStartHandler handler);
 
-    T onDragMove(NodeDragMoveHandler handler);
+    Button onDragMove(NodeDragMoveHandler handler);
 
-    T onDragEnd(NodeDragEndHandler handler);
+    Button onDragEnd(NodeDragEndHandler handler);
 }
