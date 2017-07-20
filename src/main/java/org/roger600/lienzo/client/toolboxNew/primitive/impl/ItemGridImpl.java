@@ -9,26 +9,27 @@ import com.ait.lienzo.client.core.event.NodeMouseExitHandler;
 import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.types.Point2D;
 import com.google.gwt.core.client.GWT;
+import org.roger600.lienzo.client.toolboxNew.ItemGrid;
 import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
 import org.roger600.lienzo.client.toolboxNew.primitive.AbstractPrimitiveItem;
+import org.roger600.lienzo.client.toolboxNew.primitive.DecoratedItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratorItem;
-import org.roger600.lienzo.client.toolboxNew.primitive.DefaultItem;
-import org.roger600.lienzo.client.toolboxNew.primitive.DefaultItems;
 
-public class ItemsImpl
-        extends AbstractPrimitiveItem<ItemsImpl>
-        implements DefaultItems<ItemsImpl> {
+public class ItemGridImpl
+        extends AbstractPrimitiveItem<ItemGridImpl>
+        implements ItemGrid<ItemGridImpl, Point2DGrid, DecoratedItem>,
+                   DecoratedItem<ItemGridImpl> {
 
     private final AbstractGroupItem groupPrimitiveItem;
     private final List<AbstractPrimitiveItem> items = new LinkedList<>();
     private Point2DGrid grid;
     private Runnable refreshCallback;
 
-    public ItemsImpl() {
+    public ItemGridImpl() {
         this(new GroupItem());
     }
 
-    ItemsImpl(final AbstractGroupItem groupPrimitiveItem) {
+    ItemGridImpl(final AbstractGroupItem groupPrimitiveItem) {
         this.groupPrimitiveItem = groupPrimitiveItem;
         this.refreshCallback = new Runnable() {
             @Override
@@ -41,14 +42,14 @@ public class ItemsImpl
     }
 
     @Override
-    public ItemsImpl grid(final Point2DGrid grid) {
+    public ItemGridImpl grid(final Point2DGrid grid) {
         this.grid = grid;
         return checkReposition();
     }
 
     @Override
-    public ItemsImpl add(final DefaultItem... items) {
-        for (final DefaultItem item : items) {
+    public ItemGridImpl add(final DecoratedItem... items) {
+        for (final DecoratedItem item : items) {
             try {
                 final AbstractPrimitiveItem button = (AbstractPrimitiveItem) item;
                 this.items.add(button);
@@ -67,7 +68,7 @@ public class ItemsImpl
     }
 
     @Override
-    public Iterator<DefaultItem> iterator() {
+    public Iterator<DecoratedItem> iterator() {
         return new ListItemsIterator<AbstractPrimitiveItem>(items) {
             @Override
             protected void remove(final AbstractPrimitiveItem item) {
@@ -83,30 +84,30 @@ public class ItemsImpl
     }
 
     @Override
-    public ItemsImpl decorate(final DecoratorItem<?> decorator) {
+    public ItemGridImpl decorate(final DecoratorItem<?> decorator) {
         groupPrimitiveItem.decorate(decorator);
         return this;
     }
 
     @Override
-    public ItemsImpl onMouseEnter(final NodeMouseEnterHandler handler) {
+    public ItemGridImpl onMouseEnter(final NodeMouseEnterHandler handler) {
         groupPrimitiveItem.onMouseEnter(handler);
         return this;
     }
 
     @Override
-    public ItemsImpl onMouseExit(final NodeMouseExitHandler handler) {
+    public ItemGridImpl onMouseExit(final NodeMouseExitHandler handler) {
         groupPrimitiveItem.onMouseExit(handler);
         return this;
     }
 
     @Override
-    public ItemsImpl show() {
+    public ItemGridImpl show() {
         groupPrimitiveItem.show(new Runnable() {
             @Override
             public void run() {
                 repositionItems();
-                for (final DefaultItem button : items) {
+                for (final DecoratedItem button : items) {
                     button.show();
                 }
             }
@@ -115,32 +116,32 @@ public class ItemsImpl
     }
 
     @Override
-    public ItemsImpl onFocus(final Runnable callback) {
+    public ItemGridImpl onFocus(final Runnable callback) {
         groupPrimitiveItem.onFocus(callback);
         return this;
     }
 
     @Override
-    public ItemsImpl onUnFocus(final Runnable callback) {
+    public ItemGridImpl onUnFocus(final Runnable callback) {
         groupPrimitiveItem.onUnFocus(callback);
         return this;
     }
 
-    public ItemsImpl onRefresh(final Runnable refreshCallback) {
+    public ItemGridImpl onRefresh(final Runnable refreshCallback) {
         this.refreshCallback = refreshCallback;
         return this;
     }
 
-    public ItemsImpl refresh() {
+    public ItemGridImpl refresh() {
         return checkReposition();
     }
 
     @Override
-    public ItemsImpl hide() {
+    public ItemGridImpl hide() {
         groupPrimitiveItem.hide(new Runnable() {
             @Override
             public void run() {
-                for (final DefaultItem button : items) {
+                for (final DecoratedItem button : items) {
                     button.hide();
                 }
                 fireRefresh();
@@ -156,7 +157,6 @@ public class ItemsImpl
         refreshCallback = null;
     }
 
-    @Override
     public Point2DGrid getGrid() {
         return grid;
     }
@@ -165,14 +165,14 @@ public class ItemsImpl
         return groupPrimitiveItem;
     }
 
-    private ItemsImpl checkReposition() {
+    private ItemGridImpl checkReposition() {
         if (isVisible()) {
             return repositionItems();
         }
         return this;
     }
 
-    private ItemsImpl repositionItems() {
+    private ItemGridImpl repositionItems() {
         final Iterator<Point2D> gridIterator = grid.iterator();
         for (final AbstractPrimitiveItem button : items) {
             final Point2D point = gridIterator.next();
@@ -194,7 +194,7 @@ public class ItemsImpl
         return groupPrimitiveItem.asPrimitive();
     }
 
-    private abstract static class ListItemsIterator<I extends AbstractPrimitiveItem> implements Iterator<DefaultItem> {
+    private abstract static class ListItemsIterator<I extends AbstractPrimitiveItem> implements Iterator<DecoratedItem> {
 
         private final List<I> items;
         private int index;

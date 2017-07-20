@@ -29,13 +29,13 @@ import com.ait.lienzo.shared.core.types.Direction;
 import com.ait.tooling.nativetools.client.event.HandlerRegistrationManager;
 import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
 import org.roger600.lienzo.client.toolboxNew.grid.SizeConstrainedGrid;
+import org.roger600.lienzo.client.toolboxNew.primitive.DecoratedItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratorItem;
-import org.roger600.lienzo.client.toolboxNew.primitive.DefaultItem;
-import org.roger600.lienzo.client.toolboxNew.primitive.DefaultToolbox;
+import org.roger600.lienzo.client.toolboxNew.primitive.LayerToolbox;
 import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
 public class WiresShapeToolbox
-        implements DefaultToolbox {
+        implements LayerToolbox {
 
     private final HandlerRegistrationManager registrations = new HandlerRegistrationManager();
     private final ToolboxImpl toolbox;
@@ -76,13 +76,13 @@ public class WiresShapeToolbox
     }
 
     @Override
-    public WiresShapeToolbox add(final DefaultItem... items) {
+    public WiresShapeToolbox add(final DecoratedItem... items) {
         toolbox.add(items);
         return this;
     }
 
     @Override
-    public Iterator<DefaultItem> iterator() {
+    public Iterator<DecoratedItem> iterator() {
         return toolbox.iterator();
     }
 
@@ -125,11 +125,6 @@ public class WiresShapeToolbox
     public void destroy() {
         toolbox.destroy();
         registrations.removeHandler();
-    }
-
-    @Override
-    public Point2DGrid getGrid() {
-        return toolbox.getGrid();
     }
 
     private void initHandlers(final WiresShape shape) {
@@ -194,7 +189,7 @@ public class WiresShapeToolbox
     private void onResize(final AbstractWiresResizeEvent event) {
         offset((WiresContainer) event.getShape());
         // If the grid is constrained by size, update it.
-        final Point2DGrid grid = getGrid();
+        final Point2DGrid grid = toolbox.getGrid();
         if (grid instanceof SizeConstrainedGrid) {
             ((SizeConstrainedGrid) grid).setSize(event.getWidth(),
                                                  event.getHeight());

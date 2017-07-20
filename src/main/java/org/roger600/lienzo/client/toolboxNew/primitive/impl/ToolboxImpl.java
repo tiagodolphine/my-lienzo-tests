@@ -12,23 +12,21 @@ import org.roger600.lienzo.client.toolboxNew.Positions;
 import org.roger600.lienzo.client.toolboxNew.Toolbox;
 import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
 import org.roger600.lienzo.client.toolboxNew.primitive.AbstractPrimitiveItem;
+import org.roger600.lienzo.client.toolboxNew.primitive.DecoratedItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratorItem;
-import org.roger600.lienzo.client.toolboxNew.primitive.DefaultItem;
-import org.roger600.lienzo.client.toolboxNew.primitive.DefaultItems;
 import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
 public class ToolboxImpl
         extends AbstractPrimitiveItem<ToolboxImpl>
-        implements Toolbox<ToolboxImpl, Point2DGrid, DefaultItem>,
-                   DefaultItem<ToolboxImpl>,
-                   DefaultItems<ToolboxImpl> {
+        implements Toolbox<ToolboxImpl, Point2DGrid, DecoratedItem>,
+                   DecoratedItem<ToolboxImpl> {
 
     private final AbstractGroupItem groupPrimitiveItem;
     private Supplier<BoundingBox> boundingBoxSupplier;
     private Direction at;
     private Point2D offset;
     private Runnable refreshCallback;
-    private final ItemsImpl items;
+    private final ItemGridImpl items;
 
     public ToolboxImpl(final Supplier<BoundingBox> boundingBoxSupplier) {
         this(boundingBoxSupplier,
@@ -50,7 +48,7 @@ public class ToolboxImpl
                 }
             }
         };
-        this.items = new ItemsImpl(groupPrimitiveItem)
+        this.items = new ItemGridImpl(groupPrimitiveItem)
                 .onRefresh(refreshCallback);
     }
 
@@ -60,7 +58,6 @@ public class ToolboxImpl
         return checkReposition();
     }
 
-    @Override
     public Point2DGrid getGrid() {
         return items.getGrid();
     }
@@ -78,13 +75,13 @@ public class ToolboxImpl
     }
 
     @Override
-    public ToolboxImpl add(final DefaultItem... items) {
+    public ToolboxImpl add(final DecoratedItem... items) {
         this.items.add(items);
         return this;
     }
 
     @Override
-    public Iterator<DefaultItem> iterator() {
+    public Iterator<DecoratedItem> iterator() {
         return items.iterator();
     }
 
@@ -165,7 +162,7 @@ public class ToolboxImpl
         return groupPrimitiveItem.asPrimitive();
     }
 
-    ItemsImpl getItems() {
+    ItemGridImpl getItems() {
         return items;
     }
 

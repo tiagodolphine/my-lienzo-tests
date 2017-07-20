@@ -9,11 +9,11 @@ public class GroupItem extends AbstractGroupItem<GroupItem> {
 
     private final MultiPath groupDecorator;
 
-    public GroupItem() {
+    GroupItem() {
         this(new Group());
     }
 
-    public GroupItem(final Group group) {
+    GroupItem(final Group group) {
         super(new org.roger600.lienzo.client.toolboxNew.GroupItem(group));
         this.groupDecorator = registerGroupDecorator(group);
         initHandlers(groupDecorator);

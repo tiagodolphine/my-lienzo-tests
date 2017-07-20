@@ -1,6 +1,6 @@
 package org.roger600.lienzo.client.toolboxNew;
 
-public interface Items<T extends Items, G extends Grid, I extends Item>
+public interface ItemGrid<T extends ItemGrid, G extends Grid, I extends Item>
         extends Item<T>,
                 Iterable<I> {
 

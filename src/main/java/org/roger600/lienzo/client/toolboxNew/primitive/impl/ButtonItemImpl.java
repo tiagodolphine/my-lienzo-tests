@@ -7,16 +7,15 @@ import com.ait.lienzo.client.core.event.NodeMouseClickHandler;
 import com.ait.lienzo.client.core.event.NodeMouseEnterHandler;
 import com.ait.lienzo.client.core.event.NodeMouseExitHandler;
 import com.ait.lienzo.client.core.shape.Group;
-import com.ait.lienzo.client.core.shape.IPrimitive;
 import com.ait.lienzo.client.core.shape.Shape;
 import com.google.gwt.event.shared.HandlerRegistration;
 import org.roger600.lienzo.client.toolboxNew.primitive.AbstractPrimitiveItem;
-import org.roger600.lienzo.client.toolboxNew.primitive.Button;
+import org.roger600.lienzo.client.toolboxNew.primitive.ButtonItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratorItem;
 
-public class ButtonImpl
-        extends AbstractPrimitiveItem<Button>
-        implements Button {
+public class ButtonItemImpl
+        extends AbstractPrimitiveItem<ButtonItem>
+        implements ButtonItem {
 
     private final AbstractGroupItem item;
     private HandlerRegistration clickHandlerRegistration;
@@ -24,27 +23,27 @@ public class ButtonImpl
     private HandlerRegistration dragMoveHandlerRegistration;
     private HandlerRegistration dragEndHandlerRegistration;
 
-    public ButtonImpl(final Shape<?> prim) {
+    public ButtonItemImpl(final Shape<?> prim) {
         this(new ItemImpl(prim));
     }
 
-    public ButtonImpl(final
-                      Group group) {
+    public ButtonItemImpl(final
+                          Group group) {
         this(new GroupItem(group));
     }
 
-    ButtonImpl(final AbstractGroupItem item) {
+    ButtonItemImpl(final AbstractGroupItem item) {
         this.item = item;
     }
 
     @Override
-    public ButtonImpl show() {
+    public ButtonItemImpl show() {
         item.show();
         return this;
     }
 
     @Override
-    public ButtonImpl hide() {
+    public ButtonItemImpl hide() {
         item.hide();
         return this;
     }
@@ -55,41 +54,41 @@ public class ButtonImpl
     }
 
     @Override
-    public Button onFocus(final Runnable callback) {
+    public ButtonItem onFocus(final Runnable callback) {
         item.onFocus(callback);
         return this;
     }
 
     @Override
-    public Button onUnFocus(final Runnable callback) {
+    public ButtonItem onUnFocus(final Runnable callback) {
         item.onUnFocus(callback);
         return this;
     }
 
     @Override
-    public IPrimitive<?> asPrimitive() {
+    public Group asPrimitive() {
         return item.asPrimitive();
     }
 
     @Override
-    public ButtonImpl decorate(final DecoratorItem<?> decorator) {
+    public ButtonItemImpl decorate(final DecoratorItem<?> decorator) {
         item.decorate(decorator);
         return this;
     }
 
     @Override
-    public ButtonImpl onMouseEnter(final NodeMouseEnterHandler handler) {
+    public ButtonItemImpl onMouseEnter(final NodeMouseEnterHandler handler) {
         item.onMouseEnter(handler);
         return this;
     }
 
     @Override
-    public ButtonImpl onMouseExit(final NodeMouseExitHandler handler) {
+    public ButtonItemImpl onMouseExit(final NodeMouseExitHandler handler) {
         item.onMouseExit(handler);
         return this;
     }
 
-    public ButtonImpl onDragStart(final NodeDragStartHandler handler) {
+    public ButtonItemImpl onDragStart(final NodeDragStartHandler handler) {
         assert null != handler;
         removeDragStartHandlerRegistration();
         dragStartHandlerRegistration = item
@@ -100,7 +99,7 @@ public class ButtonImpl
         return this;
     }
 
-    public ButtonImpl onDragMove(final NodeDragMoveHandler handler) {
+    public ButtonItemImpl onDragMove(final NodeDragMoveHandler handler) {
         assert null != handler;
         removeDragMoveHandlerRegistration();
         dragMoveHandlerRegistration = item
@@ -111,7 +110,7 @@ public class ButtonImpl
         return this;
     }
 
-    public ButtonImpl onDragEnd(final NodeDragEndHandler handler) {
+    public ButtonItemImpl onDragEnd(final NodeDragEndHandler handler) {
         assert null != handler;
         removeDragEndHandlerRegistration();
         dragEndHandlerRegistration = item
@@ -123,7 +122,7 @@ public class ButtonImpl
     }
 
     @Override
-    public ButtonImpl onClick(final NodeMouseClickHandler handler) {
+    public ButtonItemImpl onClick(final NodeMouseClickHandler handler) {
         assert null != handler;
         removeClickHandlerRegistration();
         clickHandlerRegistration = item

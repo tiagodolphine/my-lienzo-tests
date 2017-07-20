@@ -33,9 +33,9 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import org.roger600.lienzo.client.toolboxNew.grid.AutoGrid;
 import org.roger600.lienzo.client.toolboxNew.grid.FixedLayoutGrid;
-import org.roger600.lienzo.client.toolboxNew.primitive.Button;
-import org.roger600.lienzo.client.toolboxNew.primitive.ButtonItems;
-import org.roger600.lienzo.client.toolboxNew.primitive.DefaultToolbox;
+import org.roger600.lienzo.client.toolboxNew.primitive.ButtonGridItem;
+import org.roger600.lienzo.client.toolboxNew.primitive.ButtonItem;
+import org.roger600.lienzo.client.toolboxNew.primitive.LayerToolbox;
 import org.roger600.lienzo.client.toolboxNew.primitive.factory.ItemFactory;
 import org.roger600.lienzo.client.toolboxNew.primitive.factory.ToolboxFactory;
 import org.roger600.lienzo.client.toolboxNew.primitive.impl.DecoratorsFactory;
@@ -57,7 +57,7 @@ public class ToolboxTests implements MyLienzoTest,
     private WiresShape shape1;
     private FixedLayoutGrid grid1;
     private AutoGrid autoGrid1;
-    private DefaultToolbox toolbox1;
+    private LayerToolbox toolbox1;
     private int itemCount = 0;
 
     public void test(Layer layer) {
@@ -121,11 +121,11 @@ public class ToolboxTests implements MyLienzoTest,
         toolbox1.hide();
     }
 
-    private Button createButtonItem() {
+    private ButtonItem createButtonItem() {
         Shape<?> prim = createButtonNode(ColorName.values()[Random.nextInt(ColorName.values().length)]);
         Group bGroup = new Group()
                 .add(prim);
-        final Button item1 =
+        final ButtonItem item1 =
                 ItemFactory.buttonFor(bGroup)
                         .decorate(DecoratorsFactory.box())
                         .onClick(new NodeMouseClickHandler() {
@@ -158,7 +158,7 @@ public class ToolboxTests implements MyLienzoTest,
     }
 
     private void addButtonItem() {
-        final Button item1 = createButtonItem();
+        final ButtonItem item1 = createButtonItem();
         toolbox1.add(item1);
     }
 
@@ -173,7 +173,7 @@ public class ToolboxTests implements MyLienzoTest,
                 .setFillColor(ColorName.GREEN)
                 .setFillAlpha(0.8d);
 
-        final ButtonItems item =
+        final ButtonGridItem item =
                 ItemFactory.buttonItemsFor(circle);
 
         final FixedLayoutGrid grid = new FixedLayoutGrid(BUTTON_PADDING,
@@ -182,8 +182,8 @@ public class ToolboxTests implements MyLienzoTest,
                                                          iRows,
                                                          iCols);
 
-        final Button item1 = createButtonItem();
-        final Button item2 = createButtonItem();
+        final ButtonItem item1 = createButtonItem();
+        final ButtonItem item2 = createButtonItem();
 
         item
                 .decorate(DecoratorsFactory.box())
