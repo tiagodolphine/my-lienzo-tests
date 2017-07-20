@@ -12,6 +12,7 @@ import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.shape.IPrimitive;
 import com.ait.lienzo.client.core.shape.Shape;
 import com.ait.lienzo.client.core.types.BoundingBox;
+import com.ait.lienzo.client.core.types.Point2D;
 import com.ait.lienzo.shared.core.types.Direction;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Timer;
@@ -67,6 +68,11 @@ public class ButtonGridItemImpl
 
     public ButtonGridItem at(final Direction at) {
         toolbox.at(at);
+        return this;
+    }
+
+    public ButtonGridItem offset(final Point2D offset) {
+        toolbox.offset(offset);
         return this;
     }
 

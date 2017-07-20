@@ -174,7 +174,7 @@ public class ToolboxTests implements MyLienzoTest,
                 .setFillAlpha(0.8d);
 
         final ButtonGridItem item =
-                ItemFactory.buttonItemsFor(circle);
+                ItemFactory.dropDownFor(circle);
 
         final FixedLayoutGrid grid = new FixedLayoutGrid(BUTTON_PADDING,
                                                          BUTTON_SIZE,
@@ -186,10 +186,16 @@ public class ToolboxTests implements MyLienzoTest,
         final ButtonItem item2 = createButtonItem();
 
         item
+                .grid(grid)
                 .decorate(DecoratorsFactory.box())
+                .onClick(new NodeMouseClickHandler() {
+                    @Override
+                    public void onNodeMouseClick(NodeMouseClickEvent event) {
+                        GWT.log("BUTTON ITEM GRID CLICK!!");
+                    }
+                })
                 .add(item1,
-                     item2)
-                .grid(grid);
+                     item2);
 
         itemCount++;
 
