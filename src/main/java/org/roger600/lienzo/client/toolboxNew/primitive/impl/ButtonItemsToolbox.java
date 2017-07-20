@@ -8,6 +8,7 @@ import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.shape.IPrimitive;
 import com.ait.lienzo.client.core.shape.Shape;
 import com.ait.lienzo.client.core.types.BoundingBox;
+import com.ait.lienzo.shared.core.types.Direction;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Timer;
 import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
@@ -15,50 +16,65 @@ import org.roger600.lienzo.client.toolboxNew.primitive.AbstractPrimitiveItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.ButtonItems;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratorItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DefaultItem;
+import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
-public class ButtonItemsImpl
+public class ButtonItemsToolbox
         extends AbstractPrimitiveItem<ButtonItems>
         implements ButtonItems {
 
     private static final int TIMER_DELAY_MILLIS = 500;
 
     private final AbstractGroupItem item;
-    private final ItemsImpl itemsGrid;
+    private final ToolboxImpl toolbox;
     private final Timer itemsGroupFocusTimer =
             new Timer() {
                 @Override
                 public void run() {
-                    itemsGrid.hide();
+                    toolbox.hide();
                 }
             };
 
-    public ButtonItemsImpl(final Shape<?> prim) {
+    public ButtonItemsToolbox(final Shape<?> prim) {
         this(new ItemImpl(prim),
-             new ItemsImpl());
+             new ToolboxImpl(new Supplier<BoundingBox>() {
+                 @Override
+                 public BoundingBox get() {
+                     return prim.getBoundingBox();
+                 }
+             }));
     }
 
-    public ButtonItemsImpl(final Group group) {
+    public ButtonItemsToolbox(final Group group) {
         this(new GroupItem(group),
-             new ItemsImpl());
+             new ToolboxImpl(new Supplier<BoundingBox>() {
+                 @Override
+                 public BoundingBox get() {
+                     return group.getBoundingBox();
+                 }
+             }));
     }
 
-    ButtonItemsImpl(final AbstractGroupItem item,
-                    final ItemsImpl itemsGrid) {
+    ButtonItemsToolbox(final AbstractGroupItem item,
+                       final ToolboxImpl toolbox) {
         this.item = item;
-        this.itemsGrid = itemsGrid;
+        this.toolbox = toolbox;
         init();
+    }
+
+    public ButtonItems at(final Direction at) {
+        toolbox.at(at);
+        return this;
     }
 
     @Override
     public ButtonItems grid(final Point2DGrid grid) {
-        itemsGrid.grid(grid);
+        toolbox.grid(grid);
         return this;
     }
 
     @Override
     public ButtonItems decorate(final DecoratorItem<?> decorator) {
         item.decorate(decorator);
-        // TODO: items.
         return this;
     }
 
@@ -71,7 +87,7 @@ public class ButtonItemsImpl
     @Override
     public ButtonItems hide() {
         item.hide();
-        itemsGrid.hide();
+        toolbox.hide();
         return this;
     }
 
@@ -82,7 +98,7 @@ public class ButtonItemsImpl
 
     @Override
     public ButtonItems add(final DefaultItem... items) {
-        itemsGrid.add(items);
+        toolbox.add(items);
         for (final DefaultItem item : items) {
             try {
                 final AbstractPrimitiveItem primitiveItem = (AbstractPrimitiveItem) item;
@@ -98,7 +114,7 @@ public class ButtonItemsImpl
 
     @Override
     public Iterator<DefaultItem> iterator() {
-        return itemsGrid.iterator();
+        return toolbox.iterator();
     }
 
     @Override
@@ -116,12 +132,12 @@ public class ButtonItemsImpl
     @Override
     public void destroy() {
         item.destroy();
-        itemsGrid.destroy();
+        toolbox.destroy();
     }
 
     @Override
     public Point2DGrid getGrid() {
-        return itemsGrid.getGrid();
+        return toolbox.getGrid();
     }
 
     @Override
@@ -140,20 +156,12 @@ public class ButtonItemsImpl
     }
 
     private void init() {
-        attachItemsGroup();
         this.item
                 .onFocus(focusCallback)
                 .onUnFocus(unFocusCallback)
                 .asPrimitive()
-                .setDraggable(false);
-    }
-
-    private void attachItemsGroup() {
-        final Group primGroup = item.asPrimitive();
-        final BoundingBox boundingBox = item.getPrimitive().getBoundingBox();
-        primGroup.add(itemsGrid.asPrimitive()
-                              .setX(boundingBox.getX())
-                              .setY(boundingBox.getHeight()));
+                .setDraggable(false)
+                .add(toolbox.asPrimitive());
     }
 
     private final Runnable itemFocusCallback = new Runnable() {
@@ -176,7 +184,7 @@ public class ButtonItemsImpl
         @Override
         public void run() {
             GWT.log("ICON FOCUS");
-            itemsGrid.show();
+            toolbox.show();
             stopTimer();
         }
     };

@@ -6,7 +6,7 @@ import org.roger600.lienzo.client.toolboxNew.primitive.Button;
 import org.roger600.lienzo.client.toolboxNew.primitive.ButtonItems;
 import org.roger600.lienzo.client.toolboxNew.primitive.ShapeItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.impl.ButtonImpl;
-import org.roger600.lienzo.client.toolboxNew.primitive.impl.ButtonItemsImpl;
+import org.roger600.lienzo.client.toolboxNew.primitive.impl.ButtonItemsToolbox;
 import org.roger600.lienzo.client.toolboxNew.primitive.impl.ShapeItemImpl;
 
 public class ItemFactory {
@@ -24,10 +24,10 @@ public class ItemFactory {
     }
 
     public static ButtonItems buttonItemsFor(final Shape<?> shape) {
-        return new ButtonItemsImpl(shape);
+        return new ButtonItemsToolbox(shape);
     }
 
     public static ButtonItems buttonItemsFor(final Group group) {
-        return new ButtonItemsImpl(group);
+        return new ButtonItemsToolbox(group);
     }
 }

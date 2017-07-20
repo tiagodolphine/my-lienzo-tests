@@ -4,20 +4,24 @@ import java.util.Iterator;
 
 import com.ait.lienzo.client.core.event.NodeMouseEnterHandler;
 import com.ait.lienzo.client.core.event.NodeMouseExitHandler;
-import com.ait.lienzo.client.core.shape.Layer;
+import com.ait.lienzo.client.core.shape.IPrimitive;
 import com.ait.lienzo.client.core.types.BoundingBox;
 import com.ait.lienzo.client.core.types.Point2D;
 import com.ait.lienzo.shared.core.types.Direction;
-import com.google.gwt.core.client.GWT;
 import org.roger600.lienzo.client.toolboxNew.Positions;
+import org.roger600.lienzo.client.toolboxNew.Toolbox;
 import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
+import org.roger600.lienzo.client.toolboxNew.primitive.AbstractPrimitiveItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratorItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DefaultItem;
-import org.roger600.lienzo.client.toolboxNew.primitive.DefaultToolbox;
+import org.roger600.lienzo.client.toolboxNew.primitive.DefaultItems;
 import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
 public class ToolboxImpl
-        implements DefaultToolbox {
+        extends AbstractPrimitiveItem<ToolboxImpl>
+        implements Toolbox<ToolboxImpl, Point2DGrid, DefaultItem>,
+                   DefaultItem<ToolboxImpl>,
+                   DefaultItems<ToolboxImpl> {
 
     private final AbstractGroupItem groupPrimitiveItem;
     private Supplier<BoundingBox> boundingBoxSupplier;
@@ -48,12 +52,6 @@ public class ToolboxImpl
         };
         this.items = new ItemsImpl(groupPrimitiveItem)
                 .onRefresh(refreshCallback);
-    }
-
-    @Override
-    public ToolboxImpl attachTo(final Layer layer) {
-        layer.add(groupPrimitiveItem.asPrimitive());
-        return this;
     }
 
     @Override
@@ -108,6 +106,17 @@ public class ToolboxImpl
         return this;
     }
 
+    @Override
+    public ToolboxImpl hide() {
+        groupPrimitiveItem.hide(new Runnable() {
+            @Override
+            public void run() {
+                fireRefresh();
+            }
+        });
+        return this;
+    }
+
     public ToolboxImpl refresh() {
         checkReposition();
         items.refresh();
@@ -132,10 +141,14 @@ public class ToolboxImpl
     }
 
     @Override
-    public ToolboxImpl hide() {
-        groupPrimitiveItem.hide();
-        // TODO: Only do if show is executed (callback)
-        fireRefresh();
+    public ToolboxImpl onFocus(final Runnable callback) {
+        groupPrimitiveItem.onFocus(callback);
+        return this;
+    }
+
+    @Override
+    public ToolboxImpl onUnFocus(final Runnable callback) {
+        groupPrimitiveItem.onUnFocus(callback);
         return this;
     }
 
@@ -145,6 +158,11 @@ public class ToolboxImpl
         groupPrimitiveItem.destroy();
         at = null;
         refreshCallback = null;
+    }
+
+    @Override
+    public IPrimitive<?> asPrimitive() {
+        return groupPrimitiveItem.asPrimitive();
     }
 
     ItemsImpl getItems() {
@@ -159,11 +177,8 @@ public class ToolboxImpl
     }
 
     private void reposition() {
-        GWT.log("BB is = " + boundingBoxSupplier.get());
         Point2D loc = Positions.anchorFor(boundingBoxSupplier.get(),
                                           this.at);
-        GWT.log("OFFSET = " + offset);
-        GWT.log("LOC = " + loc);
         groupPrimitiveItem.asPrimitive().setLocation(loc.offset(offset));
         fireRefresh();
     }

@@ -53,7 +53,7 @@ public class WiresShapeToolbox
 
     @Override
     public WiresShapeToolbox attachTo(final Layer layer) {
-        toolbox.attachTo(layer);
+        layer.add(toolbox.asPrimitive());
         return this;
     }
 
