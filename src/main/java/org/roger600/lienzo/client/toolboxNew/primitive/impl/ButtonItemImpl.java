@@ -13,7 +13,7 @@ public class ButtonItemImpl
         extends WrappedItem<ButtonItem>
         implements ButtonItem {
 
-    private final AbstractGroupItem item;
+    private final AbstractGroupItem<?> item;
     private HandlerRegistration clickHandlerRegistration;
     private HandlerRegistration dragStartHandlerRegistration;
     private HandlerRegistration dragMoveHandlerRegistration;
@@ -93,7 +93,7 @@ public class ButtonItemImpl
         return item;
     }
 
-    AbstractGroupItem getGroupItem() {
+    AbstractGroupItem<?> getGroupItem() {
         return item;
     }
 

@@ -21,7 +21,6 @@ import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
 import org.roger600.lienzo.client.toolboxNew.primitive.AbstractDecoratedItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.ButtonGridItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratedItem;
-import org.roger600.lienzo.client.toolboxNew.primitive.DecoratorItem;
 import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
 public class ButtonGridItemImpl
@@ -48,23 +47,21 @@ public class ButtonGridItemImpl
 
     public ButtonGridItemImpl(final Shape<?> prim) {
         this(new ItemImpl(prim),
-             new ToolboxImpl(new Supplier<BoundingBox>() {
-                 @Override
-                 public BoundingBox get() {
-                     return prim.getBoundingBox();
-                 }
-             }));
+             new ToolboxImpl());
     }
 
     public ButtonGridItemImpl(final Group group) {
         this(new ItemImpl(group),
-             new ToolboxImpl(new Supplier<BoundingBox>() {
-                 @Override
-                 public BoundingBox get() {
-                     return group.getBoundingBox();
-                 }
-             }));
+             new ToolboxImpl());
     }
+
+    private final Supplier<BoundingBox> bbSupplier =
+            new Supplier<BoundingBox>() {
+                @Override
+                public BoundingBox get() {
+                    return button.getPrimitive().getBoundingBox();
+                }
+            };
 
     ButtonGridItemImpl(final AbstractGroupItem groupItem,
                        final ToolboxImpl toolbox) {
@@ -86,12 +83,6 @@ public class ButtonGridItemImpl
     @Override
     public ButtonGridItem grid(final Point2DGrid grid) {
         toolbox.grid(grid);
-        return this;
-    }
-
-    @Override
-    public ButtonGridItem decorate(final DecoratorItem<?> decorator) {
-        button.decorate(decorator);
         return this;
     }
 
@@ -194,6 +185,7 @@ public class ButtonGridItemImpl
     }
 
     private void init() {
+        toolbox.forBoundingBox(bbSupplier);
         // Register custom focus/un-focus behaviors.
         registerItemFocusHandler(button,
                                  focusCallback);
@@ -210,7 +202,7 @@ public class ButtonGridItemImpl
         button.getGroupItem()
                 .registrations()
                 .register(
-                        item.getAttachable().addNodeMouseEnterHandler(new NodeMouseEnterHandler() {
+                        item.getPrimitive().addNodeMouseEnterHandler(new NodeMouseEnterHandler() {
                             @Override
                             public void onNodeMouseEnter(NodeMouseEnterEvent event) {
                                 callback.run();
@@ -224,7 +216,7 @@ public class ButtonGridItemImpl
         button.getGroupItem()
                 .registrations()
                 .register(
-                        item.getAttachable().addNodeMouseExitHandler(new NodeMouseExitHandler() {
+                        item.getPrimitive().addNodeMouseExitHandler(new NodeMouseExitHandler() {
                             @Override
                             public void onNodeMouseExit(NodeMouseExitEvent event) {
                                 callback.run();

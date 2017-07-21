@@ -6,14 +6,16 @@ import com.ait.lienzo.client.core.event.NodeMouseEnterHandler;
 import com.ait.lienzo.client.core.event.NodeMouseExitEvent;
 import com.ait.lienzo.client.core.event.NodeMouseExitHandler;
 import com.ait.lienzo.client.core.shape.Group;
-import com.ait.lienzo.client.core.shape.IPrimitive;
 import com.ait.lienzo.client.core.types.BoundingBox;
 import com.ait.tooling.nativetools.client.event.HandlerRegistrationManager;
 import com.google.gwt.event.shared.HandlerRegistration;
 import org.roger600.lienzo.client.toolboxNew.GroupItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.AbstractDecoratedItem;
+import org.roger600.lienzo.client.toolboxNew.primitive.AbstractDecoratorItem;
+import org.roger600.lienzo.client.toolboxNew.primitive.AbstractPrimitiveItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratorItem;
-import org.roger600.lienzo.client.toolboxNew.primitive.DefaultDecoratorItem;
+import org.roger600.lienzo.client.toolboxNew.primitive.TooltipItem;
+import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
 public abstract class AbstractGroupItem<T extends AbstractGroupItem>
         extends AbstractDecoratedItem<T> {
@@ -24,7 +26,8 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
     private final GroupItem groupItem;
     private final HandlerRegistrationManager registrations = new HandlerRegistrationManager();
     private final FocusGroupExecutor focusGroupExecutor;
-    private DefaultDecoratorItem<?> decorator;
+    private DecoratorItem<?> decorator;
+    private TooltipItem<?> tooltip;
     private HandlerRegistration mouseEnterHandlerRegistration;
     private HandlerRegistration mouseExitHandlerRegistration;
 
@@ -34,12 +37,10 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
         this.groupItem.useShowExecutor(focusGroupExecutor);
     }
 
-    public abstract IPrimitive<?> getPrimitive();
-
     public T setupFocusingHandlers() {
-        getAttachable().setListening(true);
+        getPrimitive().setListening(true);
         registrations.register(
-                getAttachable().addNodeMouseEnterHandler(new NodeMouseEnterHandler() {
+                getPrimitive().addNodeMouseEnterHandler(new NodeMouseEnterHandler() {
                     @Override
                     public void onNodeMouseEnter(NodeMouseEnterEvent event) {
                         focus();
@@ -47,7 +48,7 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
                 })
         );
         registrations.register(
-                getAttachable().addNodeMouseExitHandler(new NodeMouseExitHandler() {
+                getPrimitive().addNodeMouseExitHandler(new NodeMouseExitHandler() {
                     @Override
                     public void onNodeMouseExit(NodeMouseExitEvent event) {
                         unFocus();
@@ -70,11 +71,18 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
     @Override
     public T decorate(final DecoratorItem<?> decorator) {
         try {
-            initDecorator((DefaultDecoratorItem<?>) decorator);
+            initDecorator((AbstractDecoratorItem<?>) decorator);
         } catch (final ClassCastException e) {
             throw new UnsupportedOperationException("This item only supports decorators " +
-                                                            "of type " + DefaultDecoratorItem.class.getName());
+                                                            "of type " + AbstractDecoratorItem.class.getName());
         }
+        return cast();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public T tooltip(final TooltipItem tooltip) {
+        initTooltip(tooltip);
         return cast();
     }
 
@@ -88,7 +96,7 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
         return hide(new Runnable() {
                         @Override
                         public void run() {
-                            hideDecorator();
+                            hideAddOns();
                         }
                     },
                     new Runnable() {
@@ -120,7 +128,7 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
         if (null != mouseEnterHandlerRegistration) {
             mouseEnterHandlerRegistration.removeHandler();
         }
-        mouseEnterHandlerRegistration = getAttachable()
+        mouseEnterHandlerRegistration = getPrimitive()
                 .addNodeMouseEnterHandler(handler);
         register(mouseEnterHandlerRegistration);
         return cast();
@@ -132,7 +140,7 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
         if (null != mouseExitHandlerRegistration) {
             mouseExitHandlerRegistration.removeHandler();
         }
-        mouseExitHandlerRegistration = getAttachable()
+        mouseExitHandlerRegistration = getPrimitive()
                 .addNodeMouseExitHandler(handler);
         register(mouseExitHandlerRegistration);
         return cast();
@@ -164,46 +172,89 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
         return groupItem;
     }
 
-    private boolean isDecorated() {
-        return null != this.decorator;
+    @SuppressWarnings("unchecked")
+    private void initTooltip(final TooltipItem<?> tooltipItem) {
+        if (hasTooltip()) {
+            this.tooltip.destroy();
+        }
+        this.tooltip = tooltipItem;
+        if (hasTooltip()) {
+            attachTooltip();
+            updateAddOnsVisibility();
+        }
     }
 
-    private void initDecorator(final DefaultDecoratorItem<?> decorator) {
+    private void initDecorator(final AbstractDecoratorItem<?> decorator) {
         if (isDecorated()) {
             this.decorator.destroy();
         }
         this.decorator = decorator;
         if (isDecorated()) {
             attachDecorator();
+            updateAddOnsVisibility();
         }
     }
 
     private void attachDecorator() {
-        final BoundingBox boundingBox = getPrimitive().getBoundingBox();
-        decorator.setSize(boundingBox.getWidth(),
-                          boundingBox.getHeight());
-        groupItem.add(decorator.asPrimitive());
-        if (isVisible()) {
-            showDecorator();
-        } else {
-            hideDecorator();
+        decorator.forBoundingBox(new Supplier<BoundingBox>() {
+            @Override
+            public BoundingBox get() {
+                return getPrimitive().getBoundingBox();
+            }
+        });
+        if (decorator instanceof AbstractPrimitiveItem) {
+            groupItem.add(((AbstractPrimitiveItem) decorator).asPrimitive());
         }
     }
 
-    private void showDecorator() {
+    private void attachTooltip() {
+        tooltip.forBoundingBox(new Supplier<BoundingBox>() {
+            @Override
+            public BoundingBox get() {
+                return getPrimitive().getBoundingBox();
+            }
+        });
+        if (tooltip instanceof AbstractPrimitiveItem) {
+            groupItem.add(((AbstractPrimitiveItem) tooltip).asPrimitive());
+        }
+    }
+
+    private void updateAddOnsVisibility() {
+        if (isVisible()) {
+            showAddOns();
+        } else {
+            hideAddOns();
+        }
+    }
+
+    private void showAddOns() {
         if (isDecorated()) {
             this.decorator.show();
         }
+        if (hasTooltip()) {
+            this.tooltip.show();
+        }
     }
 
-    private void hideDecorator() {
+    private void hideAddOns() {
         if (isDecorated()) {
             this.decorator.hide();
+        }
+        if (hasTooltip()) {
+            this.tooltip.hide();
         }
     }
 
     private void destroyHandlers() {
         registrations.removeHandler();
+    }
+
+    private boolean isDecorated() {
+        return null != this.decorator;
+    }
+
+    private boolean hasTooltip() {
+        return null != this.tooltip;
     }
 
     private class FocusGroupExecutor
@@ -215,17 +266,13 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
         }
 
         public void focus() {
-            if (isDecorated()) {
-                showDecorator();
-            }
+            showAddOns();
             setAlpha(ALPHA_FOCUSED);
             apply(asPrimitive());
         }
 
         public void unFocus() {
-            if (isDecorated()) {
-                hideDecorator();
-            }
+            hideAddOns();
             setAlpha(ALPHA_UNFOCUSED);
             apply(asPrimitive());
         }

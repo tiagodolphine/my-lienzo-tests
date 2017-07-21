@@ -1,6 +1,6 @@
 package org.roger600.lienzo.client.toolboxNew.primitive;
 
-import com.ait.lienzo.client.core.shape.Shape;
+import com.ait.lienzo.client.core.shape.IPrimitive;
 
 public abstract class AbstractDecoratedItem<T extends DecoratedItem>
         extends AbstractPrimitiveItem<T>
@@ -58,5 +58,5 @@ public abstract class AbstractDecoratedItem<T extends DecoratedItem>
     public abstract T hide(Runnable before,
                            Runnable after);
 
-    public abstract Shape<?> getAttachable();
+    public abstract IPrimitive<?> getPrimitive();
 }

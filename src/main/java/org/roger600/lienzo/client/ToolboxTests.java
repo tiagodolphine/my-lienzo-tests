@@ -42,9 +42,11 @@ import org.roger600.lienzo.client.toolboxNew.grid.FixedLayoutGrid;
 import org.roger600.lienzo.client.toolboxNew.primitive.ButtonGridItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.ButtonItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.LayerToolbox;
+import org.roger600.lienzo.client.toolboxNew.primitive.TooltipItem;
+import org.roger600.lienzo.client.toolboxNew.primitive.factory.DecoratorsFactory;
 import org.roger600.lienzo.client.toolboxNew.primitive.factory.ItemFactory;
 import org.roger600.lienzo.client.toolboxNew.primitive.factory.ToolboxFactory;
-import org.roger600.lienzo.client.toolboxNew.primitive.impl.DecoratorsFactory;
+import org.roger600.lienzo.client.toolboxNew.primitive.impl.TextTooltipItem;
 
 public class ToolboxTests implements MyLienzoTest,
                                      HasMediators,
@@ -113,9 +115,11 @@ public class ToolboxTests implements MyLienzoTest,
 
         // BPMN icon
         addButtonItem(LienzoTestsResources.INSTANCE.taskUserComposite().getSafeUri(),
+                      "USER",
                       BUTTON_SIZE,
                       BUTTON_SIZE);
         addButtonItem(LienzoTestsResources.INSTANCE.taskScriptComposite().getSafeUri(),
+                      "SCRIPT",
                       BUTTON_SIZE,
                       BUTTON_SIZE);
     }
@@ -194,6 +198,7 @@ public class ToolboxTests implements MyLienzoTest,
     }
 
     private void addButtonItem(final SafeUri uri,
+                               final String title,
                                final double w,
                                final double h) {
         new Picture(uri.asString(),
@@ -204,6 +209,8 @@ public class ToolboxTests implements MyLienzoTest,
                                          w,
                                          h);
                             final ButtonItem picItem = createButtonItem(new Group().add(picture));
+                            TooltipItem<?> tooltip = TextTooltipItem.Builder.atEast(title);
+                            picItem.tooltip(tooltip);
                             toolbox1.add(picItem);
                         }
                     });

@@ -1,10 +1,7 @@
 package org.roger600.lienzo.client.toolboxNew.primitive;
 
-import com.ait.lienzo.client.core.shape.IPrimitive;
-import org.roger600.lienzo.client.toolboxNew.AbstractItem;
-
-public abstract class DefaultDecoratorItem<T extends DefaultDecoratorItem>
-        extends AbstractItem<T, IPrimitive<?>>
+public abstract class AbstractDecoratorItem<T extends AbstractDecoratorItem>
+        extends AbstractPrimitiveItem<T>
         implements DecoratorItem<T> {
 
     @Override

@@ -1,23 +1,18 @@
-package org.roger600.lienzo.client.toolboxNew.primitive.impl;
+package org.roger600.lienzo.client.toolboxNew.primitive.factory;
 
 import com.ait.lienzo.client.core.shape.Rectangle;
-import org.roger600.lienzo.client.toolboxNew.primitive.DefaultDecoratorItem;
+import com.ait.lienzo.client.core.types.BoundingBox;
+import org.roger600.lienzo.client.toolboxNew.primitive.AbstractDecoratorItem;
+import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
 public class DecoratorsFactory {
 
     public static BoxDecorator box() {
-        return new BoxDecorator(1,
-                                1);
-    }
-
-    public static BoxDecorator box(final double width,
-                                   final double height) {
-        return new BoxDecorator(width,
-                                height);
+        return new BoxDecorator();
     }
 
     public static class BoxDecorator
-            extends DefaultDecoratorItem<BoxDecorator> {
+            extends AbstractDecoratorItem<BoxDecorator> {
 
         private static final String DECORATOR_STROKE_COLOR = "#595959";
         private static final double DECORATOR_STROKE_WIDTH = 1.5;
@@ -27,8 +22,7 @@ public class DecoratorsFactory {
 
         private final Rectangle decorator;
 
-        private BoxDecorator(final double width,
-                             final double height) {
+        private BoxDecorator() {
             this.decorator = new Rectangle(1,
                                            1)
                     .setCornerRadius(DECORATOR_CORNER_RADIUS)
@@ -37,8 +31,6 @@ public class DecoratorsFactory {
                     .setDraggable(false)
                     .setFillAlpha(0)
                     .setFillBoundsForSelection(false);
-            setSize(width,
-                    height);
         }
 
         public BoxDecorator setStrokeWidth(final double strokeWidth) {
@@ -57,11 +49,10 @@ public class DecoratorsFactory {
         }
 
         @Override
-        public BoxDecorator setSize(final double width,
-                                    final double height) {
+        public BoxDecorator forBoundingBox(final Supplier<BoundingBox> boundingBoxSupplier) {
             this.decorator
-                    .setWidth(width + PADDING)
-                    .setHeight(height + PADDING)
+                    .setWidth(boundingBoxSupplier.get().getWidth() + PADDING)
+                    .setHeight(boundingBoxSupplier.get().getHeight() + PADDING)
                     .setX(OFFSET)
                     .setY(OFFSET);
             return this;

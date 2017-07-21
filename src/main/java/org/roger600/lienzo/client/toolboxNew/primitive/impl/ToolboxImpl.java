@@ -3,7 +3,6 @@ package org.roger600.lienzo.client.toolboxNew.primitive.impl;
 import java.util.Iterator;
 
 import com.ait.lienzo.client.core.shape.Group;
-import com.ait.lienzo.client.core.shape.Shape;
 import com.ait.lienzo.client.core.types.BoundingBox;
 import com.ait.lienzo.client.core.types.Point2D;
 import com.ait.lienzo.shared.core.types.Direction;
@@ -29,6 +28,10 @@ public class ToolboxImpl
         this(boundingBoxSupplier,
              new ItemImpl(new Group())
                      .setupFocusingHandlers());
+    }
+
+    ToolboxImpl() {
+        this(null);
     }
 
     ToolboxImpl(final Supplier<BoundingBox> boundingBoxSupplier,
@@ -117,6 +120,11 @@ public class ToolboxImpl
         return this;
     }
 
+    public ToolboxImpl forBoundingBox(final Supplier<BoundingBox> supplier) {
+        this.boundingBoxSupplier = supplier;
+        return this;
+    }
+
     @Override
     public void destroy() {
         items.destroy();
@@ -128,11 +136,6 @@ public class ToolboxImpl
     @Override
     protected AbstractGroupItem<?> getWrapped() {
         return groupPrimitiveItem;
-    }
-
-    @Override
-    public Shape<?> getAttachable() {
-        return groupPrimitiveItem.getAttachable();
     }
 
     ItemGridImpl getItems() {

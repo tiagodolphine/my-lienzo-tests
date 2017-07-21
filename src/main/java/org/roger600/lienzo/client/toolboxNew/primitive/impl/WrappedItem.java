@@ -3,12 +3,14 @@ package org.roger600.lienzo.client.toolboxNew.primitive.impl;
 import com.ait.lienzo.client.core.event.NodeMouseEnterHandler;
 import com.ait.lienzo.client.core.event.NodeMouseExitHandler;
 import com.ait.lienzo.client.core.shape.Group;
-import com.ait.lienzo.client.core.shape.Shape;
+import com.ait.lienzo.client.core.shape.IPrimitive;
 import org.roger600.lienzo.client.toolboxNew.primitive.AbstractDecoratedItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratedItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratorItem;
+import org.roger600.lienzo.client.toolboxNew.primitive.TooltipItem;
 
-public abstract class WrappedItem<T extends DecoratedItem> extends AbstractDecoratedItem<T> {
+public abstract class WrappedItem<T extends DecoratedItem>
+        extends AbstractDecoratedItem<T> {
 
     protected abstract AbstractGroupItem<?> getWrapped();
 
@@ -29,8 +31,8 @@ public abstract class WrappedItem<T extends DecoratedItem> extends AbstractDecor
     }
 
     @Override
-    public Shape<?> getAttachable() {
-        return getWrapped().getAttachable();
+    public IPrimitive<?> getPrimitive() {
+        return getWrapped().getPrimitive();
     }
 
     @Override
@@ -46,6 +48,12 @@ public abstract class WrappedItem<T extends DecoratedItem> extends AbstractDecor
     @Override
     public T decorate(final DecoratorItem<?> decorator) {
         getWrapped().decorate(decorator);
+        return cast();
+    }
+
+    @Override
+    public T tooltip(final TooltipItem<?> tooltip) {
+        getWrapped().tooltip(tooltip);
         return cast();
     }
 

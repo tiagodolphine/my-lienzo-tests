@@ -10,24 +10,17 @@ import org.roger600.lienzo.client.toolboxNew.GroupItem;
 class ItemImpl extends AbstractGroupItem<ItemImpl> {
 
     private final IPrimitive<?> primitive;
-    private final Shape<?> attachable;
 
     ItemImpl(final Group group) {
         super(new GroupItem(group));
-        this.primitive = group;
-        this.attachable = registerGroupDecorator(group);
+        this.primitive = createGroupDecorator(group);
+        getGroupItem().add(primitive);
     }
 
     ItemImpl(final Shape<?> shape) {
         super(new GroupItem());
         this.primitive = shape;
-        this.attachable = shape;
         getGroupItem().add(primitive);
-    }
-
-    @Override
-    public Shape<?> getAttachable() {
-        return attachable;
     }
 
     @Override
@@ -35,7 +28,7 @@ class ItemImpl extends AbstractGroupItem<ItemImpl> {
         return primitive;
     }
 
-    private static MultiPath registerGroupDecorator(final Group group) {
+    private static MultiPath createGroupDecorator(final Group group) {
         final BoundingBox boundingBox = group.getBoundingBox();
         final MultiPath path = new MultiPath().rect(0,
                                                     0,
@@ -46,7 +39,6 @@ class ItemImpl extends AbstractGroupItem<ItemImpl> {
                 .setListening(true)
                 .setFillBoundsForSelection(true)
                 .moveToTop();
-        group.add(path);
         return path;
     }
 }

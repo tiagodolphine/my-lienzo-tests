@@ -32,6 +32,7 @@ import org.roger600.lienzo.client.toolboxNew.grid.SizeConstrainedGrid;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratedItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratorItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.LayerToolbox;
+import org.roger600.lienzo.client.toolboxNew.primitive.TooltipItem;
 import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
 public class WiresShapeToolbox
@@ -106,6 +107,12 @@ public class WiresShapeToolbox
     @Override
     public WiresShapeToolbox decorate(final DecoratorItem<?> decorator) {
         toolbox.decorate(decorator);
+        return this;
+    }
+
+    @Override
+    public LayerToolbox tooltip(final TooltipItem tooltip) {
+        toolbox.tooltip(tooltip);
         return this;
     }
 

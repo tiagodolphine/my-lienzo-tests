@@ -10,6 +10,8 @@ public interface DecoratedItem<T extends DecoratedItem> extends Item<T> {
 
     T decorate(DecoratorItem<?> decorator);
 
+    T tooltip(TooltipItem<?> tooltip);
+
     T onMouseEnter(NodeMouseEnterHandler handler);
 
     T onMouseExit(NodeMouseExitHandler handler);
