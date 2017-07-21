@@ -45,6 +45,7 @@ public class LienzoTests implements EntryPoint {
             new WiresDragHandlersTests(),
             new DragHandlersTests(),
             new SVGPicturesTests(),
+            new BPMNIconsTests(),
             new ContainerTests(),
             new SVGTests(),
             new UXSVGTests(),

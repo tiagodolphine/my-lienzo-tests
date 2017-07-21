@@ -1,156 +1,156 @@
 package org.roger600.lienzo.client;
 
+import java.util.Map;
+
 import com.ait.lienzo.client.core.Attribute;
-import com.ait.lienzo.client.core.event.*;
+import com.ait.lienzo.client.core.event.AnimationFrameAttributesChangedBatcher;
+import com.ait.lienzo.client.core.event.AttributesChangedEvent;
+import com.ait.lienzo.client.core.event.AttributesChangedHandler;
+import com.ait.lienzo.client.core.event.IAttributesChangedBatcher;
+import com.ait.lienzo.client.core.event.NodeMouseClickEvent;
+import com.ait.lienzo.client.core.event.NodeMouseClickHandler;
 import com.ait.lienzo.client.core.shape.Layer;
 import com.ait.lienzo.client.core.shape.MultiPath;
 import com.ait.lienzo.client.core.shape.Rectangle;
 import com.ait.lienzo.client.core.shape.wires.IControlHandle;
 import com.ait.lienzo.client.core.shape.wires.IControlHandleList;
 import com.ait.lienzo.client.core.types.BoundingBox;
-import com.ait.lienzo.client.core.types.PathPartList;
 import com.ait.lienzo.shared.core.types.ColorName;
 import com.ait.tooling.common.api.flow.Flows;
 import com.google.gwt.core.client.GWT;
-
-import java.util.Map;
 
 import static com.ait.lienzo.client.core.AttributeOp.any;
 
 public class MultiPathAttributesChangedTests implements MyLienzoTest {
 
-    private static final Flows.BooleanOp XY_OP  = any( Attribute.X, Attribute.Y );
-    private static final Flows.BooleanOp WH_OP  = any( Attribute.WIDTH, Attribute.HEIGHT );
-    private static final Flows.BooleanOp POINTS_OP  = any( Attribute.PATH );
+    private static final Flows.BooleanOp XY_OP = any(Attribute.X,
+                                                     Attribute.Y);
+    private static final Flows.BooleanOp WH_OP = any(Attribute.WIDTH,
+                                                     Attribute.HEIGHT);
+    private static final Flows.BooleanOp POINTS_OP = any(Attribute.PATH);
 
     private final IAttributesChangedBatcher attributesChangedBatcher = new AnimationFrameAttributesChangedBatcher();
     private IControlHandleList m_ctrls;
-    private MultiPath    m_multi;
+    private MultiPath m_multi;
     private Layer layer;
 
-    public void test( final Layer layer ) {
+    public void test(final Layer layer) {
         this.layer = layer;
 
         m_multi = new MultiPath()
-                .rect( 100, 100, 100, 100 )
-                .setFillColor( ColorName.RED )
-                .setDraggable( true );
+                .rect(100,
+                      100,
+                      100,
+                      100)
+                .setFillColor(ColorName.RED)
+                .setDraggable(true);
 
         applyPathResize();
 
-        layer.add( m_multi );
+        layer.add(m_multi);
 
-        addButtons( 0, 0 );
+        addButtons(0,
+                   0);
 
         initAttChangedHandler();
-   }
+    }
 
-    private void initAttChangedHandler()
-    {
+    private void initAttChangedHandler() {
         m_multi.setAttributesChangedBatcher(attributesChangedBatcher);
 
-        final AttributesChangedHandler handler = new AttributesChangedHandler()
-        {
+        final AttributesChangedHandler handler = new AttributesChangedHandler() {
             @Override
-            public void onAttributesChanged(AttributesChangedEvent event)
-            {
-                GWT.log( "HANDLER FIRED -> " + event.toJSONString() );
+            public void onAttributesChanged(AttributesChangedEvent event) {
+                GWT.log("HANDLER FIRED -> " + event.toJSONString());
 
-                if (event.evaluate(XY_OP))
-                {
-                    GWT.log( "SHAPE MOVED TO [" + m_multi.getX() + ", "
-                    + m_multi.getY() + "]!!");
+                if (event.evaluate(XY_OP)) {
+                    GWT.log("SHAPE MOVED TO [" + m_multi.getX() + ", "
+                                    + m_multi.getY() + "]!!");
                 }
-                if (event.evaluate(WH_OP))
-                {
+                if (event.evaluate(WH_OP)) {
                     BoundingBox bb = m_multi.getBoundingBox();
-                    GWT.log( "SHAPE RESIZED TO [" + bb.getWidth() + ", "
-                            + bb.getHeight() + "]!!");
+                    GWT.log("SHAPE RESIZED TO [" + bb.getWidth() + ", "
+                                    + bb.getHeight() + "]!!");
                 }
-                if (event.evaluate(POINTS_OP))
-                {
+                if (event.evaluate(POINTS_OP)) {
                     BoundingBox bb = m_multi.getBoundingBox();
-                    GWT.log( "SHAPE PATH RESIZED TO [" + bb.getWidth() + ", "
-                            + bb.getHeight() + "]!!");
+                    GWT.log("SHAPE PATH RESIZED TO [" + bb.getWidth() + ", "
+                                    + bb.getHeight() + "]!!");
                 }
             }
         };
 
         // Attribute change handlers.
-        m_multi.addAttributesChangedHandler(Attribute.X, handler);
-        m_multi.addAttributesChangedHandler(Attribute.Y, handler);
-        m_multi.addAttributesChangedHandler(Attribute.WIDTH, handler);
-        m_multi.addAttributesChangedHandler(Attribute.HEIGHT, handler);
-        m_multi.addAttributesChangedHandler(Attribute.PATH, handler);
+        m_multi.addAttributesChangedHandler(Attribute.X,
+                                            handler);
+        m_multi.addAttributesChangedHandler(Attribute.Y,
+                                            handler);
+        m_multi.addAttributesChangedHandler(Attribute.WIDTH,
+                                            handler);
+        m_multi.addAttributesChangedHandler(Attribute.HEIGHT,
+                                            handler);
+        m_multi.addAttributesChangedHandler(Attribute.PATH,
+                                            handler);
 
         Attribute[] allAttrs = getAllAttributes();
-        for ( final Attribute a : allAttrs ) {
-            m_multi.addAttributesChangedHandler(a, handler);
+        for (final Attribute a : allAttrs) {
+            m_multi.addAttributesChangedHandler(a,
+                                                handler);
         }
-
     }
 
-    private void addButtons( final double x, final double y ) {
-        Rectangle moveButton = new Rectangle( 100, 50 )
-                .setX( x )
-                .setY( y )
-                .setFillColor( ColorName.BLUE );
+    private void addButtons(final double x,
+                            final double y) {
+        Rectangle moveButton = new Rectangle(100,
+                                             50)
+                .setX(x)
+                .setY(y)
+                .setFillColor(ColorName.BLUE);
 
-        moveButton.addNodeMouseClickHandler( new NodeMouseClickHandler() {
+        moveButton.addNodeMouseClickHandler(new NodeMouseClickHandler() {
             @Override
-            public void onNodeMouseClick( NodeMouseClickEvent event ) {
+            public void onNodeMouseClick(NodeMouseClickEvent event) {
 
-                m_multi.setX( 500 ).setY( 500 );
+                m_multi.setX(500).setY(500);
                 //m_multi.setFillColor( ColorName.BLACK );
                 layer.batch();
             }
-        } );
+        });
 
-        layer.add( moveButton );
+        layer.add(moveButton);
     }
 
     private void applyPathResize() {
-        m_multi.addNodeMouseClickHandler(new NodeMouseClickHandler()
-        {
+        m_multi.addNodeMouseClickHandler(new NodeMouseClickHandler() {
             @Override
-            public void onNodeMouseClick(NodeMouseClickEvent event)
-            {
-                if (event.isShiftKeyDown())
-                {
-                    if (null != m_ctrls)
-                    {
+            public void onNodeMouseClick(NodeMouseClickEvent event) {
+                if (event.isShiftKeyDown()) {
+                    if (null != m_ctrls) {
                         m_ctrls.destroy();
 
                         m_ctrls = null;
                     }
-                    Map<IControlHandle.ControlHandleType, IControlHandleList> hmap = m_multi.getControlHandles( IControlHandle.ControlHandleStandardType.RESIZE);
+                    Map<IControlHandle.ControlHandleType, IControlHandleList> hmap = m_multi.getControlHandles(IControlHandle.ControlHandleStandardType.RESIZE);
 
-                    if (null != hmap)
-                    {
-                        m_ctrls = hmap.get( IControlHandle.ControlHandleStandardType.RESIZE);
+                    if (null != hmap) {
+                        m_ctrls = hmap.get(IControlHandle.ControlHandleStandardType.RESIZE);
 
-                        if ((null != m_ctrls) && (m_ctrls.isActive()))
-                        {
+                        if ((null != m_ctrls) && (m_ctrls.isActive())) {
                             m_ctrls.show();
                         }
                     }
-                }
-                else if (event.isAltKeyDown())
-                {
-                    if (null != m_ctrls)
-                    {
+                } else if (event.isAltKeyDown()) {
+                    if (null != m_ctrls) {
                         m_ctrls.destroy();
 
                         m_ctrls = null;
                     }
-                    Map<IControlHandle.ControlHandleType, IControlHandleList> hmap = m_multi.getControlHandles( IControlHandle.ControlHandleStandardType.POINT);
+                    Map<IControlHandle.ControlHandleType, IControlHandleList> hmap = m_multi.getControlHandles(IControlHandle.ControlHandleStandardType.POINT);
 
-                    if (null != hmap)
-                    {
-                        m_ctrls = hmap.get( IControlHandle.ControlHandleStandardType.POINT);
+                    if (null != hmap) {
+                        m_ctrls = hmap.get(IControlHandle.ControlHandleStandardType.POINT);
 
-                        if ((null != m_ctrls) && (m_ctrls.isActive()))
-                        {
+                        if ((null != m_ctrls) && (m_ctrls.isActive())) {
                             m_ctrls.show();
                         }
                     }
@@ -159,9 +159,8 @@ public class MultiPathAttributesChangedTests implements MyLienzoTest {
         });
     }
 
-
-    private Attribute[] getAllAttributes() {
-        return new Attribute[] {
+    public static Attribute[] getAllAttributes() {
+        return new Attribute[]{
                 Attribute.HEIGHT,
                 Attribute.CORNER_RADIUS,
                 Attribute.FILL,

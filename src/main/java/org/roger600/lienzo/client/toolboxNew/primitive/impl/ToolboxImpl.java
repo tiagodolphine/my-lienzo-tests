@@ -2,22 +2,19 @@ package org.roger600.lienzo.client.toolboxNew.primitive.impl;
 
 import java.util.Iterator;
 
-import com.ait.lienzo.client.core.event.NodeMouseEnterHandler;
-import com.ait.lienzo.client.core.event.NodeMouseExitHandler;
-import com.ait.lienzo.client.core.shape.IPrimitive;
+import com.ait.lienzo.client.core.shape.Group;
+import com.ait.lienzo.client.core.shape.Shape;
 import com.ait.lienzo.client.core.types.BoundingBox;
 import com.ait.lienzo.client.core.types.Point2D;
 import com.ait.lienzo.shared.core.types.Direction;
 import org.roger600.lienzo.client.toolboxNew.Positions;
 import org.roger600.lienzo.client.toolboxNew.Toolbox;
 import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
-import org.roger600.lienzo.client.toolboxNew.primitive.AbstractPrimitiveItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratedItem;
-import org.roger600.lienzo.client.toolboxNew.primitive.DecoratorItem;
 import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
 public class ToolboxImpl
-        extends AbstractPrimitiveItem<ToolboxImpl>
+        extends WrappedItem<ToolboxImpl>
         implements Toolbox<ToolboxImpl, Point2DGrid, DecoratedItem>,
                    DecoratedItem<ToolboxImpl> {
 
@@ -30,7 +27,8 @@ public class ToolboxImpl
 
     public ToolboxImpl(final Supplier<BoundingBox> boundingBoxSupplier) {
         this(boundingBoxSupplier,
-             new GroupItem());
+             new ItemImpl(new Group())
+                     .setupFocusingHandlers());
     }
 
     ToolboxImpl(final Supplier<BoundingBox> boundingBoxSupplier,
@@ -86,26 +84,25 @@ public class ToolboxImpl
     }
 
     @Override
-    public ToolboxImpl decorate(final DecoratorItem<?> decorator) {
-        groupPrimitiveItem.decorate(decorator);
-        return this;
-    }
-
-    @Override
     public ToolboxImpl show() {
-        groupPrimitiveItem.show(new Runnable() {
-            @Override
-            public void run() {
-                reposition();
-                items.show();
-            }
-        });
+        getWrapped().show(new Runnable() {
+                              @Override
+                              public void run() {
+                                  reposition();
+                              }
+                          },
+                          new Runnable() {
+                              @Override
+                              public void run() {
+                                  items.show();
+                              }
+                          });
         return this;
     }
 
     @Override
     public ToolboxImpl hide() {
-        groupPrimitiveItem.hide(new Runnable() {
+        getWrapped().hide(new Runnable() {
             @Override
             public void run() {
                 fireRefresh();
@@ -121,45 +118,21 @@ public class ToolboxImpl
     }
 
     @Override
-    public boolean isVisible() {
-        return groupPrimitiveItem.isVisible();
-    }
-
-    @Override
-    public ToolboxImpl onMouseEnter(final NodeMouseEnterHandler handler) {
-        groupPrimitiveItem.onMouseEnter(handler);
-        return this;
-    }
-
-    @Override
-    public ToolboxImpl onMouseExit(final NodeMouseExitHandler handler) {
-        groupPrimitiveItem.onMouseExit(handler);
-        return this;
-    }
-
-    @Override
-    public ToolboxImpl onFocus(final Runnable callback) {
-        groupPrimitiveItem.onFocus(callback);
-        return this;
-    }
-
-    @Override
-    public ToolboxImpl onUnFocus(final Runnable callback) {
-        groupPrimitiveItem.onUnFocus(callback);
-        return this;
-    }
-
-    @Override
     public void destroy() {
         items.destroy();
-        groupPrimitiveItem.destroy();
         at = null;
         refreshCallback = null;
+        super.destroy();
     }
 
     @Override
-    public IPrimitive<?> asPrimitive() {
-        return groupPrimitiveItem.asPrimitive();
+    protected AbstractGroupItem<?> getWrapped() {
+        return groupPrimitiveItem;
+    }
+
+    @Override
+    public Shape<?> getAttachable() {
+        return groupPrimitiveItem.getAttachable();
     }
 
     ItemGridImpl getItems() {
@@ -174,8 +147,8 @@ public class ToolboxImpl
     }
 
     private void reposition() {
-        Point2D loc = Positions.anchorFor(boundingBoxSupplier.get(),
-                                          this.at);
+        final Point2D loc = Positions.anchorFor(boundingBoxSupplier.get(),
+                                                this.at);
         groupPrimitiveItem.asPrimitive().setLocation(loc.offset(offset));
         fireRefresh();
     }

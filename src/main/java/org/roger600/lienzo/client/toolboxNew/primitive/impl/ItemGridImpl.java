@@ -4,29 +4,26 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.ait.lienzo.client.core.event.NodeMouseEnterHandler;
-import com.ait.lienzo.client.core.event.NodeMouseExitHandler;
 import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.types.Point2D;
 import com.google.gwt.core.client.GWT;
 import org.roger600.lienzo.client.toolboxNew.ItemGrid;
 import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
-import org.roger600.lienzo.client.toolboxNew.primitive.AbstractPrimitiveItem;
+import org.roger600.lienzo.client.toolboxNew.primitive.AbstractDecoratedItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratedItem;
-import org.roger600.lienzo.client.toolboxNew.primitive.DecoratorItem;
 
 public class ItemGridImpl
-        extends AbstractPrimitiveItem<ItemGridImpl>
-        implements ItemGrid<ItemGridImpl, Point2DGrid, DecoratedItem>,
-                   DecoratedItem<ItemGridImpl> {
+        extends WrappedItem<ItemGridImpl>
+        implements ItemGrid<ItemGridImpl, Point2DGrid, DecoratedItem> {
 
     private final AbstractGroupItem groupPrimitiveItem;
-    private final List<AbstractPrimitiveItem> items = new LinkedList<>();
+    private final List<AbstractDecoratedItem> items = new LinkedList<>();
     private Point2DGrid grid;
     private Runnable refreshCallback;
 
     public ItemGridImpl() {
-        this(new GroupItem());
+        this(new ItemImpl(new Group())
+                     .setupFocusingHandlers());
     }
 
     ItemGridImpl(final AbstractGroupItem groupPrimitiveItem) {
@@ -51,7 +48,7 @@ public class ItemGridImpl
     public ItemGridImpl add(final DecoratedItem... items) {
         for (final DecoratedItem item : items) {
             try {
-                final AbstractPrimitiveItem button = (AbstractPrimitiveItem) item;
+                final AbstractDecoratedItem button = (AbstractDecoratedItem) item;
                 this.items.add(button);
                 if (isVisible()) {
                     button.show();
@@ -61,7 +58,7 @@ public class ItemGridImpl
                 groupPrimitiveItem.getGroupItem().add(button.asPrimitive());
             } catch (final ClassCastException e) {
                 throw new UnsupportedOperationException("This item only supports subtypes " +
-                                                                "of " + AbstractPrimitiveItem.class.getName());
+                                                                "of " + AbstractDecoratedItem.class.getName());
             }
         }
         return checkReposition();
@@ -69,9 +66,9 @@ public class ItemGridImpl
 
     @Override
     public Iterator<DecoratedItem> iterator() {
-        return new ListItemsIterator<AbstractPrimitiveItem>(items) {
+        return new ListItemsIterator<AbstractDecoratedItem>(items) {
             @Override
-            protected void remove(final AbstractPrimitiveItem item) {
+            protected void remove(final AbstractDecoratedItem item) {
                 items.remove(item);
                 checkReposition();
             }
@@ -79,51 +76,22 @@ public class ItemGridImpl
     }
 
     @Override
-    public boolean isVisible() {
-        return groupPrimitiveItem.isVisible();
-    }
-
-    @Override
-    public ItemGridImpl decorate(final DecoratorItem<?> decorator) {
-        groupPrimitiveItem.decorate(decorator);
-        return this;
-    }
-
-    @Override
-    public ItemGridImpl onMouseEnter(final NodeMouseEnterHandler handler) {
-        groupPrimitiveItem.onMouseEnter(handler);
-        return this;
-    }
-
-    @Override
-    public ItemGridImpl onMouseExit(final NodeMouseExitHandler handler) {
-        groupPrimitiveItem.onMouseExit(handler);
-        return this;
-    }
-
-    @Override
     public ItemGridImpl show() {
-        groupPrimitiveItem.show(new Runnable() {
-            @Override
-            public void run() {
-                repositionItems();
-                for (final DecoratedItem button : items) {
-                    button.show();
-                }
-            }
-        });
-        return this;
-    }
+        getWrapped().show(new Runnable() {
+                              @Override
+                              public void run() {
 
-    @Override
-    public ItemGridImpl onFocus(final Runnable callback) {
-        groupPrimitiveItem.onFocus(callback);
-        return this;
-    }
-
-    @Override
-    public ItemGridImpl onUnFocus(final Runnable callback) {
-        groupPrimitiveItem.onUnFocus(callback);
+                              }
+                          },
+                          new Runnable() {
+                              @Override
+                              public void run() {
+                                  repositionItems();
+                                  for (final DecoratedItem button : items) {
+                                      button.show();
+                                  }
+                              }
+                          });
         return this;
     }
 
@@ -138,7 +106,7 @@ public class ItemGridImpl
 
     @Override
     public ItemGridImpl hide() {
-        groupPrimitiveItem.hide(new Runnable() {
+        getWrapped().hide(new Runnable() {
             @Override
             public void run() {
                 for (final DecoratedItem button : items) {
@@ -152,7 +120,7 @@ public class ItemGridImpl
 
     @Override
     public void destroy() {
-        groupPrimitiveItem.destroy();
+        getWrapped().destroy();
         items.clear();
         refreshCallback = null;
     }
@@ -174,7 +142,7 @@ public class ItemGridImpl
 
     private ItemGridImpl repositionItems() {
         final Iterator<Point2D> gridIterator = grid.iterator();
-        for (final AbstractPrimitiveItem button : items) {
+        for (final AbstractDecoratedItem button : items) {
             final Point2D point = gridIterator.next();
             GWT.log("BUTTON AT = " + point);
             button.asPrimitive().setLocation(point);
@@ -190,11 +158,11 @@ public class ItemGridImpl
     }
 
     @Override
-    public Group asPrimitive() {
-        return groupPrimitiveItem.asPrimitive();
+    protected AbstractGroupItem<?> getWrapped() {
+        return groupPrimitiveItem;
     }
 
-    private abstract static class ListItemsIterator<I extends AbstractPrimitiveItem> implements Iterator<DecoratedItem> {
+    private abstract static class ListItemsIterator<I extends AbstractDecoratedItem> implements Iterator<DecoratedItem> {
 
         private final List<I> items;
         private int index;

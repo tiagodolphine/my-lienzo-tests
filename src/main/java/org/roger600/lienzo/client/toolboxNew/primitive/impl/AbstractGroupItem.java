@@ -1,5 +1,6 @@
 package org.roger600.lienzo.client.toolboxNew.primitive.impl;
 
+import com.ait.lienzo.client.core.animation.AnimationTweener;
 import com.ait.lienzo.client.core.event.NodeMouseEnterEvent;
 import com.ait.lienzo.client.core.event.NodeMouseEnterHandler;
 import com.ait.lienzo.client.core.event.NodeMouseExitEvent;
@@ -8,29 +9,63 @@ import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.shape.IPrimitive;
 import com.ait.lienzo.client.core.types.BoundingBox;
 import com.ait.tooling.nativetools.client.event.HandlerRegistrationManager;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.shared.HandlerRegistration;
 import org.roger600.lienzo.client.toolboxNew.GroupItem;
-import org.roger600.lienzo.client.toolboxNew.primitive.AbstractPrimitiveItem;
+import org.roger600.lienzo.client.toolboxNew.primitive.AbstractDecoratedItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratorItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DefaultDecoratorItem;
 
 public abstract class AbstractGroupItem<T extends AbstractGroupItem>
-        extends AbstractPrimitiveItem<T> {
+        extends AbstractDecoratedItem<T> {
+
+    private static final double ALPHA_FOCUSED = 1d;
+    private static final double ALPHA_UNFOCUSED = 0.5d;
 
     private final GroupItem groupItem;
     private final HandlerRegistrationManager registrations = new HandlerRegistrationManager();
+    private final FocusGroupExecutor focusGroupExecutor;
     private DefaultDecoratorItem<?> decorator;
     private HandlerRegistration mouseEnterHandlerRegistration;
     private HandlerRegistration mouseExitHandlerRegistration;
-    private Runnable focusCallback;
-    private Runnable unFocusCallback;
 
     protected AbstractGroupItem(final GroupItem groupItem) {
         this.groupItem = groupItem;
+        this.focusGroupExecutor = new FocusGroupExecutor();
+        this.groupItem.useShowExecutor(focusGroupExecutor);
     }
 
     public abstract IPrimitive<?> getPrimitive();
+
+    public T setupFocusingHandlers() {
+        getAttachable().setListening(true);
+        registrations.register(
+                getAttachable().addNodeMouseEnterHandler(new NodeMouseEnterHandler() {
+                    @Override
+                    public void onNodeMouseEnter(NodeMouseEnterEvent event) {
+                        focus();
+                    }
+                })
+        );
+        registrations.register(
+                getAttachable().addNodeMouseExitHandler(new NodeMouseExitHandler() {
+                    @Override
+                    public void onNodeMouseExit(NodeMouseExitEvent event) {
+                        unFocus();
+                    }
+                })
+        );
+        return cast();
+    }
+
+    T focus() {
+        focusGroupExecutor.focus();
+        return cast();
+    }
+
+    T unFocus() {
+        focusGroupExecutor.unFocus();
+        return cast();
+    }
 
     @Override
     public T decorate(final DecoratorItem<?> decorator) {
@@ -43,59 +78,39 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
         return cast();
     }
 
-    public T focus() {
-        GWT.log("FOCUSSS");
-        if (null != focusCallback) {
-            focusCallback.run();
-        }
-        if (isDecorated()) {
-            showDecorator();
-        }
-        return cast();
-    }
-
-    public T unFocus() {
-        GWT.log("UN-FOCUSSS");
-        if (null != unFocusCallback) {
-            unFocusCallback.run();
-        }
-        if (isDecorated()) {
-            hideDecorator();
-        }
-        return cast();
-    }
-
     @Override
     public boolean isVisible() {
         return groupItem.isVisible();
     }
 
     @Override
-    public T show() {
-        return show(new Runnable() {
-            @Override
-            public void run() {
-            }
-        });
+    public T hide() {
+        return hide(new Runnable() {
+                        @Override
+                        public void run() {
+                            hideDecorator();
+                        }
+                    },
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                        }
+                    });
     }
 
     @Override
-    public T hide() {
-        return hide(new Runnable() {
-            @Override
-            public void run() {
-                hideDecorator();
-            }
-        });
-    }
-
-    T show(final Runnable runnable) {
-        groupItem.show(runnable);
+    public T show(final Runnable before,
+                  final Runnable after) {
+        groupItem.show(before,
+                       after);
         return cast();
     }
 
-    T hide(final Runnable runnable) {
-        groupItem.hide(runnable);
+    @Override
+    public T hide(final Runnable before,
+                  final Runnable after) {
+        groupItem.hide(before,
+                       after);
         return cast();
     }
 
@@ -105,7 +120,7 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
         if (null != mouseEnterHandlerRegistration) {
             mouseEnterHandlerRegistration.removeHandler();
         }
-        mouseEnterHandlerRegistration = getPrimitive()
+        mouseEnterHandlerRegistration = getAttachable()
                 .addNodeMouseEnterHandler(handler);
         register(mouseEnterHandlerRegistration);
         return cast();
@@ -117,21 +132,9 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
         if (null != mouseExitHandlerRegistration) {
             mouseExitHandlerRegistration.removeHandler();
         }
-        mouseExitHandlerRegistration = getPrimitive()
+        mouseExitHandlerRegistration = getAttachable()
                 .addNodeMouseExitHandler(handler);
         register(mouseExitHandlerRegistration);
-        return cast();
-    }
-
-    @Override
-    public T onFocus(final Runnable callback) {
-        this.focusCallback = callback;
-        return cast();
-    }
-
-    @Override
-    public T onUnFocus(final Runnable callback) {
-        this.unFocusCallback = callback;
         return cast();
     }
 
@@ -199,28 +202,33 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
         }
     }
 
-    protected void initHandlers(final IPrimitive<?> prim) {
-        prim.setListening(true);
-        registrations.register(
-                prim.addNodeMouseEnterHandler(new NodeMouseEnterHandler() {
-                    @Override
-                    public void onNodeMouseEnter(NodeMouseEnterEvent event) {
-                        focus();
-                    }
-                })
-        );
-        registrations.register(
-                prim.addNodeMouseExitHandler(new NodeMouseExitHandler() {
-                    @Override
-                    public void onNodeMouseExit(NodeMouseExitEvent event) {
-                        unFocus();
-                    }
-                })
-        );
-    }
-
     private void destroyHandlers() {
         registrations.removeHandler();
+    }
+
+    private class FocusGroupExecutor
+            extends GroupItem.AnimatedGroupExecutor {
+
+        public FocusGroupExecutor() {
+            setAnimationTweener(AnimationTweener.LINEAR);
+            setAlpha(ALPHA_UNFOCUSED);
+        }
+
+        public void focus() {
+            if (isDecorated()) {
+                showDecorator();
+            }
+            setAlpha(ALPHA_FOCUSED);
+            apply(asPrimitive());
+        }
+
+        public void unFocus() {
+            if (isDecorated()) {
+                hideDecorator();
+            }
+            setAlpha(ALPHA_UNFOCUSED);
+            apply(asPrimitive());
+        }
     }
 
     @SuppressWarnings("unchecked")
