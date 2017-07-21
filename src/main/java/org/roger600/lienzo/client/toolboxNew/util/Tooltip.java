@@ -17,141 +17,160 @@
 package org.roger600.lienzo.client.toolboxNew.util;
 
 import com.ait.lienzo.client.core.shape.Group;
+import com.ait.lienzo.client.core.shape.IPrimitive;
 import com.ait.lienzo.client.core.shape.Rectangle;
 import com.ait.lienzo.client.core.shape.Text;
 import com.ait.lienzo.client.core.shape.Triangle;
 import com.ait.lienzo.client.core.types.BoundingBox;
 import com.ait.lienzo.client.core.types.Point2D;
-import com.ait.lienzo.client.core.types.Shadow;
-import com.ait.lienzo.shared.core.types.ColorName;
-import com.ait.lienzo.shared.core.types.IColor;
-import com.ait.lienzo.shared.core.types.TextAlign;
-import com.ait.lienzo.shared.core.types.TextBaseLine;
+import com.google.gwt.user.client.Timer;
 
-public class Tooltip extends Group {
+public class Tooltip {
 
-    public static final double TRIANGLE_SIZE = 10;
+    private static final double PADDING = 10d;
+    private static final double TRIANGLE_SIZE = 10d;
+    private static final double ALPHA = 1d;
+    private static final String BG_COLOR = "#8c8c8c";
+    private static final String TEXT_FAMILY = "Verdana";
+    private static final String TEXT_COLOR = "#FFFFFF";
+    private static final double TEXT_SIZE = 12d;
+    private static final double TEXT_WIDTH = 1d;
+    private static final int HIDE_TIMEOUT = 3500;
 
-    private static final double TOOLTIP_PADDING_WIDTH = 25;
+    private final Group container;
 
-    private static final double TOOLTIP_PADDING_HEIGHT = 25;
+    /**
+     * This internal timer ensures that if any error on its usage occurs,
+     * it will get removed from the canvas at some point.
+     * Use the method <code>setHideTimeout</code> to change the default timeout value.
+     */
+    private int hideTimeout = HIDE_TIMEOUT;
+    private final Timer hideTimer = new Timer() {
+        @Override
+        public void run() {
+            Tooltip.this.hide();
+        }
+    };
 
-    private static final IColor TOOLTIP_COLOR = ColorName.WHITESMOKE;
-
-    private static final String FONT_FAMILY = "Verdana";
-
-    private static final String CATEGORIES_FONT_STYLE = "";
-
-    private static final String VALUES_FONT_STYLE = "bold";
-
-    private static final int FONT_SIZE = 10;
-
-    private static final IColor LABEL_COLOR = ColorName.BLACK;
-
-    private Rectangle rectangle;
-
-    private Triangle triangle;
-
-    private Triangle tmasking;
-
-    private Text text;
-
-    private Text title;
-
-    private static final Shadow SHADOW = new Shadow(ColorName.BLACK.getColor().setA(0.80),
-                                                    10,
-                                                    3,
-                                                    3);
+    public enum Direction {
+        NORTH,
+        WEST;
+    }
 
     public Tooltip() {
-        build();
+        this.container = new Group();
     }
 
-    protected Tooltip build() {
-        rectangle = new Rectangle(1,
-                                  1).setFillColor(TOOLTIP_COLOR).setCornerRadius(5).setStrokeWidth(1).setShadow(SHADOW);
-        triangle = new Triangle(new Point2D(1,
-                                            1),
-                                new Point2D(1,
-                                            1),
-                                new Point2D(1,
-                                            1)).setFillColor(TOOLTIP_COLOR).setStrokeWidth(1).setShadow(SHADOW);
-        tmasking = new Triangle(new Point2D(1,
-                                            1),
-                                new Point2D(1,
-                                            1),
-                                new Point2D(1,
-                                            1)).setFillColor(TOOLTIP_COLOR);
-        text = new Text("",
-                        FONT_FAMILY,
-                        CATEGORIES_FONT_STYLE,
-                        FONT_SIZE).setFillColor(LABEL_COLOR).setTextAlign(TextAlign.LEFT).setTextBaseLine(TextBaseLine.MIDDLE);
-        title = new Text("",
-                         FONT_FAMILY,
-                         VALUES_FONT_STYLE,
-                         FONT_SIZE).setFillColor(LABEL_COLOR).setTextAlign(TextAlign.LEFT).setTextBaseLine(TextBaseLine.MIDDLE);
-        add(rectangle);
-        add(triangle);
-        add(tmasking);
-        add(text);
-        add(title);
-        text.moveToTop();
-        title.moveToTop();
-        setVisible(false);
-        setListening(false);
-        return this;
+    public void setHideTimeout(final int hideTimeout) {
+        this.hideTimeout = hideTimeout;
     }
 
-    public Tooltip show(final String title,
-                        final String text) {
-        this.text.setText(text);
-        BoundingBox bb = this.text.getBoundingBox();
-        final double ctw = bb.getWidth();
-        final double cth = bb.getHeight();
-        this.title.setText(title);
-        bb = this.title.getBoundingBox();
-        final double vtw = bb.getWidth();
-        final double vth = bb.getHeight();
-        final double rw = (ctw > vtw ? ctw : vtw) + TOOLTIP_PADDING_WIDTH;
-        final double rh = (cth + vth) + TOOLTIP_PADDING_HEIGHT;
-        rectangle.setWidth(rw).setHeight(rh).setCornerRadius(5);
-        final double rx = rectangle.getX();
-        final double ry = rectangle.getY();
-        triangle.setPoints(new Point2D(rx + rw / 2 - TRIANGLE_SIZE,
-                                       ry + rh),
-                           new Point2D(rx + rw / 2,
-                                       rh + TRIANGLE_SIZE),
-                           new Point2D(rx + rw / 2 + TRIANGLE_SIZE,
-                                       ry + rh));
-        tmasking.setPoints(new Point2D(rx + rw / 2 - TRIANGLE_SIZE - 3,
-                                       ry + rh - 3),
-                           new Point2D(rx + rw / 2,
-                                       rh + TRIANGLE_SIZE - 3),
-                           new Point2D(rx + rw / 2 + TRIANGLE_SIZE + 3,
-                                       ry + rh - 3));
-        final double vtx = rw / 2 - vtw / 2;
-        final double ctx = rw / 2 - ctw / 2;
-        final double vty = rh / 2 - vth / 2;
-        final double cty = vty + cth + 1;
-        this.text.setX(ctx).setY(cty);
-        this.title.setX(vtx).setY(vty);
-        setX(getX() - rw / 2);
-        setY(getY() - rh);
-        moveToTop();
-        setVisible(true);
-        getLayer().batch();
+    public Tooltip show(final String text,
+                        final Point2D location,
+                        final Direction direction) {
+        hide();
+        final Text descText = new Text(text)
+                .setFontSize(TEXT_SIZE)
+                .setFontStyle("")
+                .setFontFamily(TEXT_FAMILY)
+                .setStrokeWidth(TEXT_WIDTH)
+                .setStrokeColor(TEXT_COLOR)
+                .setStrokeAlpha(1);
+        final BoundingBox descTextBB = descText.getBoundingBox();
+        final double descTextBbW = descTextBB.getWidth();
+        final double descTextBbH = descTextBB.getHeight();
+        final double dw = descTextBbW + PADDING;
+        final double dh = descTextBbH + PADDING;
+        final IPrimitive<?> decorator = buildDecorator(dw,
+                                                       dh,
+                                                       direction);
+        final double w = dw + (isWest(direction) ? TRIANGLE_SIZE * 2 : 0);
+        final double h = dh + (isNorth(direction) ? TRIANGLE_SIZE * 2 : 0);
+
+        // Ensure text is on top.
+        final double _x = (w / 2) + (isWest(direction) ? PADDING / 2 : 0);
+        final double _y = PADDING / 2 + (isNorth(direction) ? TRIANGLE_SIZE : 0);
+        descText.setX(_x - (descTextBbW / 2));
+        descText.setY(_y + descTextBbH);
+        descText.moveToTop();
+
+        container.add(decorator);
+        container.add(descText);
+        container.setLocation(location);
+
+        startTimers();
         return this;
     }
 
     public Tooltip hide() {
-        setVisible(false);
-        if (getLayer() != null) {
-            getLayer().batch();
-        }
+        container.removeAll();
+        clearTimers();
         return this;
     }
 
-    public void destoy() {
-        // TODO
+    public void destroy() {
+        hide();
+    }
+
+    public Group asPrimitive() {
+        return container;
+    }
+
+    private IPrimitive<?> buildDecorator(final double width,
+                                         final double height,
+                                         final Direction direction) {
+        final boolean isWest = isWest(direction);
+        final boolean isNorth = isNorth(direction);
+        final double h2 = height / 2;
+        final double w2 = width / 2;
+        final double s2 = TRIANGLE_SIZE / 2;
+        final Point2D a = isWest ? new Point2D(0,
+                                               h2) : new Point2D(10,
+                                                                 0);
+        final Point2D b = isWest ? new Point2D(TRIANGLE_SIZE,
+                                               h2 + s2) : new Point2D(10 + s2,
+                                                                      TRIANGLE_SIZE);
+        final Point2D c = isWest ? new Point2D(TRIANGLE_SIZE,
+                                               h2 - s2) : new Point2D(10 - s2,
+                                                                      TRIANGLE_SIZE);
+        final Triangle triangle = new Triangle(a,
+                                               b,
+                                               c)
+                .setFillColor(BG_COLOR)
+                .setFillAlpha(ALPHA)
+                .setStrokeWidth(0);
+        final Rectangle rectangle =
+                new Rectangle(
+                        width + (isWest ? TRIANGLE_SIZE : 0),
+                        height + (isNorth ? TRIANGLE_SIZE : 0))
+                        .setX(isWest ? TRIANGLE_SIZE : 0)
+                        .setY(isWest ? 0 : TRIANGLE_SIZE)
+                        .setCornerRadius(10)
+                        .setFillColor(BG_COLOR)
+                        .setFillAlpha(ALPHA)
+                        .setStrokeAlpha(0)
+                        .setCornerRadius(5);
+        final Group decorator = new Group();
+        decorator.add(rectangle);
+        decorator.add(triangle);
+        return decorator;
+    }
+
+    private boolean isWest(final Direction direction) {
+        return Direction.WEST.equals(direction);
+    }
+
+    private boolean isNorth(final Direction direction) {
+        return Direction.NORTH.equals(direction);
+    }
+
+    private void startTimers() {
+        this.hideTimer.schedule(hideTimeout);
+    }
+
+    private void clearTimers() {
+        if (this.hideTimer.isRunning()) {
+            this.hideTimer.cancel();
+        }
     }
 }

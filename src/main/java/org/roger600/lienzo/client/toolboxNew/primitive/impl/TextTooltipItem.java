@@ -57,9 +57,9 @@ public class TextTooltipItem
     public TextTooltipItem show() {
         final Point2D loc = Positions.anchorFor(boundingBoxSupplier.get(),
                                                 this.at);
-        tooltip.setLocation(loc);
-        tooltip.show("",
-                     text);
+        tooltip.show(text,
+                     loc,
+                     Tooltip.Direction.WEST);
         return this;
     }
 
@@ -71,12 +71,12 @@ public class TextTooltipItem
 
     @Override
     public void destroy() {
-        tooltip.destoy();
+        tooltip.destroy();
         boundingBoxSupplier = null;
     }
 
     @Override
     public IPrimitive<?> asPrimitive() {
-        return tooltip;
+        return tooltip.asPrimitive();
     }
 }
