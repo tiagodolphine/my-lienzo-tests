@@ -1,5 +1,8 @@
 package org.roger600.lienzo.client.toolboxNew.util;
 
+import com.ait.lienzo.client.core.animation.AnimationProperties;
+import com.ait.lienzo.client.core.animation.AnimationProperty;
+import com.ait.lienzo.client.core.animation.AnimationTweener;
 import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.shape.IPrimitive;
 import com.ait.lienzo.client.core.shape.MultiPath;
@@ -11,24 +14,37 @@ import com.ait.lienzo.shared.core.types.Direction;
 
 public class Tooltip {
 
+    private static final double DURATION = 250;
     private final MultiPath path;
     private final Text text;
     private final Group group;
     private Direction direction;
     private double padding;
+    private Consumer<Group> showExecutor;
+    private Consumer<Group> hideExecutor;
 
     public Tooltip() {
-        this.group = new Group();
         this.path = new MultiPath();
         this.text = new Text("");
+        this.group =
+                new Group()
+                        .setAlpha(0)
+                        .add(path)
+                        .add(text);
         this.padding = 5;
-        this.group
-                .add(path)
-                .add(text);
-        doHide();
+        this.showExecutor = new AnimatedTooltipShowExecutor(DURATION);
+        this.hideExecutor = new AnimatedTooltipHideExecutor(DURATION);
+    }
+
+    public Tooltip setLocation(final Point2D location) {
+        this.group.setLocation(location);
+        return checkRefresh();
     }
 
     public Tooltip setDirection(final Direction direction) {
+        if (!isSupported(direction)) {
+            throw new UnsupportedOperationException("Only NSEW directions are supported.");
+        }
         this.direction = direction;
         return checkRefresh();
     }
@@ -38,7 +54,7 @@ public class Tooltip {
         return checkRefresh();
     }
 
-    public Tooltip text(Consumer<Text> text) {
+    public Tooltip withText(final Consumer<Text> text) {
         text.apply(this.text);
         return checkRefresh();
     }
@@ -46,20 +62,25 @@ public class Tooltip {
     public Tooltip show() {
         if (!isVisible()) {
             refresh();
-            doShow();
+            showExecutor.apply(group);
         }
         return this;
     }
 
     public Tooltip hide() {
         if (isVisible()) {
-            doHide();
+            hideExecutor.apply(group);
         }
         return this;
     }
 
     public boolean isVisible() {
         return group.getAlpha() > 0;
+    }
+
+    public void destroy() {
+        group.removeAll();
+        group.removeFromParent();
     }
 
     public IPrimitive<?> asPrimitive() {
@@ -73,15 +94,9 @@ public class Tooltip {
         return this;
     }
 
-    private void doShow() {
-        group.setAlpha(1);
-    }
-
-    private void doHide() {
-        group.setAlpha(0);
-    }
-
     private void refresh() {
+
+        final boolean isH = isHorizontal(direction);
 
         // Dimensions for text.
         final BoundingBox textBB = text.getBoundingBox();
@@ -89,16 +104,16 @@ public class Tooltip {
         final double th = textBB.getHeight();
 
         // Head dimensions.
-        final double hw = 25;
-        final double hl = 25;
+        final double hw = isH ? th / 2 : tw / 2;
+        final double hl = tw / 6;
 
         // Body dimensions.
-        final double cbw = (isHorizontal() ? hl : 0)
+        final double cbw = (isH ? hl : 0)
                 + tw + (padding * 2);
-        final double cbh = (!isHorizontal() ? hl : 0) +
+        final double cbh = (!isH ? hl : 0) +
                 th + (padding * 2);
-        final double bw = isHorizontal() ? cbw : cbh;
-        final double bh = isHorizontal() ? cbh : cbw;
+        final double bw = isH ? cbw : cbh;
+        final double bh = isH ? cbh : cbw;
         final double br = 5;
 
         // Some pre-calculations.
@@ -151,7 +166,7 @@ public class Tooltip {
         // Direction.
         final Point2D textLoc = new Point2D();
         switch (direction) {
-            case EAST:
+            case WEST:
                 path.setRotationDegrees(180);
                 textLoc.setX(-hl - padding - tw)
                         .setY((th / 2) - padding);
@@ -176,8 +191,56 @@ public class Tooltip {
         text.setLocation(textLoc);
     }
 
-    private boolean isHorizontal() {
+    private static boolean isHorizontal(final Direction direction) {
         return Direction.EAST.equals(direction) ||
                 Direction.WEST.equals(direction);
+    }
+
+    private static boolean isVertical(final Direction direction) {
+        return Direction.NORTH.equals(direction) ||
+                Direction.SOUTH.equals(direction);
+    }
+
+    private static boolean isSupported(final Direction direction) {
+        return isHorizontal(direction) ||
+                isVertical(direction);
+    }
+
+    public static class AnimatedTooltipShowExecutor implements Consumer<Group> {
+
+        private final double duration;
+
+        public AnimatedTooltipShowExecutor(final double duration) {
+            this.duration = duration;
+        }
+
+        @Override
+        public void apply(final Group group) {
+            group
+                    .setScale(0.1,
+                              1)
+                    .setAlpha(1)
+                    .animate(AnimationTweener.LINEAR,
+                             AnimationProperties.toPropertyList(AnimationProperty.Properties.SCALE(1,
+                                                                                                   1)),
+                             duration);
+        }
+    }
+
+    public static class AnimatedTooltipHideExecutor implements Consumer<Group> {
+
+        private final double duration;
+
+        public AnimatedTooltipHideExecutor(final double duration) {
+            this.duration = duration;
+        }
+
+        @Override
+        public void apply(final Group group) {
+            group
+                    .animate(AnimationTweener.LINEAR,
+                             AnimationProperties.toPropertyList(AnimationProperty.Properties.ALPHA(0)),
+                             duration);
+        }
     }
 }

@@ -62,7 +62,7 @@ public class ToolboxTests implements MyLienzoTest,
     private static final Direction iAt = Direction.NORTH_EAST;
     private static final Direction iTowards = Direction.SOUTH_EAST;
     private static final Direction iAutoDirection = Direction.SOUTH;
-    private static final Direction iTooltipDirection = Direction.WEST;
+    private static final Direction iTooltipDirection = Direction.EAST;
 
     private Layer layer;
     private WiresManager wiresManager;
@@ -136,18 +136,16 @@ public class ToolboxTests implements MyLienzoTest,
         layer.add(tooltip.asPrimitive());
 
         tooltip
+                .setLocation(new Point2D(400,
+                                         100))
                 .setDirection(iTooltipDirection)
-                .text(new Consumer<Text>() {
+                .withText(new Consumer<Text>() {
                     @Override
-                    public void apply(Text obj) {
-                        obj.setText("Un Roger");
+                    public void apply(Text text) {
+                        text.setText("Un Roger");
                     }
                 })
-                .asPrimitive()
-                .setLocation(new Point2D(400,
-                                         100));
-
-        tooltip.show();
+                .show();
     }
 
     private void tooltipDirection(Direction direction) {
