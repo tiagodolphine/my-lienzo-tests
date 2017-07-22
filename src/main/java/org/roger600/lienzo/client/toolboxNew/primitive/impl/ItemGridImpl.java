@@ -16,17 +16,17 @@ public class ItemGridImpl
         extends WrappedItem<ItemGridImpl>
         implements ItemGrid<ItemGridImpl, Point2DGrid, DecoratedItem> {
 
-    private final AbstractGroupItem groupPrimitiveItem;
+    private final ItemImpl groupPrimitiveItem;
     private final List<AbstractDecoratedItem> items = new LinkedList<>();
     private Point2DGrid grid;
     private Runnable refreshCallback;
 
     public ItemGridImpl() {
         this(new ItemImpl(new Group())
-                     .setupFocusingHandlers());
+                     .setFocusDelay(0));
     }
 
-    ItemGridImpl(final AbstractGroupItem groupPrimitiveItem) {
+    ItemGridImpl(final ItemImpl groupPrimitiveItem) {
         this.groupPrimitiveItem = groupPrimitiveItem;
         this.refreshCallback = new Runnable() {
             @Override
@@ -41,7 +41,7 @@ public class ItemGridImpl
     @Override
     public ItemGridImpl grid(final Point2DGrid grid) {
         this.grid = grid;
-        return checkReposition();
+        return checkRefresh();
     }
 
     @Override
@@ -55,13 +55,13 @@ public class ItemGridImpl
                 } else {
                     button.hide();
                 }
-                groupPrimitiveItem.getGroupItem().add(button.asPrimitive());
+                getWrapped().getGroupItem().add(button.asPrimitive());
             } catch (final ClassCastException e) {
                 throw new UnsupportedOperationException("This item only supports subtypes " +
                                                                 "of " + AbstractDecoratedItem.class.getName());
             }
         }
-        return checkReposition();
+        return checkRefresh();
     }
 
     @Override
@@ -70,29 +70,42 @@ public class ItemGridImpl
             @Override
             protected void remove(final AbstractDecoratedItem item) {
                 items.remove(item);
-                checkReposition();
+                checkRefresh();
             }
         };
     }
 
     @Override
-    public ItemGridImpl show() {
-        getWrapped().show(new Runnable() {
-                              @Override
-                              public void run() {
-
-                              }
-                          },
+    public ItemGridImpl show(final Runnable before,
+                             final Runnable after) {
+        return super.show(before,
                           new Runnable() {
                               @Override
                               public void run() {
-                                  repositionItems();
+                                  getWrapped().focus();
+                                  doRefresh();
                                   for (final DecoratedItem button : items) {
                                       button.show();
                                   }
+                                  after.run();
                               }
                           });
-        return this;
+    }
+
+    @Override
+    public ItemGridImpl hide(final Runnable before,
+                             final Runnable after) {
+        return super.hide(before,
+                          new Runnable() {
+                              @Override
+                              public void run() {
+                                  for (final DecoratedItem button : items) {
+                                      button.hide();
+                                  }
+                                  after.run();
+                                  fireRefresh();
+                              }
+                          });
     }
 
     public ItemGridImpl onRefresh(final Runnable refreshCallback) {
@@ -101,21 +114,7 @@ public class ItemGridImpl
     }
 
     public ItemGridImpl refresh() {
-        return checkReposition();
-    }
-
-    @Override
-    public ItemGridImpl hide() {
-        getWrapped().hide(new Runnable() {
-            @Override
-            public void run() {
-                for (final DecoratedItem button : items) {
-                    button.hide();
-                }
-                fireRefresh();
-            }
-        });
-        return this;
+        return checkRefresh();
     }
 
     @Override
@@ -129,13 +128,15 @@ public class ItemGridImpl
         return grid;
     }
 
-    AbstractGroupItem getGroup() {
-        return groupPrimitiveItem;
+    private ItemGridImpl doRefresh() {
+        getWrapped().refresh();
+        repositionItems();
+        return this;
     }
 
-    private ItemGridImpl checkReposition() {
+    private ItemGridImpl checkRefresh() {
         if (isVisible()) {
-            return repositionItems();
+            return doRefresh();
         }
         return this;
     }

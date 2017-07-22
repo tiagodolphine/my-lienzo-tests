@@ -14,13 +14,17 @@ import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.shape.Shape;
 import com.ait.lienzo.client.core.types.BoundingBox;
 import com.ait.lienzo.client.core.types.Point2D;
+import com.ait.lienzo.shared.core.types.ColorName;
 import com.ait.lienzo.shared.core.types.Direction;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Timer;
 import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
 import org.roger600.lienzo.client.toolboxNew.primitive.AbstractDecoratedItem;
+import org.roger600.lienzo.client.toolboxNew.primitive.AbstractDecoratorItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.ButtonGridItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratedItem;
+import org.roger600.lienzo.client.toolboxNew.primitive.DecoratorItem;
+import org.roger600.lienzo.client.toolboxNew.primitive.factory.DecoratorsFactory;
 import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
 public class ButtonGridItemImpl
@@ -46,12 +50,14 @@ public class ButtonGridItemImpl
             };
 
     public ButtonGridItemImpl(final Shape<?> prim) {
-        this(new ItemImpl(prim),
+        this(new ItemImpl(prim)
+                     .setFocusDelay(0),
              new ToolboxImpl());
     }
 
     public ButtonGridItemImpl(final Group group) {
-        this(new ItemImpl(group),
+        this(new ItemImpl(group)
+                     .setFocusDelay(0),
              new ToolboxImpl());
     }
 
@@ -83,6 +89,19 @@ public class ButtonGridItemImpl
     @Override
     public ButtonGridItem grid(final Point2DGrid grid) {
         toolbox.grid(grid);
+        return this;
+    }
+
+    @Override
+    public ButtonGridItem decorate(final DecoratorItem<?> decorator) {
+        super.decorate(decorator);
+        if (decorator instanceof AbstractDecoratorItem) {
+            // TODO
+            //toolbox.decorate(((AbstractDecoratorItem) decorator).copy());
+            toolbox.decorate(DecoratorsFactory.box()
+                                     .setStrokeColor(ColorName.RED.getColorString())
+                                     .setStrokeWidth(10));
+        }
         return this;
     }
 
@@ -121,7 +140,13 @@ public class ButtonGridItemImpl
     }
 
     private ButtonGridItem hideGrid(final Runnable after) {
-        toolbox.hide(after);
+        toolbox.hide(new Runnable() {
+                         @Override
+                         public void run() {
+
+                         }
+                     },
+                     after);
         return this;
     }
 
@@ -225,6 +250,19 @@ public class ButtonGridItemImpl
                 );
     }
 
+    public ButtonGridItemImpl focus() {
+        button.getGroupItem().focus();
+        // toolbox.getWrapped().focus();
+        showGrid();
+        stopTimer();
+        return this;
+    }
+
+    public ButtonGridItemImpl unFocus() {
+        scheduleTimer();
+        return this;
+    }
+
     private final Runnable itemFocusCallback = new Runnable() {
         @Override
         public void run() {
@@ -237,7 +275,7 @@ public class ButtonGridItemImpl
         @Override
         public void run() {
             GWT.log("ITEM UNFOCUS");
-            scheduleTimer();
+            unFocus();
         }
     };
 
@@ -245,9 +283,7 @@ public class ButtonGridItemImpl
         @Override
         public void run() {
             GWT.log("ICON FOCUS");
-            button.getGroupItem().focus();
-            showGrid();
-            stopTimer();
+            focus();
         }
     };
 
@@ -255,7 +291,7 @@ public class ButtonGridItemImpl
         @Override
         public void run() {
             GWT.log("ICON UNFOCUS");
-            scheduleTimer();
+            unFocus();
         }
     };
 

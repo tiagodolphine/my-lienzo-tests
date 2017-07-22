@@ -5,11 +5,15 @@ import java.util.Iterator;
 import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.types.BoundingBox;
 import com.ait.lienzo.client.core.types.Point2D;
+import com.ait.lienzo.shared.core.types.ColorName;
 import com.ait.lienzo.shared.core.types.Direction;
 import org.roger600.lienzo.client.toolboxNew.Positions;
 import org.roger600.lienzo.client.toolboxNew.Toolbox;
 import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
+import org.roger600.lienzo.client.toolboxNew.primitive.AbstractDecoratedItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratedItem;
+import org.roger600.lienzo.client.toolboxNew.primitive.DecoratorItem;
+import org.roger600.lienzo.client.toolboxNew.primitive.factory.DecoratorsFactory;
 import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
 public class ToolboxImpl
@@ -17,7 +21,6 @@ public class ToolboxImpl
         implements Toolbox<ToolboxImpl, Point2DGrid, DecoratedItem>,
                    DecoratedItem<ToolboxImpl> {
 
-    private final AbstractGroupItem groupPrimitiveItem;
     private Supplier<BoundingBox> boundingBoxSupplier;
     private Direction at;
     private Point2D offset;
@@ -27,17 +30,16 @@ public class ToolboxImpl
     public ToolboxImpl(final Supplier<BoundingBox> boundingBoxSupplier) {
         this(boundingBoxSupplier,
              new ItemImpl(new Group())
-                     .setupFocusingHandlers());
+                     .setFocusDelay(0));
     }
 
     ToolboxImpl() {
         this(null);
     }
 
-    ToolboxImpl(final Supplier<BoundingBox> boundingBoxSupplier,
-                final AbstractGroupItem groupPrimitiveItem) {
+    private ToolboxImpl(final Supplier<BoundingBox> boundingBoxSupplier,
+                        final ItemImpl groupPrimitiveItem) {
         this.boundingBoxSupplier = boundingBoxSupplier;
-        this.groupPrimitiveItem = groupPrimitiveItem;
         this.at = Direction.NORTH_EAST;
         this.offset = new Point2D(0d,
                                   0d);
@@ -76,6 +78,15 @@ public class ToolboxImpl
     }
 
     @Override
+    public ToolboxImpl decorate(final DecoratorItem<?> decorator) {
+        // TODO
+        super.decorate(DecoratorsFactory.box()
+                               .setStrokeColor(ColorName.RED.getColorString())
+                               .setStrokeWidth(10));
+        return this;
+    }
+
+    @Override
     public ToolboxImpl add(final DecoratedItem... items) {
         this.items.add(items);
         return this;
@@ -87,31 +98,36 @@ public class ToolboxImpl
     }
 
     @Override
-    public ToolboxImpl show() {
-        getWrapped().show(new Runnable() {
+    public ToolboxImpl show(final Runnable before,
+                            final Runnable after) {
+        return super.show(new Runnable() {
                               @Override
                               public void run() {
                                   reposition();
+                                  before.run();
                               }
                           },
                           new Runnable() {
                               @Override
                               public void run() {
-                                  items.show();
+                                  //getWrapped().focus();
+                                  fireRefresh();
+                                  after.run();
                               }
                           });
-        return this;
     }
 
     @Override
-    public ToolboxImpl hide() {
-        getWrapped().hide(new Runnable() {
-            @Override
-            public void run() {
-                fireRefresh();
-            }
-        });
-        return this;
+    public ToolboxImpl hide(final Runnable before,
+                            final Runnable after) {
+        return super.hide(before,
+                          new Runnable() {
+                              @Override
+                              public void run() {
+                                  fireRefresh();
+                                  after.run();
+                              }
+                          });
     }
 
     public ToolboxImpl refresh() {
@@ -134,8 +150,8 @@ public class ToolboxImpl
     }
 
     @Override
-    protected AbstractGroupItem<?> getWrapped() {
-        return groupPrimitiveItem;
+    protected AbstractDecoratedItem<?> getWrapped() {
+        return items;
     }
 
     ItemGridImpl getItems() {
@@ -152,7 +168,7 @@ public class ToolboxImpl
     private void reposition() {
         final Point2D loc = Positions.anchorFor(boundingBoxSupplier.get(),
                                                 this.at);
-        groupPrimitiveItem.asPrimitive().setLocation(loc.offset(offset));
+        asPrimitive().setLocation(loc.offset(offset));
         fireRefresh();
     }
 

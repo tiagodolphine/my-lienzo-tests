@@ -113,7 +113,8 @@ public class ToolboxTests implements MyLienzoTest,
         toolbox1 = ToolboxFactory.forWiresShape(shape1)
                 .attachTo(layer.getScene().getTopLayer())
                 .at(iAt)
-                .grid(grid1);
+                .grid(grid1)
+                .decorate(DecoratorsFactory.box());
 
         addButtonItem(getButtonTitle());
         addButtonItem(getButtonTitle());
@@ -128,7 +129,7 @@ public class ToolboxTests implements MyLienzoTest,
                       BUTTON_SIZE,
                       BUTTON_SIZE);
 
-        testTooltip();
+        // testTooltip();
     }
 
     private void testTooltip() {
@@ -518,12 +519,12 @@ public class ToolboxTests implements MyLienzoTest,
             public void onChange(ChangeEvent event) {
                 int index = tooltipDirectionButton.getSelectedIndex();
                 Direction direction = Direction.values()[index];
-                tooltipDirection(direction);
+                // tooltipDirection(direction);
             }
         });
         tooltipDirectionButton.setSelectedIndex(iTooltipDirection.ordinal());
-        hPanel4.add(tooltipDirectionLabel);
-        hPanel4.add(tooltipDirectionButton);
+        // hPanel4.add(tooltipDirectionLabel);
+        // hPanel4.add(tooltipDirectionButton);
 
         panel.add(vPanel);
     }

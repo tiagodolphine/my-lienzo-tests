@@ -12,7 +12,7 @@ import org.roger600.lienzo.client.toolboxNew.primitive.TooltipItem;
 public abstract class WrappedItem<T extends DecoratedItem>
         extends AbstractDecoratedItem<T> {
 
-    protected abstract AbstractGroupItem<?> getWrapped();
+    protected abstract AbstractDecoratedItem<?> getWrapped();
 
     @Override
     public T show(final Runnable before,
@@ -37,7 +37,7 @@ public abstract class WrappedItem<T extends DecoratedItem>
 
     @Override
     public Group asPrimitive() {
-        return getWrapped().asPrimitive();
+        return (Group) getWrapped().asPrimitive();
     }
 
     @Override

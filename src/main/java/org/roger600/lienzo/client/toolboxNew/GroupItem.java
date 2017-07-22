@@ -1,17 +1,20 @@
 package org.roger600.lienzo.client.toolboxNew;
 
+import com.ait.lienzo.client.core.animation.AnimationCallback;
 import com.ait.lienzo.client.core.animation.AnimationProperties;
 import com.ait.lienzo.client.core.animation.AnimationProperty;
 import com.ait.lienzo.client.core.animation.AnimationTweener;
+import com.ait.lienzo.client.core.animation.IAnimation;
+import com.ait.lienzo.client.core.animation.IAnimationHandle;
 import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.shape.IPrimitive;
-import org.roger600.lienzo.client.toolboxNew.util.Consumer;
+import org.roger600.lienzo.client.toolboxNew.util.BiConsumer;
 
 public class GroupItem extends AbstractItem<GroupItem, Group> implements Item<GroupItem> {
 
     private final Group group;
-    private Consumer<Group> showExecutor;
-    private Consumer<Group> hideExecutor;
+    private BiConsumer<Group, Runnable> showExecutor;
+    private BiConsumer<Group, Runnable> hideExecutor;
 
     public GroupItem() {
         this(new Group());
@@ -27,15 +30,19 @@ public class GroupItem extends AbstractItem<GroupItem, Group> implements Item<Gr
                 .setAnimationTweener(AnimationTweener.LINEAR)
                 .setAlpha(0)
                 .setAnimationDuration(150);
-        doHide();
+        doHide(new Runnable() {
+            @Override
+            public void run() {
+            }
+        });
     }
 
-    public GroupItem useShowExecutor(final Consumer<Group> executor) {
+    public GroupItem useShowExecutor(final BiConsumer<Group, Runnable> executor) {
         this.showExecutor = executor;
         return this;
     }
 
-    public GroupItem useHideExecutor(final Consumer<Group> executor) {
+    public GroupItem useHideExecutor(final BiConsumer<Group, Runnable> executor) {
         this.hideExecutor = executor;
         return this;
     }
@@ -82,8 +89,7 @@ public class GroupItem extends AbstractItem<GroupItem, Group> implements Item<Gr
                           final Runnable after) {
         if (!isVisible()) {
             before.run();
-            doShow();
-            after.run();
+            doShow(after);
         }
         return this;
     }
@@ -92,8 +98,7 @@ public class GroupItem extends AbstractItem<GroupItem, Group> implements Item<Gr
                           final Runnable after) {
         if (isVisible()) {
             before.run();
-            doHide();
-            after.run();
+            doHide(after);
         }
         return this;
     }
@@ -113,15 +118,17 @@ public class GroupItem extends AbstractItem<GroupItem, Group> implements Item<Gr
         return group;
     }
 
-    private void doShow() {
-        showExecutor.apply(group);
+    private void doShow(final Runnable callback) {
+        showExecutor.apply(group,
+                           callback);
     }
 
-    private void doHide() {
-        hideExecutor.apply(group);
+    private void doHide(final Runnable callback) {
+        hideExecutor.apply(group,
+                           callback);
     }
 
-    public static class AnimatedGroupExecutor implements Consumer<Group> {
+    public static class AnimatedGroupExecutor implements BiConsumer<Group, Runnable> {
 
         private double animationDuration;
         private double alpha;
@@ -133,10 +140,20 @@ public class GroupItem extends AbstractItem<GroupItem, Group> implements Item<Gr
         }
 
         @Override
-        public void apply(final Group group) {
+        public void apply(final Group group,
+                          final Runnable callback) {
             group.animate(animationTweener,
                           AnimationProperties.toPropertyList(AnimationProperty.Properties.ALPHA(alpha)),
-                          animationDuration);
+                          animationDuration,
+                          new AnimationCallback() {
+                              @Override
+                              public void onClose(IAnimation animation,
+                                                  IAnimationHandle handle) {
+                                  super.onClose(animation,
+                                                handle);
+                                  callback.run();
+                              }
+                          });
         }
 
         public AnimatedGroupExecutor setAnimationTweener(final AnimationTweener animationTweener) {
@@ -152,20 +169,6 @@ public class GroupItem extends AbstractItem<GroupItem, Group> implements Item<Gr
         public AnimatedGroupExecutor setAnimationDuration(final double millis) {
             this.animationDuration = millis;
             return this;
-        }
-    }
-
-    public static class StaticGroupExecutor implements Consumer<Group> {
-
-        private final double alpha;
-
-        public StaticGroupExecutor(double alpha) {
-            this.alpha = alpha;
-        }
-
-        @Override
-        public void apply(final Group obj1) {
-            obj1.setAlpha(alpha);
         }
     }
 }

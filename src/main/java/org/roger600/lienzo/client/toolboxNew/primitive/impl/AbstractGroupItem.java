@@ -79,6 +79,13 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
         return cast();
     }
 
+    public T refresh() {
+        if (isDecorated()) {
+            ((AbstractDecoratorItem<?>) decorator).refresh();
+        }
+        return cast();
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public T tooltip(final TooltipItem tooltip) {
@@ -92,21 +99,6 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
     }
 
     @Override
-    public T hide() {
-        return hide(new Runnable() {
-                        @Override
-                        public void run() {
-                            hideAddOns();
-                        }
-                    },
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                        }
-                    });
-    }
-
-    @Override
     public T show(final Runnable before,
                   final Runnable after) {
         groupItem.show(before,
@@ -117,7 +109,12 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
     @Override
     public T hide(final Runnable before,
                   final Runnable after) {
-        groupItem.hide(before,
+        groupItem.hide(new Runnable() {
+                           @Override
+                           public void run() {
+                               before.run();
+                           }
+                       },
                        after);
         return cast();
     }
@@ -191,6 +188,7 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
         this.decorator = decorator;
         if (isDecorated()) {
             attachDecorator();
+            refresh();
             updateAddOnsVisibility();
         }
     }
@@ -268,13 +266,23 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
         public void focus() {
             showAddOns();
             setAlpha(ALPHA_FOCUSED);
-            apply(asPrimitive());
+            apply(asPrimitive(),
+                  new Runnable() {
+                      @Override
+                      public void run() {
+                      }
+                  });
         }
 
         public void unFocus() {
             hideAddOns();
             setAlpha(ALPHA_UNFOCUSED);
-            apply(asPrimitive());
+            apply(asPrimitive(),
+                  new Runnable() {
+                      @Override
+                      public void run() {
+                      }
+                  });
         }
     }
 

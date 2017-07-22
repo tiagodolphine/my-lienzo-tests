@@ -34,24 +34,6 @@ public abstract class AbstractDecoratedItem<T extends DecoratedItem>
                     });
     }
 
-    public T show(final Runnable after) {
-        return show(new Runnable() {
-                        @Override
-                        public void run() {
-                        }
-                    },
-                    after);
-    }
-
-    public T hide(final Runnable after) {
-        return hide(new Runnable() {
-                        @Override
-                        public void run() {
-                        }
-                    },
-                    after);
-    }
-
     public abstract T show(Runnable before,
                            Runnable after);
 

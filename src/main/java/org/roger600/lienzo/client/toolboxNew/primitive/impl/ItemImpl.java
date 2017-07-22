@@ -5,6 +5,7 @@ import com.ait.lienzo.client.core.shape.IPrimitive;
 import com.ait.lienzo.client.core.shape.MultiPath;
 import com.ait.lienzo.client.core.shape.Shape;
 import com.ait.lienzo.client.core.types.BoundingBox;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Timer;
 import org.roger600.lienzo.client.toolboxNew.GroupItem;
 
@@ -18,10 +19,12 @@ class ItemImpl extends AbstractGroupItem<ItemImpl> {
             ItemImpl.this.doFocus();
         }
     };
+    private int focusDelay = FOCUS_DELAY_MILLIS;
 
     ItemImpl(final Group group) {
         super(new GroupItem(group));
-        this.primitive = createGroupDecorator(group);
+        this.primitive = setUpGroupDecorator(new MultiPath(),
+                                             group);
         getGroupItem().add(primitive);
     }
 
@@ -31,9 +34,18 @@ class ItemImpl extends AbstractGroupItem<ItemImpl> {
         getGroupItem().add(primitive);
     }
 
+    public ItemImpl setFocusDelay(final int millis) {
+        this.focusDelay = millis;
+        return this;
+    }
+
     @Override
     ItemImpl focus() {
-        focusDelayTimer.schedule(FOCUS_DELAY_MILLIS);
+        if (focusDelay > 0) {
+            focusDelayTimer.schedule(focusDelay);
+        } else {
+            focusDelayTimer.run();
+        }
         return this;
     }
 
@@ -54,6 +66,12 @@ class ItemImpl extends AbstractGroupItem<ItemImpl> {
         return primitive;
     }
 
+    @Override
+    public ItemImpl refresh() {
+        // TODO: setUpGroupDecorator((MultiPath) getPrimitive(), asPrimitive());
+        return super.refresh();
+    }
+
     private ItemImpl doFocus() {
         return super.focus();
     }
@@ -64,12 +82,15 @@ class ItemImpl extends AbstractGroupItem<ItemImpl> {
         }
     }
 
-    private static MultiPath createGroupDecorator(final Group group) {
+    private static MultiPath setUpGroupDecorator(final MultiPath path,
+                                                 final Group group) {
         final BoundingBox boundingBox = group.getBoundingBox();
-        final MultiPath path = new MultiPath().rect(0,
-                                                    0,
-                                                    boundingBox.getWidth(),
-                                                    boundingBox.getHeight())
+        GWT.log("BB [" + boundingBox.getWidth() + ", " + boundingBox.getHeight() + "]");
+        path.
+                rect(0,
+                     0,
+                     boundingBox.getWidth(),
+                     boundingBox.getHeight())
                 .setFillAlpha(0.01)
                 .setStrokeAlpha(0.01)
                 .setListening(true)

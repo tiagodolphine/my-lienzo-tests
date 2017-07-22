@@ -76,9 +76,9 @@ public class TextTooltipItem
                     @Override
                     public void apply(Text text) {
                         text
-                                .setText(TextTooltipItem.this.text)
-                                .setFontSize(10)
-                                .setFontFamily("Verdana");
+                                //.setFontSize(10)
+                                //.setFontFamily("Verdana")
+                                .setText(TextTooltipItem.this.text);
                     }
                 })
                 .show();

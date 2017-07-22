@@ -21,16 +21,21 @@ public class DecoratorsFactory {
         private static final double OFFSET = -(PADDING / 2);
 
         private final Rectangle decorator;
+        private Supplier<BoundingBox> supplier;
 
         private BoxDecorator() {
-            this.decorator = new Rectangle(1,
-                                           1)
-                    .setCornerRadius(DECORATOR_CORNER_RADIUS)
-                    .setStrokeWidth(DECORATOR_STROKE_WIDTH)
-                    .setStrokeColor(DECORATOR_STROKE_COLOR)
-                    .setDraggable(false)
-                    .setFillAlpha(0)
-                    .setFillBoundsForSelection(false);
+            this(new Rectangle(1,
+                               1)
+                         .setCornerRadius(DECORATOR_CORNER_RADIUS)
+                         .setStrokeWidth(DECORATOR_STROKE_WIDTH)
+                         .setStrokeColor(DECORATOR_STROKE_COLOR)
+                         .setDraggable(false)
+                         .setFillAlpha(0)
+                         .setFillBoundsForSelection(false));
+        }
+
+        private BoxDecorator(final Rectangle decorator) {
+            this.decorator = decorator;
         }
 
         public BoxDecorator setStrokeWidth(final double strokeWidth) {
@@ -49,18 +54,36 @@ public class DecoratorsFactory {
         }
 
         @Override
-        public BoxDecorator forBoundingBox(final Supplier<BoundingBox> boundingBoxSupplier) {
+        public BoxDecorator refresh() {
+            assert null != supplier;
             this.decorator
-                    .setWidth(boundingBoxSupplier.get().getWidth() + PADDING)
-                    .setHeight(boundingBoxSupplier.get().getHeight() + PADDING)
+                    .setWidth(supplier.get().getWidth() + PADDING)
+                    .setHeight(supplier.get().getHeight() + PADDING)
                     .setX(OFFSET)
                     .setY(OFFSET);
             return this;
         }
 
         @Override
+        protected void doShow() {
+            refresh();
+            super.doShow();
+        }
+
+        @Override
+        public BoxDecorator forBoundingBox(final Supplier<BoundingBox> boundingBoxSupplier) {
+            this.supplier = boundingBoxSupplier;
+            return this;
+        }
+
+        @Override
         public Rectangle asPrimitive() {
             return decorator;
+        }
+
+        @Override
+        public BoxDecorator copy() {
+            return new BoxDecorator(decorator.copy());
         }
     }
 }
