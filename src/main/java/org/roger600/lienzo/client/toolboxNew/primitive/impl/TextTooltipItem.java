@@ -8,13 +8,13 @@ import org.roger600.lienzo.client.toolboxNew.Positions;
 import org.roger600.lienzo.client.toolboxNew.primitive.AbstractPrimitiveItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.TooltipItem;
 import org.roger600.lienzo.client.toolboxNew.util.Supplier;
-import org.roger600.lienzo.client.toolboxNew.util.Tooltip;
+import org.roger600.lienzo.client.toolboxNew.util.TooltipOLD;
 
 public class TextTooltipItem
         extends AbstractPrimitiveItem<TextTooltipItem>
         implements TooltipItem<TextTooltipItem> {
 
-    private final Tooltip tooltip;
+    private final TooltipOLD tooltip;
     private Supplier<BoundingBox> boundingBoxSupplier;
     private Direction at;
     private String text;
@@ -27,12 +27,12 @@ public class TextTooltipItem
         }
 
         public static TextTooltipItem build(final String text) {
-            return new TextTooltipItem(new Tooltip())
+            return new TextTooltipItem(new TooltipOLD())
                     .setText(text);
         }
     }
 
-    private TextTooltipItem(final Tooltip tooltip) {
+    private TextTooltipItem(final TooltipOLD tooltip) {
         this.tooltip = tooltip;
         this.text = "-- No Text --";
     }
@@ -59,7 +59,7 @@ public class TextTooltipItem
                                                 this.at);
         tooltip.show(text,
                      loc,
-                     Tooltip.Direction.WEST);
+                     TooltipOLD.Direction.WEST);
         return this;
     }
 

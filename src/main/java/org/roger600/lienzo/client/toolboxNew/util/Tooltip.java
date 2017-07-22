@@ -1,176 +1,183 @@
-/*
- * Copyright 2016 Red Hat, Inc. and/or its affiliates.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.roger600.lienzo.client.toolboxNew.util;
 
 import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.shape.IPrimitive;
-import com.ait.lienzo.client.core.shape.Rectangle;
+import com.ait.lienzo.client.core.shape.MultiPath;
 import com.ait.lienzo.client.core.shape.Text;
-import com.ait.lienzo.client.core.shape.Triangle;
 import com.ait.lienzo.client.core.types.BoundingBox;
 import com.ait.lienzo.client.core.types.Point2D;
-import com.google.gwt.user.client.Timer;
+import com.ait.lienzo.shared.core.types.ColorName;
+import com.ait.lienzo.shared.core.types.Direction;
 
 public class Tooltip {
 
-    private static final double PADDING = 10d;
-    private static final double TRIANGLE_SIZE = 10d;
-    private static final double ALPHA = 1d;
-    private static final String BG_COLOR = "#8c8c8c";
-    private static final String TEXT_FAMILY = "Verdana";
-    private static final String TEXT_COLOR = "#FFFFFF";
-    private static final double TEXT_SIZE = 12d;
-    private static final double TEXT_WIDTH = 1d;
-    private static final int HIDE_TIMEOUT = 3500;
-
-    private final Group container;
-
-    /**
-     * This internal timer ensures that if any error on its usage occurs,
-     * it will get removed from the canvas at some point.
-     * Use the method <code>setHideTimeout</code> to change the default timeout value.
-     */
-    private int hideTimeout = HIDE_TIMEOUT;
-    private final Timer hideTimer = new Timer() {
-        @Override
-        public void run() {
-            Tooltip.this.hide();
-        }
-    };
-
-    public enum Direction {
-        NORTH,
-        WEST;
-    }
+    private final MultiPath path;
+    private final Text text;
+    private final Group group;
+    private Direction direction;
+    private double padding;
 
     public Tooltip() {
-        this.container = new Group();
+        this.group = new Group();
+        this.path = new MultiPath();
+        this.text = new Text("");
+        this.padding = 5;
+        this.group
+                .add(path)
+                .add(text);
+        doHide();
     }
 
-    public void setHideTimeout(final int hideTimeout) {
-        this.hideTimeout = hideTimeout;
+    public Tooltip setDirection(final Direction direction) {
+        this.direction = direction;
+        return checkRefresh();
     }
 
-    public Tooltip show(final String text,
-                        final Point2D location,
-                        final Direction direction) {
-        hide();
-        final Text descText = new Text(text)
-                .setFontSize(TEXT_SIZE)
-                .setFontStyle("")
-                .setFontFamily(TEXT_FAMILY)
-                .setStrokeWidth(TEXT_WIDTH)
-                .setStrokeColor(TEXT_COLOR)
-                .setStrokeAlpha(1);
-        final BoundingBox descTextBB = descText.getBoundingBox();
-        final double descTextBbW = descTextBB.getWidth();
-        final double descTextBbH = descTextBB.getHeight();
-        final double dw = descTextBbW + PADDING;
-        final double dh = descTextBbH + PADDING;
-        final IPrimitive<?> decorator = buildDecorator(dw,
-                                                       dh,
-                                                       direction);
-        final double w = dw + (isWest(direction) ? TRIANGLE_SIZE * 2 : 0);
-        final double h = dh + (isNorth(direction) ? TRIANGLE_SIZE * 2 : 0);
+    public Tooltip setPadding(final double value) {
+        this.padding = value;
+        return checkRefresh();
+    }
 
-        // Ensure text is on top.
-        final double _x = (w / 2) + (isWest(direction) ? PADDING / 2 : 0);
-        final double _y = PADDING / 2 + (isNorth(direction) ? TRIANGLE_SIZE : 0);
-        descText.setX(_x - (descTextBbW / 2));
-        descText.setY(_y + descTextBbH);
-        descText.moveToTop();
+    public Tooltip text(Consumer<Text> text) {
+        text.apply(this.text);
+        return checkRefresh();
+    }
 
-        container.add(decorator);
-        container.add(descText);
-        container.setLocation(location);
-
-        startTimers();
+    public Tooltip show() {
+        if (!isVisible()) {
+            refresh();
+            doShow();
+        }
         return this;
     }
 
     public Tooltip hide() {
-        container.removeAll();
-        clearTimers();
+        if (isVisible()) {
+            doHide();
+        }
         return this;
     }
 
-    public void destroy() {
-        hide();
+    public boolean isVisible() {
+        return group.getAlpha() > 0;
     }
 
-    public Group asPrimitive() {
-        return container;
+    public IPrimitive<?> asPrimitive() {
+        return group;
     }
 
-    private IPrimitive<?> buildDecorator(final double width,
-                                         final double height,
-                                         final Direction direction) {
-        final boolean isWest = isWest(direction);
-        final boolean isNorth = isNorth(direction);
-        final double h2 = height / 2;
-        final double w2 = width / 2;
-        final double s2 = TRIANGLE_SIZE / 2;
-        final Point2D a = isWest ? new Point2D(0,
-                                               h2) : new Point2D(10,
-                                                                 0);
-        final Point2D b = isWest ? new Point2D(TRIANGLE_SIZE,
-                                               h2 + s2) : new Point2D(10 + s2,
-                                                                      TRIANGLE_SIZE);
-        final Point2D c = isWest ? new Point2D(TRIANGLE_SIZE,
-                                               h2 - s2) : new Point2D(10 - s2,
-                                                                      TRIANGLE_SIZE);
-        final Triangle triangle = new Triangle(a,
-                                               b,
-                                               c)
-                .setFillColor(BG_COLOR)
-                .setFillAlpha(ALPHA)
-                .setStrokeWidth(0);
-        final Rectangle rectangle =
-                new Rectangle(
-                        width + (isWest ? TRIANGLE_SIZE : 0),
-                        height + (isNorth ? TRIANGLE_SIZE : 0))
-                        .setX(isWest ? TRIANGLE_SIZE : 0)
-                        .setY(isWest ? 0 : TRIANGLE_SIZE)
-                        .setCornerRadius(10)
-                        .setFillColor(BG_COLOR)
-                        .setFillAlpha(ALPHA)
-                        .setStrokeAlpha(0)
-                        .setCornerRadius(5);
-        final Group decorator = new Group();
-        decorator.add(rectangle);
-        decorator.add(triangle);
-        return decorator;
-    }
-
-    private boolean isWest(final Direction direction) {
-        return Direction.WEST.equals(direction);
-    }
-
-    private boolean isNorth(final Direction direction) {
-        return Direction.NORTH.equals(direction);
-    }
-
-    private void startTimers() {
-        this.hideTimer.schedule(hideTimeout);
-    }
-
-    private void clearTimers() {
-        if (this.hideTimer.isRunning()) {
-            this.hideTimer.cancel();
+    private Tooltip checkRefresh() {
+        if (isVisible()) {
+            refresh();
         }
+        return this;
+    }
+
+    private void doShow() {
+        group.setAlpha(1);
+    }
+
+    private void doHide() {
+        group.setAlpha(0);
+    }
+
+    private void refresh() {
+
+        // Dimensions for text.
+        final BoundingBox textBB = text.getBoundingBox();
+        final double tw = textBB.getWidth();
+        final double th = textBB.getHeight();
+
+        // Head dimensions.
+        final double hw = 25;
+        final double hl = 25;
+
+        // Body dimensions.
+        final double cbw = (isHorizontal() ? hl : 0)
+                + tw + (padding * 2);
+        final double cbh = (!isHorizontal() ? hl : 0) +
+                th + (padding * 2);
+        final double bw = isHorizontal() ? cbw : cbh;
+        final double bh = isHorizontal() ? cbh : cbw;
+        final double br = 5;
+
+        // Some pre-calculations.
+        final double hd = (bh - hw) / 2;
+        final double y = -(bh / 2);
+
+        path
+                .clear()
+                .M(hl + br,
+                   y + 0)
+                .L(bw - br,
+                   y + 0)
+                .A(bw,
+                   y + 0,
+                   bw,
+                   y + br,
+                   br)
+                .L(bw,
+                   y + (bh - br))
+                .A(bw,
+                   y + bh,
+                   bw - br,
+                   y + bh,
+                   br)
+                .L(hl + br,
+                   y + bh)
+                .A(hl,
+                   y + bh,
+                   hl,
+                   y + (bh - br),
+                   br)
+                .L(hl,
+                   y + (bh - hd))
+                .L(0,
+                   y + (bh / 2))
+                .L(hl,
+                   y + hd)
+                .L(hl,
+                   y + br)
+                .A(hl,
+                   y + 0,
+                   hl + br,
+                   y + 0,
+                   br)
+                .Z();
+
+        path.setFillColor(ColorName.GREY)
+                .setStrokeColor(ColorName.BLACK);
+
+        // Direction.
+        final Point2D textLoc = new Point2D();
+        switch (direction) {
+            case EAST:
+                path.setRotationDegrees(180);
+                textLoc.setX(-hl - padding - tw)
+                        .setY((th / 2) - padding);
+                break;
+            case NORTH:
+                path.setRotationDegrees(270);
+                textLoc.setX(-padding - (tw / 2))
+                        .setY(-padding - th + (th / 2));
+                break;
+            case SOUTH:
+                path.setRotationDegrees(90);
+                textLoc.setX(-padding - (tw / 2))
+                        .setY(hl + th + padding);
+                break;
+            default:
+                path.setRotationDegrees(0);
+                textLoc.setX(hl + padding)
+                        .setY((th / 2) - padding);
+        }
+
+        // Location.
+        text.setLocation(textLoc);
+    }
+
+    private boolean isHorizontal() {
+        return Direction.EAST.equals(direction) ||
+                Direction.WEST.equals(direction);
     }
 }

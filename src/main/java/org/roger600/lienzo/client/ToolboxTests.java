@@ -16,10 +16,12 @@ import com.ait.lienzo.client.core.shape.MultiPath;
 import com.ait.lienzo.client.core.shape.Picture;
 import com.ait.lienzo.client.core.shape.Rectangle;
 import com.ait.lienzo.client.core.shape.Shape;
+import com.ait.lienzo.client.core.shape.Text;
 import com.ait.lienzo.client.core.shape.wires.IContainmentAcceptor;
 import com.ait.lienzo.client.core.shape.wires.WiresManager;
 import com.ait.lienzo.client.core.shape.wires.WiresShape;
 import com.ait.lienzo.client.core.types.BoundingBox;
+import com.ait.lienzo.client.core.types.Point2D;
 import com.ait.lienzo.shared.core.types.ColorName;
 import com.ait.lienzo.shared.core.types.Direction;
 import com.ait.lienzo.shared.core.types.IColor;
@@ -42,11 +44,12 @@ import org.roger600.lienzo.client.toolboxNew.grid.FixedLayoutGrid;
 import org.roger600.lienzo.client.toolboxNew.primitive.ButtonGridItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.ButtonItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.LayerToolbox;
-import org.roger600.lienzo.client.toolboxNew.primitive.TooltipItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.factory.DecoratorsFactory;
 import org.roger600.lienzo.client.toolboxNew.primitive.factory.ItemFactory;
 import org.roger600.lienzo.client.toolboxNew.primitive.factory.ToolboxFactory;
 import org.roger600.lienzo.client.toolboxNew.primitive.impl.TextTooltipItem;
+import org.roger600.lienzo.client.toolboxNew.util.Consumer;
+import org.roger600.lienzo.client.toolboxNew.util.Tooltip;
 
 public class ToolboxTests implements MyLienzoTest,
                                      HasMediators,
@@ -59,6 +62,7 @@ public class ToolboxTests implements MyLienzoTest,
     private static final Direction iAt = Direction.NORTH_EAST;
     private static final Direction iTowards = Direction.SOUTH_EAST;
     private static final Direction iAutoDirection = Direction.SOUTH;
+    private static final Direction iTooltipDirection = Direction.WEST;
 
     private Layer layer;
     private WiresManager wiresManager;
@@ -68,6 +72,7 @@ public class ToolboxTests implements MyLienzoTest,
     private AutoGrid autoGrid1;
     private LayerToolbox toolbox1;
     private int itemCount = 0;
+    private Tooltip tooltip;
 
     public void test(Layer layer) {
         this.layer = layer;
@@ -110,8 +115,8 @@ public class ToolboxTests implements MyLienzoTest,
                 .at(iAt)
                 .grid(grid1);
 
-        addButtonItem();
-        addButtonItem();
+        addButtonItem(getButtonTitle());
+        addButtonItem(getButtonTitle());
 
         // BPMN icon
         addButtonItem(LienzoTestsResources.INSTANCE.taskUserComposite().getSafeUri(),
@@ -122,6 +127,32 @@ public class ToolboxTests implements MyLienzoTest,
                       "SCRIPT",
                       BUTTON_SIZE,
                       BUTTON_SIZE);
+
+        testTooltip();
+    }
+
+    private void testTooltip() {
+        tooltip = new Tooltip();
+        layer.add(tooltip.asPrimitive());
+
+        tooltip
+                .setDirection(iTooltipDirection)
+                .text(new Consumer<Text>() {
+                    @Override
+                    public void apply(Text obj) {
+                        obj.setText("Un Roger");
+                    }
+                })
+                .asPrimitive()
+                .setLocation(new Point2D(400,
+                                         100));
+
+        tooltip.show();
+    }
+
+    private void tooltipDirection(Direction direction) {
+        tooltip.setDirection(direction);
+        layer.batch();
     }
 
     private void autoDirection(Direction direction) {
@@ -152,17 +183,24 @@ public class ToolboxTests implements MyLienzoTest,
         toolbox1.hide();
     }
 
-    private ButtonItem createButtonItem() {
+    private ButtonItem createButtonItem(String title) {
         Shape<?> prim = createButtonNode(ColorName.values()[Random.nextInt(ColorName.values().length)]);
         Group bGroup = new Group()
                 .add(prim);
-        return createButtonItem(bGroup);
+        return createButtonItem(bGroup,
+                                title);
     }
 
-    private ButtonItem createButtonItem(Group bGroup) {
+    private String getButtonTitle() {
+        return "Button" + itemCount;
+    }
+
+    private ButtonItem createButtonItem(Group bGroup,
+                                        String title) {
         final ButtonItem item1 =
                 ItemFactory.buttonFor(bGroup)
                         .decorate(DecoratorsFactory.box())
+                        .tooltip(TextTooltipItem.Builder.atEast(title))
                         .onClick(new NodeMouseClickHandler() {
                             @Override
                             public void onNodeMouseClick(NodeMouseClickEvent event) {
@@ -192,8 +230,10 @@ public class ToolboxTests implements MyLienzoTest,
         return item1;
     }
 
-    private void addButtonItem(Group bGroup) {
-        final ButtonItem item1 = createButtonItem(bGroup);
+    private void addButtonItem(Group bGroup,
+                               String title) {
+        final ButtonItem item1 = createButtonItem(bGroup,
+                                                  title);
         toolbox1.add(item1);
     }
 
@@ -208,20 +248,20 @@ public class ToolboxTests implements MyLienzoTest,
                             scalePicture(picture,
                                          w,
                                          h);
-                            final ButtonItem picItem = createButtonItem(new Group().add(picture));
-                            TooltipItem<?> tooltip = TextTooltipItem.Builder.atEast(title);
-                            picItem.tooltip(tooltip);
+                            final ButtonItem picItem =
+                                    createButtonItem(new Group().add(picture),
+                                                     title);
                             toolbox1.add(picItem);
                         }
                     });
     }
 
-    private void addButtonItem() {
-        final ButtonItem item1 = createButtonItem();
+    private void addButtonItem(String title) {
+        final ButtonItem item1 = createButtonItem(title);
         toolbox1.add(item1);
     }
 
-    private void addDropDownItem() {
+    private void addDropDownItem(String title) {
 
         final double radius = BUTTON_SIZE / 2;
         final Circle circle = new Circle(radius)
@@ -249,8 +289,8 @@ public class ToolboxTests implements MyLienzoTest,
                                                                              iRows,
                                                                              iCols);
 
-                            final ButtonItem item1 = createButtonItem();
-                            final ButtonItem item2 = createButtonItem();
+                            final ButtonItem item1 = createButtonItem(getButtonTitle());
+                            final ButtonItem item2 = createButtonItem(getButtonTitle());
 
                             item
                                     .grid(grid)
@@ -338,7 +378,7 @@ public class ToolboxTests implements MyLienzoTest,
         addItemButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                addButtonItem();
+                addButtonItem(getButtonTitle());
             }
         });
         hPanel1.add(addItemButton);
@@ -347,7 +387,7 @@ public class ToolboxTests implements MyLienzoTest,
         addItemDropDown.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                addDropDownItem();
+                addDropDownItem("DropDown" + getButtonTitle());
             }
         });
         hPanel1.add(addItemDropDown);
@@ -467,6 +507,25 @@ public class ToolboxTests implements MyLienzoTest,
         autoDirectionButton.setSelectedIndex(iAutoDirection.ordinal());
         hPanel4.add(autoDirectionLabel);
         hPanel4.add(autoDirectionButton);
+
+        // Tooltip.
+        final Label tooltipDirectionLabel = new Label("Tooltip direction: ");
+        final ListBox tooltipDirectionButton = new ListBox();
+        tooltipDirectionButton.addItem(Direction.NORTH.name());
+        tooltipDirectionButton.addItem(Direction.SOUTH.name());
+        tooltipDirectionButton.addItem(Direction.EAST.name());
+        tooltipDirectionButton.addItem(Direction.WEST.name());
+        tooltipDirectionButton.addChangeHandler(new ChangeHandler() {
+            @Override
+            public void onChange(ChangeEvent event) {
+                int index = tooltipDirectionButton.getSelectedIndex();
+                Direction direction = Direction.values()[index];
+                tooltipDirection(direction);
+            }
+        });
+        tooltipDirectionButton.setSelectedIndex(iTooltipDirection.ordinal());
+        hPanel4.add(tooltipDirectionLabel);
+        hPanel4.add(tooltipDirectionButton);
 
         panel.add(vPanel);
     }
