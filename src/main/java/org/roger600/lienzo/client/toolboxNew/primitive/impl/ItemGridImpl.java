@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.types.Point2D;
-import com.google.gwt.core.client.GWT;
 import org.roger600.lienzo.client.toolboxNew.ItemGrid;
 import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
 import org.roger600.lienzo.client.toolboxNew.primitive.AbstractDecoratedItem;
@@ -16,17 +15,17 @@ public class ItemGridImpl
         extends WrappedItem<ItemGridImpl>
         implements ItemGrid<ItemGridImpl, Point2DGrid, DecoratedItem> {
 
-    private final ItemImpl groupPrimitiveItem;
+    private final AbstractGroupItem groupPrimitiveItem;
     private final List<AbstractDecoratedItem> items = new LinkedList<>();
     private Point2DGrid grid;
     private Runnable refreshCallback;
+    private boolean needsUpdate;
 
     public ItemGridImpl() {
-        this(new ItemImpl(new Group())
-                     .setFocusDelay(0));
+        this(new GroupImpl(new Group()));
     }
 
-    ItemGridImpl(final ItemImpl groupPrimitiveItem) {
+    ItemGridImpl(final AbstractGroupItem groupPrimitiveItem) {
         this.groupPrimitiveItem = groupPrimitiveItem;
         this.refreshCallback = new Runnable() {
             @Override
@@ -36,6 +35,7 @@ public class ItemGridImpl
                 }
             }
         };
+        this.needsUpdate = false;
     }
 
     @Override
@@ -78,15 +78,16 @@ public class ItemGridImpl
     @Override
     public ItemGridImpl show(final Runnable before,
                              final Runnable after) {
-        return super.show(before,
+        return super.show(new Runnable() {
+                              @Override
+                              public void run() {
+                                  before.run();
+                              }
+                          },
                           new Runnable() {
                               @Override
                               public void run() {
-                                  getWrapped().focus();
                                   doRefresh();
-                                  for (final DecoratedItem button : items) {
-                                      button.show();
-                                  }
                                   after.run();
                               }
                           });
@@ -117,6 +118,10 @@ public class ItemGridImpl
         return checkRefresh();
     }
 
+    public int size() {
+        return items.size();
+    }
+
     @Override
     public void destroy() {
         getWrapped().destroy();
@@ -129,14 +134,21 @@ public class ItemGridImpl
     }
 
     private ItemGridImpl doRefresh() {
-        getWrapped().refresh();
         repositionItems();
+        for (final DecoratedItem button : items) {
+            button.show();
+        }
+        getWrapped().focus();
+        getWrapped().refresh();
+        needsUpdate = false;
         return this;
     }
 
     private ItemGridImpl checkRefresh() {
         if (isVisible()) {
             return doRefresh();
+        } else {
+            needsUpdate = true;
         }
         return this;
     }
@@ -145,7 +157,6 @@ public class ItemGridImpl
         final Iterator<Point2D> gridIterator = grid.iterator();
         for (final AbstractDecoratedItem button : items) {
             final Point2D point = gridIterator.next();
-            GWT.log("BUTTON AT = " + point);
             button.asPrimitive().setLocation(point);
         }
         fireRefresh();

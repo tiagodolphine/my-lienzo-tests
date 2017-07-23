@@ -50,14 +50,12 @@ public class ButtonGridItemImpl
             };
 
     public ButtonGridItemImpl(final Shape<?> prim) {
-        this(new ItemImpl(prim)
-                     .setFocusDelay(0),
+        this(new ButtonItemImpl(prim),
              new ToolboxImpl());
     }
 
     public ButtonGridItemImpl(final Group group) {
-        this(new ItemImpl(group)
-                     .setFocusDelay(0),
+        this(new ButtonItemImpl(group),
              new ToolboxImpl());
     }
 
@@ -69,9 +67,9 @@ public class ButtonGridItemImpl
                 }
             };
 
-    ButtonGridItemImpl(final AbstractGroupItem groupItem,
+    ButtonGridItemImpl(final ButtonItemImpl button,
                        final ToolboxImpl toolbox) {
-        this.button = new ButtonItemImpl(groupItem);
+        this.button = button;
         this.toolbox = toolbox;
         init();
     }
@@ -94,13 +92,17 @@ public class ButtonGridItemImpl
 
     @Override
     public ButtonGridItem decorate(final DecoratorItem<?> decorator) {
-        super.decorate(decorator);
-        if (decorator instanceof AbstractDecoratorItem) {
-            // TODO
-            //toolbox.decorate(((AbstractDecoratorItem) decorator).copy());
-            toolbox.decorate(DecoratorsFactory.box()
-                                     .setStrokeColor(ColorName.RED.getColorString())
-                                     .setStrokeWidth(10));
+        if (toolbox.getItems().size() > 0) {
+            super.decorate(decorator);
+            if (decorator instanceof AbstractDecoratorItem) {
+                // TODO
+                //toolbox.decorate(((AbstractDecoratorItem) decorator).copy());
+                toolbox.decorate(DecoratorsFactory.box()
+                                         .setStrokeColor(ColorName.RED.getColorString())
+                                         .setStrokeWidth(10));
+            }
+        } else {
+            throw new IllegalStateException("Cannot decorate until no items added.");
         }
         return this;
     }
@@ -152,7 +154,6 @@ public class ButtonGridItemImpl
 
     @Override
     public ButtonGridItem add(final DecoratedItem... items) {
-        toolbox.add(items);
         for (final DecoratedItem item : items) {
             try {
                 final AbstractDecoratedItem primitiveItem = (AbstractDecoratedItem) item;
@@ -165,6 +166,7 @@ public class ButtonGridItemImpl
                                                                 "of " + AbstractDecoratedItem.class.getName());
             }
         }
+        toolbox.add(items);
         return this;
     }
 

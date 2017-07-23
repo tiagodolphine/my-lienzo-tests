@@ -114,8 +114,8 @@ public class ToolboxTests implements MyLienzoTest,
         toolbox1 = ToolboxFactory.forWiresShape(shape1)
                 .attachTo(layer.getScene().getTopLayer())
                 .at(iAt)
-                .grid(grid1)
-                .decorate(DecoratorsFactory.box());
+                //.decorate(DecoratorsFactory.box())
+                .grid(grid1);
 
         tooltip1 = TooltipFactory.forToolbox(toolbox1)
                 //.setText("Toolbox tooltip text")
@@ -319,7 +319,6 @@ public class ToolboxTests implements MyLienzoTest,
 
                             item
                                     .grid(grid)
-                                    .decorate(DecoratorsFactory.box())
                                     .onClick(new NodeMouseClickHandler() {
                                         @Override
                                         public void onNodeMouseClick(NodeMouseClickEvent event) {
@@ -327,7 +326,8 @@ public class ToolboxTests implements MyLienzoTest,
                                         }
                                     })
                                     .add(item1,
-                                         item2);
+                                         item2)
+                                    .decorate(DecoratorsFactory.box());
 
                             itemCount++;
 

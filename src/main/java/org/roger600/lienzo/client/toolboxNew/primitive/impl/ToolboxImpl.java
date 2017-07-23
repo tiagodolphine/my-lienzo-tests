@@ -2,18 +2,14 @@ package org.roger600.lienzo.client.toolboxNew.primitive.impl;
 
 import java.util.Iterator;
 
-import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.types.BoundingBox;
 import com.ait.lienzo.client.core.types.Point2D;
-import com.ait.lienzo.shared.core.types.ColorName;
 import com.ait.lienzo.shared.core.types.Direction;
 import org.roger600.lienzo.client.toolboxNew.Positions;
 import org.roger600.lienzo.client.toolboxNew.Toolbox;
 import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
 import org.roger600.lienzo.client.toolboxNew.primitive.AbstractDecoratedItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratedItem;
-import org.roger600.lienzo.client.toolboxNew.primitive.DecoratorItem;
-import org.roger600.lienzo.client.toolboxNew.primitive.factory.DecoratorsFactory;
 import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
 public class ToolboxImpl
@@ -28,17 +24,6 @@ public class ToolboxImpl
     private Runnable refreshCallback;
 
     public ToolboxImpl(final Supplier<BoundingBox> boundingBoxSupplier) {
-        this(boundingBoxSupplier,
-             new ItemImpl(new Group())
-                     .setFocusDelay(0));
-    }
-
-    ToolboxImpl() {
-        this(null);
-    }
-
-    private ToolboxImpl(final Supplier<BoundingBox> boundingBoxSupplier,
-                        final ItemImpl groupPrimitiveItem) {
         this.boundingBoxSupplier = boundingBoxSupplier;
         this.at = Direction.NORTH_EAST;
         this.offset = new Point2D(0d,
@@ -46,13 +31,17 @@ public class ToolboxImpl
         this.refreshCallback = new Runnable() {
             @Override
             public void run() {
-                if (null != groupPrimitiveItem.getPrimitive().getLayer()) {
-                    groupPrimitiveItem.getPrimitive().getLayer().batch();
+                if (null != items.getPrimitive().getLayer()) {
+                    items.getPrimitive().getLayer().batch();
                 }
             }
         };
-        this.items = new ItemGridImpl(groupPrimitiveItem)
+        this.items = new ItemGridImpl()
                 .onRefresh(refreshCallback);
+    }
+
+    ToolboxImpl() {
+        this(null);
     }
 
     @Override
@@ -74,15 +63,6 @@ public class ToolboxImpl
     @Override
     public ToolboxImpl grid(final Point2DGrid grid) {
         items.grid(grid);
-        return this;
-    }
-
-    @Override
-    public ToolboxImpl decorate(final DecoratorItem<?> decorator) {
-        // TODO
-        super.decorate(DecoratorsFactory.box()
-                               .setStrokeColor(ColorName.RED.getColorString())
-                               .setStrokeWidth(10));
         return this;
     }
 
@@ -110,7 +90,7 @@ public class ToolboxImpl
                           new Runnable() {
                               @Override
                               public void run() {
-                                  //getWrapped().focus();
+                                  items.getWrapped().focus();
                                   fireRefresh();
                                   after.run();
                               }

@@ -1,18 +1,17 @@
 package org.roger600.lienzo.client.toolboxNew.primitive.impl;
 
+import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.shape.IPrimitive;
-import com.ait.lienzo.client.core.shape.Shape;
 import org.roger600.lienzo.client.toolboxNew.GroupItem;
 
-class ItemImpl extends AbstractGroupItem<ItemImpl> {
+class GroupImpl extends AbstractGroupItem<GroupImpl> {
 
     private final IPrimitive<?> primitive;
 
-    ItemImpl(final Shape<?> shape) {
-        super(new GroupItem());
-        this.primitive = shape;
-        getGroupItem().add(primitive);
-        setupFocusingHandlers();
+    GroupImpl(final Group group) {
+        super(new GroupItem(group));
+        this.primitive = group;
+        setFocusDelay(0);
     }
 
     @Override

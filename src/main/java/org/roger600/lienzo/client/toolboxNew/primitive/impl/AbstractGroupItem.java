@@ -10,6 +10,7 @@ import com.ait.lienzo.client.core.types.BoundingBox;
 import com.ait.lienzo.client.core.types.Point2D;
 import com.ait.tooling.nativetools.client.event.HandlerRegistrationManager;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.user.client.Timer;
 import org.roger600.lienzo.client.toolboxNew.GroupItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.AbstractDecoratedItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.AbstractDecoratorItem;
@@ -21,12 +22,20 @@ import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 public abstract class AbstractGroupItem<T extends AbstractGroupItem>
         extends AbstractDecoratedItem<T> {
 
+    private final static int FOCUS_DELAY_MILLIS = 200;
     private static final double ALPHA_FOCUSED = 1d;
     private static final double ALPHA_UNFOCUSED = 0.5d;
 
     private final GroupItem groupItem;
     private final HandlerRegistrationManager registrations = new HandlerRegistrationManager();
     private final FocusGroupExecutor focusGroupExecutor;
+    private final Timer focusDelayTimer = new Timer() {
+        @Override
+        public void run() {
+            doFocus();
+        }
+    };
+    private int focusDelay = FOCUS_DELAY_MILLIS;
     private DecoratorItem<?> decorator;
     private TooltipItem<?> tooltip;
     private HandlerRegistration mouseEnterHandlerRegistration;
@@ -38,34 +47,23 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
         this.groupItem.useShowExecutor(focusGroupExecutor);
     }
 
-    public T setupFocusingHandlers() {
-        getPrimitive().setListening(true);
-        registrations.register(
-                getPrimitive().addNodeMouseEnterHandler(new NodeMouseEnterHandler() {
-                    @Override
-                    public void onNodeMouseEnter(NodeMouseEnterEvent event) {
-                        focus();
-                    }
-                })
-        );
-        registrations.register(
-                getPrimitive().addNodeMouseExitHandler(new NodeMouseExitHandler() {
-                    @Override
-                    public void onNodeMouseExit(NodeMouseExitEvent event) {
-                        unFocus();
-                    }
-                })
-        );
-        return cast();
-    }
-
     T focus() {
-        focusGroupExecutor.focus();
+        if (focusDelay > 0) {
+            focusDelayTimer.schedule(focusDelay);
+        } else {
+            focusDelayTimer.run();
+        }
         return cast();
     }
 
     T unFocus() {
-        focusGroupExecutor.unFocus();
+        cancelFocusTimer();
+        doUnFocus();
+        return cast();
+    }
+
+    public T setFocusDelay(final int delay) {
+        this.focusDelay = delay;
         return cast();
     }
 
@@ -155,6 +153,7 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
 
     @Override
     public void destroy() {
+        cancelFocusTimer();
         groupItem.destroy();
         initDecorator(null);
         destroyHandlers();
@@ -168,6 +167,41 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
 
     protected GroupItem getGroupItem() {
         return groupItem;
+    }
+
+    protected T setupFocusingHandlers() {
+        getPrimitive().setListening(true);
+        registrations.register(
+                getPrimitive().addNodeMouseEnterHandler(new NodeMouseEnterHandler() {
+                    @Override
+                    public void onNodeMouseEnter(NodeMouseEnterEvent event) {
+                        focus();
+                    }
+                })
+        );
+        registrations.register(
+                getPrimitive().addNodeMouseExitHandler(new NodeMouseExitHandler() {
+                    @Override
+                    public void onNodeMouseExit(NodeMouseExitEvent event) {
+                        unFocus();
+                    }
+                })
+        );
+        return cast();
+    }
+
+    private void doFocus() {
+        focusGroupExecutor.focus();
+    }
+
+    private void doUnFocus() {
+        focusGroupExecutor.unFocus();
+    }
+
+    private void cancelFocusTimer() {
+        if (focusDelayTimer.isRunning()) {
+            focusDelayTimer.cancel();
+        }
     }
 
     @SuppressWarnings("unchecked")

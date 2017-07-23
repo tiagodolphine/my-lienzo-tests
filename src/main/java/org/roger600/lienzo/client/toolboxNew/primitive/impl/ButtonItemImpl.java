@@ -20,17 +20,14 @@ public class ButtonItemImpl
     private HandlerRegistration dragEndHandlerRegistration;
 
     public ButtonItemImpl(final Shape<?> prim) {
-        this(new ItemImpl(prim)
-                     .setupFocusingHandlers());
+        this(new ItemImpl(prim));
     }
 
-    public ButtonItemImpl(final
-                          Group group) {
-        this(new ItemImpl(group)
-                     .setupFocusingHandlers());
+    public ButtonItemImpl(final Group group) {
+        this(new FocusableGroup(group));
     }
 
-    ButtonItemImpl(final AbstractGroupItem item) {
+    private ButtonItemImpl(final AbstractGroupItem item) {
         this.item = item;
     }
 
