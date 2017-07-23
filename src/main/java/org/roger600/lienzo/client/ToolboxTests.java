@@ -47,7 +47,8 @@ import org.roger600.lienzo.client.toolboxNew.primitive.LayerToolbox;
 import org.roger600.lienzo.client.toolboxNew.primitive.factory.DecoratorsFactory;
 import org.roger600.lienzo.client.toolboxNew.primitive.factory.ItemFactory;
 import org.roger600.lienzo.client.toolboxNew.primitive.factory.ToolboxFactory;
-import org.roger600.lienzo.client.toolboxNew.primitive.impl.TextTooltipItem;
+import org.roger600.lienzo.client.toolboxNew.primitive.factory.TooltipFactory;
+import org.roger600.lienzo.client.toolboxNew.primitive.tooltip.ToolboxTextTooltip;
 import org.roger600.lienzo.client.toolboxNew.util.Consumer;
 import org.roger600.lienzo.client.toolboxNew.util.Tooltip;
 
@@ -71,6 +72,7 @@ public class ToolboxTests implements MyLienzoTest,
     private FixedLayoutGrid grid1;
     private AutoGrid autoGrid1;
     private LayerToolbox toolbox1;
+    private ToolboxTextTooltip tooltip1;
     private int itemCount = 0;
     private Tooltip tooltip;
 
@@ -109,12 +111,22 @@ public class ToolboxTests implements MyLienzoTest,
                 .towards(iAutoDirection)
                 .forShape(shape1)
                 .build();
-
         toolbox1 = ToolboxFactory.forWiresShape(shape1)
                 .attachTo(layer.getScene().getTopLayer())
                 .at(iAt)
                 .grid(grid1)
                 .decorate(DecoratorsFactory.box());
+
+        tooltip1 = TooltipFactory.forToolbox(toolbox1)
+                //.setText("Toolbox tooltip text")
+                .withText(new Consumer<Text>() {
+                    @Override
+                    public void apply(Text textPrim) {
+                        textPrim
+                                .setFontSize(12)
+                                .setFontFamily("Verdana");
+                    }
+                });
 
         addButtonItem(getButtonTitle());
         addButtonItem(getButtonTitle());
@@ -129,24 +141,38 @@ public class ToolboxTests implements MyLienzoTest,
                       BUTTON_SIZE,
                       BUTTON_SIZE);
 
-        // testTooltip();
+       /* final Rectangle r =
+                new Rectangle(50,
+                              50)
+                        .setX(400)
+                        .setY(150)
+                        .setFillColor(ColorName.BLACK);
+        layer.add(r);
+
+        testTooltip(new Point2D(400,
+                                150));*/
     }
 
-    private void testTooltip() {
+    private void testTooltip(final Point2D location) {
         tooltip = new Tooltip();
         layer.add(tooltip.asPrimitive());
 
         tooltip
-                .setLocation(new Point2D(400,
-                                         100))
+                .setLocation(location)
                 .setDirection(iTooltipDirection)
                 .withText(new Consumer<Text>() {
                     @Override
                     public void apply(Text text) {
-                        text.setText("Un Roger");
+                        text
+                                .setFontSize(14)
+                                .setFontFamily("Verdana")
+                                .setStrokeWidth(1)
+                                .setText("Un Roger");
                     }
                 })
-                .show();
+                .show()
+                .asPrimitive()
+                .setDraggable(true);
     }
 
     private void tooltipDirection(Direction direction) {
@@ -199,7 +225,7 @@ public class ToolboxTests implements MyLienzoTest,
         final ButtonItem item1 =
                 ItemFactory.buttonFor(bGroup)
                         .decorate(DecoratorsFactory.box())
-                        .tooltip(TextTooltipItem.Builder.atEast(title))
+                        .tooltip(tooltip1.createIem(title))
                         .onClick(new NodeMouseClickHandler() {
                             @Override
                             public void onNodeMouseClick(NodeMouseClickEvent event) {
@@ -519,7 +545,7 @@ public class ToolboxTests implements MyLienzoTest,
             public void onChange(ChangeEvent event) {
                 int index = tooltipDirectionButton.getSelectedIndex();
                 Direction direction = Direction.values()[index];
-                // tooltipDirection(direction);
+                tooltipDirection(direction);
             }
         });
         tooltipDirectionButton.setSelectedIndex(iTooltipDirection.ordinal());

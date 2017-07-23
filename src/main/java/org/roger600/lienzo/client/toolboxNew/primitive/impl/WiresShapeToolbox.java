@@ -129,6 +129,11 @@ public class WiresShapeToolbox
     }
 
     @Override
+    public Layer getLayer() {
+        return toolbox.asPrimitive().getLayer();
+    }
+
+    @Override
     public void destroy() {
         toolbox.destroy();
         registrations.removeHandler();

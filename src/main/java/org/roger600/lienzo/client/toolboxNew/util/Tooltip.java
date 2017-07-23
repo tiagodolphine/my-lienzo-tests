@@ -14,7 +14,7 @@ import com.ait.lienzo.shared.core.types.Direction;
 
 public class Tooltip {
 
-    private static final double DURATION = 250;
+    private static final double DURATION = 150;
     private final MultiPath path;
     private final Text text;
     private final Group group;
@@ -24,6 +24,12 @@ public class Tooltip {
     private Consumer<Group> hideExecutor;
 
     public Tooltip() {
+        this(new AnimatedTooltipShowExecutor(DURATION),
+             new AnimatedTooltipHideExecutor(DURATION));
+    }
+
+    public Tooltip(final Consumer<Group> showExecutor,
+                   final Consumer<Group> hideExecutor) {
         this.path = new MultiPath();
         this.text = new Text("");
         this.group =
@@ -32,8 +38,9 @@ public class Tooltip {
                         .add(path)
                         .add(text);
         this.padding = 5;
-        this.showExecutor = new AnimatedTooltipShowExecutor(DURATION);
-        this.hideExecutor = new AnimatedTooltipHideExecutor(DURATION);
+        this.direction = Direction.EAST;
+        this.showExecutor = showExecutor;
+        this.hideExecutor = hideExecutor;
     }
 
     public Tooltip setLocation(final Point2D location) {
@@ -160,35 +167,38 @@ public class Tooltip {
                    br)
                 .Z();
 
-        path.setFillColor(ColorName.GREY)
+        path.setFillColor(ColorName.WHITE)
                 .setStrokeColor(ColorName.BLACK);
 
         // Direction.
+        final double tpw = (bw - tw - (padding * 2)) > 0 ? padding : 0;
+        final double tph = (bh - th - (padding * 2)) > 0 ? padding : 0;
         final Point2D textLoc = new Point2D();
         switch (direction) {
             case WEST:
                 path.setRotationDegrees(180);
-                textLoc.setX(-hl - padding - tw)
-                        .setY((th / 2) - padding);
+                textLoc.setX(-hl - tpw - tw)
+                        .setY((th / 2) - tph);
                 break;
             case NORTH:
                 path.setRotationDegrees(270);
-                textLoc.setX(-padding - (tw / 2))
-                        .setY(-padding - th + (th / 2));
+                textLoc.setX(-tpw - (tw / 2))
+                        .setY(-tph - hl - (th / 2));
                 break;
             case SOUTH:
                 path.setRotationDegrees(90);
-                textLoc.setX(-padding - (tw / 2))
-                        .setY(hl + th + padding);
+                textLoc.setX(-tpw - (tw / 2))
+                        .setY(hl + th + tph);
                 break;
             default:
                 path.setRotationDegrees(0);
-                textLoc.setX(hl + padding)
-                        .setY((th / 2) - padding);
+                textLoc.setX(hl + tpw)
+                        .setY((th / 2) - tph);
         }
 
         // Location.
         text.setLocation(textLoc);
+        group.moveToTop();
     }
 
     private static boolean isHorizontal(final Direction direction) {

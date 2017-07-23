@@ -21,11 +21,11 @@ public class ToolboxImpl
         implements Toolbox<ToolboxImpl, Point2DGrid, DecoratedItem>,
                    DecoratedItem<ToolboxImpl> {
 
+    private final ItemGridImpl items;
     private Supplier<BoundingBox> boundingBoxSupplier;
     private Direction at;
     private Point2D offset;
     private Runnable refreshCallback;
-    private final ItemGridImpl items;
 
     public ToolboxImpl(final Supplier<BoundingBox> boundingBoxSupplier) {
         this(boundingBoxSupplier,

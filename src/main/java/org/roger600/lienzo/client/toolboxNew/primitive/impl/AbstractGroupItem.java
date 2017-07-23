@@ -7,6 +7,7 @@ import com.ait.lienzo.client.core.event.NodeMouseExitEvent;
 import com.ait.lienzo.client.core.event.NodeMouseExitHandler;
 import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.types.BoundingBox;
+import com.ait.lienzo.client.core.types.Point2D;
 import com.ait.tooling.nativetools.client.event.HandlerRegistrationManager;
 import com.google.gwt.event.shared.HandlerRegistration;
 import org.roger600.lienzo.client.toolboxNew.GroupItem;
@@ -209,12 +210,24 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
         tooltip.forBoundingBox(new Supplier<BoundingBox>() {
             @Override
             public BoundingBox get() {
-                return getPrimitive().getBoundingBox();
+                return computeBoundingBox();
             }
         });
         if (tooltip instanceof AbstractPrimitiveItem) {
-            groupItem.add(((AbstractPrimitiveItem) tooltip).asPrimitive());
+            final AbstractPrimitiveItem primItem = (AbstractPrimitiveItem) tooltip;
+            if (null == primItem.asPrimitive().getLayer()) {
+                groupItem.add(primItem.asPrimitive());
+            }
         }
+    }
+
+    private BoundingBox computeBoundingBox() {
+        final BoundingBox bb = getPrimitive().getBoundingBox();
+        final Point2D computedLocation = asPrimitive().getAbsoluteLocation();
+        return new BoundingBox(computedLocation.getX(),
+                               computedLocation.getY(),
+                               computedLocation.getX() + bb.getWidth(),
+                               computedLocation.getY() + bb.getHeight());
     }
 
     private void updateAddOnsVisibility() {
