@@ -4,7 +4,6 @@ import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.shape.IPrimitive;
 import com.ait.lienzo.client.core.shape.MultiPath;
 import com.ait.lienzo.client.core.types.BoundingBox;
-import com.google.gwt.core.client.GWT;
 import org.roger600.lienzo.client.toolboxNew.GroupItem;
 
 class FocusableGroup extends AbstractGroupItem<FocusableGroup> {
@@ -24,27 +23,11 @@ class FocusableGroup extends AbstractGroupItem<FocusableGroup> {
         return primitive;
     }
 
-    @Override
-    public FocusableGroup refresh() {
-        updateDecorator();
-        return super.refresh();
-    }
-
-    private FocusableGroup updateDecorator() {
-        setUpGroupDecorator(primitive,
-                            asPrimitive());
-        return this;
-    }
-
     private static MultiPath setUpGroupDecorator(final MultiPath primitive,
                                                  final Group group) {
-        final boolean hasChildren = group.getChildNodes().size() > 0;
         final BoundingBox boundingBox = group.getBoundingBox();
-        //final double width = hasChildren ? boundingBox.getWidth() : 0d;
-        //final double height = hasChildren ? boundingBox.getHeight() : 0d;
         final double width = boundingBox.getWidth();
         final double height = boundingBox.getHeight();
-        GWT.log("BB SIZE FOR GROUPIMPL IS [" + width + ", " + height + "]");
         return primitive
                 .clear()
                 .rect(0,

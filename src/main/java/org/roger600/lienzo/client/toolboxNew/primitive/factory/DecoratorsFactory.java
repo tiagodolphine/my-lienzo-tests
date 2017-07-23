@@ -3,7 +3,6 @@ package org.roger600.lienzo.client.toolboxNew.primitive.factory;
 import com.ait.lienzo.client.core.shape.Rectangle;
 import com.ait.lienzo.client.core.types.BoundingBox;
 import org.roger600.lienzo.client.toolboxNew.primitive.AbstractDecoratorItem;
-import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
 public class DecoratorsFactory {
 
@@ -21,7 +20,6 @@ public class DecoratorsFactory {
         private static final double OFFSET = -(PADDING / 2);
 
         private final Rectangle decorator;
-        private Supplier<BoundingBox> supplier;
 
         private BoxDecorator() {
             this(new Rectangle(1,
@@ -54,25 +52,12 @@ public class DecoratorsFactory {
         }
 
         @Override
-        public BoxDecorator refresh() {
-            assert null != supplier;
+        public BoxDecorator setBoundingBox(final BoundingBox boundingBox) {
             this.decorator
-                    .setWidth(supplier.get().getWidth() + PADDING)
-                    .setHeight(supplier.get().getHeight() + PADDING)
+                    .setWidth(boundingBox.getWidth() + PADDING)
+                    .setHeight(boundingBox.getHeight() + PADDING)
                     .setX(OFFSET)
                     .setY(OFFSET);
-            return this;
-        }
-
-        @Override
-        protected void doShow() {
-            refresh();
-            super.doShow();
-        }
-
-        @Override
-        public BoxDecorator forBoundingBox(final Supplier<BoundingBox> boundingBoxSupplier) {
-            this.supplier = boundingBoxSupplier;
             return this;
         }
 

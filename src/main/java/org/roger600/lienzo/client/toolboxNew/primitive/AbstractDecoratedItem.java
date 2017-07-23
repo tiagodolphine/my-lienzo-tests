@@ -1,6 +1,8 @@
 package org.roger600.lienzo.client.toolboxNew.primitive;
 
 import com.ait.lienzo.client.core.shape.IPrimitive;
+import com.ait.lienzo.client.core.types.BoundingBox;
+import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
 public abstract class AbstractDecoratedItem<T extends DecoratedItem>
         extends AbstractPrimitiveItem<T>
@@ -41,4 +43,6 @@ public abstract class AbstractDecoratedItem<T extends DecoratedItem>
                            Runnable after);
 
     public abstract IPrimitive<?> getPrimitive();
+
+    public abstract Supplier<BoundingBox> getBoundingBox();
 }

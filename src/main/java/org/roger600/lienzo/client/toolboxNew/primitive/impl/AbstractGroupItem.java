@@ -6,6 +6,7 @@ import com.ait.lienzo.client.core.event.NodeMouseEnterHandler;
 import com.ait.lienzo.client.core.event.NodeMouseExitEvent;
 import com.ait.lienzo.client.core.event.NodeMouseExitHandler;
 import com.ait.lienzo.client.core.shape.Group;
+import com.ait.lienzo.client.core.shape.IPrimitive;
 import com.ait.lienzo.client.core.types.BoundingBox;
 import com.ait.lienzo.client.core.types.Point2D;
 import com.ait.tooling.nativetools.client.event.HandlerRegistrationManager;
@@ -78,13 +79,6 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
         return cast();
     }
 
-    public T refresh() {
-        if (isDecorated()) {
-            ((AbstractDecoratorItem<?>) decorator).refresh();
-        }
-        return cast();
-    }
-
     @Override
     @SuppressWarnings("unchecked")
     public T tooltip(final TooltipItem tooltip) {
@@ -111,6 +105,7 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
         groupItem.hide(new Runnable() {
                            @Override
                            public void run() {
+                               unFocus();
                                before.run();
                            }
                        },
@@ -165,8 +160,26 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
         return groupItem.asPrimitive();
     }
 
+    @Override
+    public Supplier<BoundingBox> getBoundingBox() {
+        return new Supplier<BoundingBox>() {
+            @Override
+            public BoundingBox get() {
+                return getPrimitive().getBoundingBox();
+            }
+        };
+    }
+
     protected GroupItem getGroupItem() {
         return groupItem;
+    }
+
+    protected DecoratorItem<?> getDecorator() {
+        return decorator;
+    }
+
+    protected TooltipItem<?> getTooltip() {
+        return tooltip;
     }
 
     protected T setupFocusingHandlers() {
@@ -223,28 +236,30 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
         this.decorator = decorator;
         if (isDecorated()) {
             attachDecorator();
-            refresh();
             updateAddOnsVisibility();
         }
     }
 
     private void attachDecorator() {
-        decorator.forBoundingBox(new Supplier<BoundingBox>() {
-            @Override
-            public BoundingBox get() {
-                return getPrimitive().getBoundingBox();
-            }
-        });
-        if (decorator instanceof AbstractPrimitiveItem) {
-            groupItem.add(((AbstractPrimitiveItem) decorator).asPrimitive());
+        decorator.setBoundingBox(getBoundingBox().get());
+        final IPrimitive<?> primitive = getDecoratorPrimitive();
+        if (null != primitive) {
+            groupItem.add(primitive);
         }
+    }
+
+    private IPrimitive<?> getDecoratorPrimitive() {
+        if (null != decorator && decorator instanceof AbstractPrimitiveItem) {
+            return ((AbstractPrimitiveItem) decorator).asPrimitive();
+        }
+        return null;
     }
 
     private void attachTooltip() {
         tooltip.forBoundingBox(new Supplier<BoundingBox>() {
             @Override
             public BoundingBox get() {
-                return computeBoundingBox();
+                return computeAbsoluteBoundingBox();
             }
         });
         if (tooltip instanceof AbstractPrimitiveItem) {
@@ -252,8 +267,8 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
         }
     }
 
-    private BoundingBox computeBoundingBox() {
-        final BoundingBox bb = getPrimitive().getBoundingBox();
+    private BoundingBox computeAbsoluteBoundingBox() {
+        final BoundingBox bb = getBoundingBox().get();
         final Point2D computedLocation = asPrimitive().getAbsoluteLocation();
         return new BoundingBox(computedLocation.getX(),
                                computedLocation.getY(),

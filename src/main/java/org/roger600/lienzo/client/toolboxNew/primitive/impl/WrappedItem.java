@@ -4,10 +4,12 @@ import com.ait.lienzo.client.core.event.NodeMouseEnterHandler;
 import com.ait.lienzo.client.core.event.NodeMouseExitHandler;
 import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.shape.IPrimitive;
+import com.ait.lienzo.client.core.types.BoundingBox;
 import org.roger600.lienzo.client.toolboxNew.primitive.AbstractDecoratedItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratedItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratorItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.TooltipItem;
+import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
 public abstract class WrappedItem<T extends DecoratedItem>
         extends AbstractDecoratedItem<T> {
@@ -33,6 +35,11 @@ public abstract class WrappedItem<T extends DecoratedItem>
     @Override
     public IPrimitive<?> getPrimitive() {
         return getWrapped().getPrimitive();
+    }
+
+    @Override
+    public Supplier<BoundingBox> getBoundingBox() {
+        return getWrapped().getBoundingBox();
     }
 
     @Override

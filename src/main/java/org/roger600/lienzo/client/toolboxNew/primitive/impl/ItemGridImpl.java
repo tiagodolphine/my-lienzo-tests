@@ -5,11 +5,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.ait.lienzo.client.core.shape.Group;
+import com.ait.lienzo.client.core.types.BoundingBox;
 import com.ait.lienzo.client.core.types.Point2D;
 import org.roger600.lienzo.client.toolboxNew.ItemGrid;
 import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
 import org.roger600.lienzo.client.toolboxNew.primitive.AbstractDecoratedItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratedItem;
+import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
 public class ItemGridImpl
         extends WrappedItem<ItemGridImpl>
@@ -19,13 +21,14 @@ public class ItemGridImpl
     private final List<AbstractDecoratedItem> items = new LinkedList<>();
     private Point2DGrid grid;
     private Runnable refreshCallback;
-    private boolean needsUpdate;
+    private BoundingBox boundingBox;
 
     public ItemGridImpl() {
         this(new GroupImpl(new Group()));
     }
 
     ItemGridImpl(final AbstractGroupItem groupPrimitiveItem) {
+        this.boundingBox = new BoundingBox((BoundingBox) groupPrimitiveItem.getBoundingBox().get());
         this.groupPrimitiveItem = groupPrimitiveItem;
         this.refreshCallback = new Runnable() {
             @Override
@@ -35,13 +38,12 @@ public class ItemGridImpl
                 }
             }
         };
-        this.needsUpdate = false;
     }
 
     @Override
     public ItemGridImpl grid(final Point2DGrid grid) {
         this.grid = grid;
-        return checkRefresh();
+        return checkReposition();
     }
 
     @Override
@@ -61,7 +63,7 @@ public class ItemGridImpl
                                                                 "of " + AbstractDecoratedItem.class.getName());
             }
         }
-        return checkRefresh();
+        return itemsUpdated();
     }
 
     @Override
@@ -70,7 +72,7 @@ public class ItemGridImpl
             @Override
             protected void remove(final AbstractDecoratedItem item) {
                 items.remove(item);
-                checkRefresh();
+                itemsUpdated();
             }
         };
     }
@@ -81,13 +83,17 @@ public class ItemGridImpl
         return super.show(new Runnable() {
                               @Override
                               public void run() {
+                                  repositionItems();
                                   before.run();
                               }
                           },
                           new Runnable() {
                               @Override
                               public void run() {
-                                  doRefresh();
+                                  for (final DecoratedItem button : items) {
+                                      button.show();
+                                  }
+                                  getWrapped().focus();
                                   after.run();
                               }
                           });
@@ -96,13 +102,18 @@ public class ItemGridImpl
     @Override
     public ItemGridImpl hide(final Runnable before,
                              final Runnable after) {
-        return super.hide(before,
-                          new Runnable() {
+        return super.hide(new Runnable() {
                               @Override
                               public void run() {
                                   for (final DecoratedItem button : items) {
                                       button.hide();
                                   }
+                                  before.run();
+                              }
+                          },
+                          new Runnable() {
+                              @Override
+                              public void run() {
                                   after.run();
                                   fireRefresh();
                               }
@@ -115,7 +126,7 @@ public class ItemGridImpl
     }
 
     public ItemGridImpl refresh() {
-        return checkRefresh();
+        return checkReposition();
     }
 
     public int size() {
@@ -133,22 +144,48 @@ public class ItemGridImpl
         return grid;
     }
 
-    private ItemGridImpl doRefresh() {
+    private ItemGridImpl itemsUpdated() {
+        // Reposition items as for the given grid.
         repositionItems();
-        for (final DecoratedItem button : items) {
-            button.show();
+        // Calculate BB.
+        double maxw = 0;
+        double maxh = 0;
+        for (final AbstractDecoratedItem item : items) {
+            final Point2D location = item.asPrimitive().getLocation();
+            final BoundingBox itemBB = (BoundingBox) item.getBoundingBox().get();
+            final double itemw = itemBB.getWidth() + location.getX();
+            final double itemh = itemBB.getHeight() + location.getY();
+            if (itemw > maxw) {
+                maxw = itemw;
+            }
+            if (itemh > maxh) {
+                maxh = itemh;
+            }
         }
-        getWrapped().focus();
-        getWrapped().refresh();
-        needsUpdate = false;
+        boundingBox = new BoundingBox(0,
+                                      0,
+                                      maxw,
+                                      maxh);
+        // Update decorator.
+        if (null != getWrapped().getDecorator()) {
+            getWrapped().getDecorator().setBoundingBox(getBoundingBox().get());
+        }
         return this;
     }
 
-    private ItemGridImpl checkRefresh() {
+    @Override
+    public Supplier<BoundingBox> getBoundingBox() {
+        return new Supplier<BoundingBox>() {
+            @Override
+            public BoundingBox get() {
+                return boundingBox;
+            }
+        };
+    }
+
+    private ItemGridImpl checkReposition() {
         if (isVisible()) {
-            return doRefresh();
-        } else {
-            needsUpdate = true;
+            return repositionItems();
         }
         return this;
     }

@@ -90,7 +90,6 @@ public class ToolboxImpl
                           new Runnable() {
                               @Override
                               public void run() {
-                                  items.getWrapped().focus();
                                   fireRefresh();
                                   after.run();
                               }

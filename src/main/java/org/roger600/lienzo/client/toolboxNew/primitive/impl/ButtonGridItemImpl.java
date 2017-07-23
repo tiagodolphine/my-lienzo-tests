@@ -12,9 +12,7 @@ import com.ait.lienzo.client.core.event.NodeMouseExitEvent;
 import com.ait.lienzo.client.core.event.NodeMouseExitHandler;
 import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.shape.Shape;
-import com.ait.lienzo.client.core.types.BoundingBox;
 import com.ait.lienzo.client.core.types.Point2D;
-import com.ait.lienzo.shared.core.types.ColorName;
 import com.ait.lienzo.shared.core.types.Direction;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Timer;
@@ -24,8 +22,6 @@ import org.roger600.lienzo.client.toolboxNew.primitive.AbstractDecoratorItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.ButtonGridItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratedItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratorItem;
-import org.roger600.lienzo.client.toolboxNew.primitive.factory.DecoratorsFactory;
-import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
 public class ButtonGridItemImpl
         extends WrappedItem<ButtonGridItem>
@@ -59,14 +55,6 @@ public class ButtonGridItemImpl
              new ToolboxImpl());
     }
 
-    private final Supplier<BoundingBox> bbSupplier =
-            new Supplier<BoundingBox>() {
-                @Override
-                public BoundingBox get() {
-                    return button.getPrimitive().getBoundingBox();
-                }
-            };
-
     ButtonGridItemImpl(final ButtonItemImpl button,
                        final ToolboxImpl toolbox) {
         this.button = button;
@@ -95,11 +83,7 @@ public class ButtonGridItemImpl
         if (toolbox.getItems().size() > 0) {
             super.decorate(decorator);
             if (decorator instanceof AbstractDecoratorItem) {
-                // TODO
-                //toolbox.decorate(((AbstractDecoratorItem) decorator).copy());
-                toolbox.decorate(DecoratorsFactory.box()
-                                         .setStrokeColor(ColorName.RED.getColorString())
-                                         .setStrokeWidth(10));
+                toolbox.decorate(((AbstractDecoratorItem) decorator).copy());
             }
         } else {
             throw new IllegalStateException("Cannot decorate until no items added.");
@@ -212,7 +196,7 @@ public class ButtonGridItemImpl
     }
 
     private void init() {
-        toolbox.forBoundingBox(bbSupplier);
+        toolbox.forBoundingBox(button.getBoundingBox());
         // Register custom focus/un-focus behaviors.
         registerItemFocusHandler(button,
                                  focusCallback);

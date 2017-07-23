@@ -4,8 +4,6 @@ public abstract class AbstractDecoratorItem<T extends AbstractDecoratorItem>
         extends AbstractPrimitiveItem<T>
         implements DecoratorItem<T> {
 
-    public abstract T refresh();
-
     public abstract T copy();
 
     @Override
