@@ -9,11 +9,11 @@ import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
 public class ToolboxTextTooltip implements TextTooltipItem<ToolboxTextTooltip> {
 
-    private final PrimitiveTextTooltip layerTooltip;
+    private final PrimitiveTextTooltip tooltip;
     private final TextTooltipItemImpl delegate;
 
     public ToolboxTextTooltip(final LayerToolbox toolbox) {
-        this.layerTooltip = PrimitiveTextTooltip.Builder.build("");
+        this.tooltip = PrimitiveTextTooltip.Builder.build("");
         this.delegate = new ToolboxTextItem();
         attachTo(toolbox);
     }
@@ -22,10 +22,9 @@ public class ToolboxTextTooltip implements TextTooltipItem<ToolboxTextTooltip> {
         return new TextTooltipItemImpl(new Supplier<TextTooltipItem>() {
             @Override
             public TextTooltipItem get() {
-                return layerTooltip;
+                return tooltip;
             }
-        },
-                                       text);
+        }, text);
     }
 
     @Override
@@ -47,7 +46,7 @@ public class ToolboxTextTooltip implements TextTooltipItem<ToolboxTextTooltip> {
     }
 
     public ToolboxTextTooltip withText(final Consumer<Text> textConsumer) {
-        layerTooltip.withText(textConsumer);
+        tooltip.withText(textConsumer);
         return this;
     }
 
@@ -77,7 +76,7 @@ public class ToolboxTextTooltip implements TextTooltipItem<ToolboxTextTooltip> {
     private ToolboxTextTooltip attachTo(final LayerToolbox toolbox) {
         toolbox
                 .getLayer()
-                .add(layerTooltip.asPrimitive());
+                .add(tooltip.asPrimitive());
         return this;
     }
 
@@ -87,7 +86,7 @@ public class ToolboxTextTooltip implements TextTooltipItem<ToolboxTextTooltip> {
             super(new Supplier<TextTooltipItem>() {
                       @Override
                       public TextTooltipItem get() {
-                          return layerTooltip;
+                          return tooltip;
                       }
                   },
                   "");
@@ -96,7 +95,7 @@ public class ToolboxTextTooltip implements TextTooltipItem<ToolboxTextTooltip> {
         @Override
         public void destroy() {
             super.destroy();
-            layerTooltip.destroy();
+            tooltip.destroy();
         }
     }
 }

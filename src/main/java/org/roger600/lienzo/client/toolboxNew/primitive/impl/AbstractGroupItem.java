@@ -214,10 +214,7 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
             }
         });
         if (tooltip instanceof AbstractPrimitiveItem) {
-            final AbstractPrimitiveItem primItem = (AbstractPrimitiveItem) tooltip;
-            if (null == primItem.asPrimitive().getLayer()) {
-                groupItem.add(primItem.asPrimitive());
-            }
+            groupItem.add(((AbstractPrimitiveItem) tooltip).asPrimitive());
         }
     }
 
