@@ -20,13 +20,13 @@ public class ToolboxImpl
     private static final int PADDING = 5;
 
     private final ItemGridImpl items;
-    private Supplier<BoundingBox> boundingBoxSupplier;
+    private Supplier<BoundingBox> shapeBoundingBoxSupplier;
     private Direction at;
     private Point2D offset;
     private Runnable refreshCallback;
 
-    public ToolboxImpl(final Supplier<BoundingBox> boundingBoxSupplier) {
-        this.boundingBoxSupplier = boundingBoxSupplier;
+    public ToolboxImpl(final Supplier<BoundingBox> shapeBoundingBoxSupplier) {
+        this.shapeBoundingBoxSupplier = shapeBoundingBoxSupplier;
         this.at = Direction.NORTH_EAST;
         this.offset = new Point2D(0d,
                                   0d);
@@ -40,10 +40,6 @@ public class ToolboxImpl
         };
         this.items = new ItemGridImpl()
                 .onRefresh(refreshCallback);
-    }
-
-    ToolboxImpl() {
-        this(null);
     }
 
     @Override
@@ -117,16 +113,12 @@ public class ToolboxImpl
         return this;
     }
 
-    public ToolboxImpl forBoundingBox(final Supplier<BoundingBox> supplier) {
-        this.boundingBoxSupplier = supplier;
-        return this;
-    }
-
     @Override
     public void destroy() {
         items.destroy();
         at = null;
         refreshCallback = null;
+        this.shapeBoundingBoxSupplier = null;
         super.destroy();
     }
 
@@ -148,7 +140,7 @@ public class ToolboxImpl
 
     private void reposition() {
         // Obtain the toolbox's location relative to the cardinal direction.
-        final Point2D location = Positions.anchorFor(boundingBoxSupplier.get(),
+        final Point2D location = Positions.anchorFor(shapeBoundingBoxSupplier.get(),
                                                      this.at);
         // Add some padding.
         final Point2D pad = new Point2D(0,

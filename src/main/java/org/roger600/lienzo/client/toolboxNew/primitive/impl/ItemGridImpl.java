@@ -24,13 +24,17 @@ public class ItemGridImpl
     private Runnable refreshCallback;
     private BoundingBox boundingBox;
 
-    public ItemGridImpl() {
-        this(new GroupImpl(new Group()));
-    }
+    private Supplier<BoundingBox> boundingBoxSupplier = new Supplier<BoundingBox>() {
+        @Override
+        public BoundingBox get() {
+            return boundingBox;
+        }
+    };
 
-    ItemGridImpl(final AbstractGroupItem groupPrimitiveItem) {
-        this.boundingBox = new BoundingBox((BoundingBox) groupPrimitiveItem.getBoundingBox().get());
-        this.groupPrimitiveItem = groupPrimitiveItem;
+    public ItemGridImpl() {
+        this.groupPrimitiveItem = new GroupImpl(new Group(),
+                                                boundingBoxSupplier);
+        this.boundingBox = new BoundingBox(groupPrimitiveItem.asPrimitive().getBoundingBox());
         this.refreshCallback = new Runnable() {
             @Override
             public void run() {
@@ -138,6 +142,8 @@ public class ItemGridImpl
         getWrapped().destroy();
         items.clear();
         refreshCallback = null;
+        boundingBoxSupplier = null;
+        boundingBox = null;
     }
 
     public Point2DGrid getGrid() {
@@ -162,6 +168,7 @@ public class ItemGridImpl
                 maxh = itemh;
             }
         }
+
         boundingBox = new BoundingBox(0,
                                       0,
                                       maxw,
@@ -178,12 +185,7 @@ public class ItemGridImpl
 
     @Override
     public Supplier<BoundingBox> getBoundingBox() {
-        return new Supplier<BoundingBox>() {
-            @Override
-            public BoundingBox get() {
-                return boundingBox;
-            }
-        };
+        return boundingBoxSupplier;
     }
 
     private ItemGridImpl checkReposition() {

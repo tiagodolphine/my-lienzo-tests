@@ -3,7 +3,6 @@ package org.roger600.lienzo.client.toolboxNew.primitive.impl;
 import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.shape.IPrimitive;
 import com.ait.lienzo.client.core.types.BoundingBox;
-import com.google.gwt.core.client.GWT;
 import org.roger600.lienzo.client.toolboxNew.GroupItem;
 import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
@@ -14,7 +13,15 @@ class GroupImpl extends AbstractGroupItem<GroupImpl> {
     GroupImpl(final Group group) {
         super(new GroupItem(group));
         this.primitive = group;
-        setFocusDelay(0);
+        init();
+    }
+
+    GroupImpl(final Group group,
+              final Supplier<BoundingBox> boundingBoxSupplier) {
+        super(new GroupItem(group),
+              boundingBoxSupplier);
+        this.primitive = group;
+        init();
     }
 
     @Override
@@ -46,10 +53,12 @@ class GroupImpl extends AbstractGroupItem<GroupImpl> {
                                            1,
                                            1);
                 }
-                GWT.log("BB SIZE FOR GROUPIMPL IS [" + primitive.getBoundingBox().getWidth()
-                                + ", " + primitive.getBoundingBox().getHeight() + "]");
-                return primitive.getBoundingBox();
+                return GroupImpl.super.getBoundingBox().get();
             }
         };
+    }
+
+    private void init() {
+        setFocusDelay(0);
     }
 }

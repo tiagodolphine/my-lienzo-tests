@@ -10,4 +10,5 @@ public interface ButtonGridItem extends ActionItem<ButtonGridItem>,
 
     public ButtonGridItem hideGrid();
 
+    public ButtonGridItem decorateGrid(DecoratorItem<?> decorator);
 }

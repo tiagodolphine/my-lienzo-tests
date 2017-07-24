@@ -46,19 +46,14 @@ public class ButtonGridItemImpl
             };
 
     public ButtonGridItemImpl(final Shape<?> prim) {
-        this(new ButtonItemImpl(prim),
-             new ToolboxImpl());
+        this.button = new ButtonItemImpl(prim);
+        this.toolbox = new ToolboxImpl(button.getBoundingBox());
+        init();
     }
 
     public ButtonGridItemImpl(final Group group) {
-        this(new ButtonItemImpl(group),
-             new ToolboxImpl());
-    }
-
-    ButtonGridItemImpl(final ButtonItemImpl button,
-                       final ToolboxImpl toolbox) {
-        this.button = button;
-        this.toolbox = toolbox;
+        this.button = new ButtonItemImpl(group);
+        this.toolbox = new ToolboxImpl(button.getBoundingBox());
         init();
     }
 
@@ -79,11 +74,10 @@ public class ButtonGridItemImpl
     }
 
     @Override
-    public ButtonGridItem decorate(final DecoratorItem<?> decorator) {
+    public ButtonGridItem decorateGrid(final DecoratorItem<?> decorator) {
         if (toolbox.getItems().size() > 0) {
-            super.decorate(decorator);
             if (decorator instanceof AbstractDecoratorItem) {
-                toolbox.decorate(((AbstractDecoratorItem) decorator).copy());
+                toolbox.decorate(decorator);
             }
         } else {
             throw new IllegalStateException("Cannot decorate until no items added.");
@@ -199,7 +193,6 @@ public class ButtonGridItemImpl
 
     private void init() {
         button.getGroupItem().setUnFocusDelay(TIMER_DELAY_MILLIS);
-        toolbox.forBoundingBox(button.getBoundingBox());
         // Register custom focus/un-focus behaviors.
         registerItemFocusHandler(button,
                                  focusCallback);
@@ -255,7 +248,7 @@ public class ButtonGridItemImpl
         @Override
         public void run() {
             GWT.log("ITEM FOCUS");
-            stopTimer();
+            focus();
         }
     };
 

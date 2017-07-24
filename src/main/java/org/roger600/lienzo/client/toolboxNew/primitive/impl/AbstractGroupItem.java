@@ -30,6 +30,13 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
     private final GroupItem groupItem;
     private final HandlerRegistrationManager registrations = new HandlerRegistrationManager();
     private final FocusGroupExecutor focusGroupExecutor;
+    private int focusDelay;
+    private int unFocusDelay;
+    private DecoratorItem<?> decorator;
+    private TooltipItem<?> tooltip;
+    private HandlerRegistration mouseEnterHandlerRegistration;
+    private HandlerRegistration mouseExitHandlerRegistration;
+
     private final Timer focusDelayTimer = new Timer() {
         @Override
         public void run() {
@@ -44,12 +51,13 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
             doUnFocus();
         }
     };
-    private int focusDelay;
-    private int unFocusDelay;
-    private DecoratorItem<?> decorator;
-    private TooltipItem<?> tooltip;
-    private HandlerRegistration mouseEnterHandlerRegistration;
-    private HandlerRegistration mouseExitHandlerRegistration;
+
+    private Supplier<BoundingBox> boundingBoxSupplier = new Supplier<BoundingBox>() {
+        @Override
+        public BoundingBox get() {
+            return getPrimitive().getBoundingBox();
+        }
+    };
 
     protected AbstractGroupItem(final GroupItem groupItem) {
         this.groupItem = groupItem;
@@ -57,6 +65,12 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
         this.unFocusDelay = 0;
         this.focusGroupExecutor = new FocusGroupExecutor();
         this.groupItem.useShowExecutor(focusGroupExecutor);
+    }
+
+    protected AbstractGroupItem(final GroupItem groupItem,
+                                final Supplier<BoundingBox> boundingBoxSupplier) {
+        this(groupItem);
+        this.boundingBoxSupplier = boundingBoxSupplier;
     }
 
     T focus() {
@@ -182,12 +196,7 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
 
     @Override
     public Supplier<BoundingBox> getBoundingBox() {
-        return new Supplier<BoundingBox>() {
-            @Override
-            public BoundingBox get() {
-                return getPrimitive().getBoundingBox();
-            }
-        };
+        return boundingBoxSupplier;
     }
 
     protected GroupItem getGroupItem() {
@@ -313,6 +322,7 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
     private void showAddOns() {
         if (isDecorated()) {
             this.decorator.show();
+            getDecoratorPrimitive().moveToBottom();
         }
         if (hasTooltip()) {
             this.tooltip.show();
