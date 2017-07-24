@@ -27,7 +27,7 @@ public class ButtonGridItemImpl
         extends WrappedItem<ButtonGridItem>
         implements ButtonGridItem {
 
-    private static final int TIMER_DELAY_MILLIS = 500;
+    private static final int TIMER_DELAY_MILLIS = 1000;
 
     private final ButtonItemImpl button;
     private final ToolboxImpl toolbox;
@@ -92,19 +92,16 @@ public class ButtonGridItemImpl
     }
 
     @Override
-    public ButtonGridItem show() {
-        button.show();
+    public ButtonGridItem show(final Runnable before,
+                               final Runnable after) {
+        button.show(before,
+                    after);
         return this;
     }
 
     @Override
-    public ButtonGridItem showGrid() {
-        toolbox.show();
-        return this;
-    }
-
-    @Override
-    public ButtonGridItem hide() {
+    public ButtonGridItem hide(final Runnable before,
+                               final Runnable after) {
         hideGrid(new Runnable() {
             @Override
             public void run() {
@@ -112,6 +109,12 @@ public class ButtonGridItemImpl
                 batch();
             }
         });
+        return this;
+    }
+
+    @Override
+    public ButtonGridItem showGrid() {
+        toolbox.show();
         return this;
     }
 
@@ -129,7 +132,6 @@ public class ButtonGridItemImpl
         toolbox.hide(new Runnable() {
                          @Override
                          public void run() {
-
                          }
                      },
                      after);
@@ -196,6 +198,7 @@ public class ButtonGridItemImpl
     }
 
     private void init() {
+        button.getGroupItem().setUnFocusDelay(TIMER_DELAY_MILLIS);
         toolbox.forBoundingBox(button.getBoundingBox());
         // Register custom focus/un-focus behaviors.
         registerItemFocusHandler(button,
@@ -238,7 +241,6 @@ public class ButtonGridItemImpl
 
     public ButtonGridItemImpl focus() {
         button.getGroupItem().focus();
-        // toolbox.getWrapped().focus();
         showGrid();
         stopTimer();
         return this;

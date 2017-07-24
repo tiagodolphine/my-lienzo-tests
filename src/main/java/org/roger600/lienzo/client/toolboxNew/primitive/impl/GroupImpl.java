@@ -18,6 +18,19 @@ class GroupImpl extends AbstractGroupItem<GroupImpl> {
     }
 
     @Override
+    public GroupImpl show(final Runnable before,
+                          final Runnable after) {
+        return super.show(before,
+                          new Runnable() {
+                              @Override
+                              public void run() {
+                                  focus();
+                                  after.run();
+                              }
+                          });
+    }
+
+    @Override
     public IPrimitive<?> getPrimitive() {
         return primitive;
     }

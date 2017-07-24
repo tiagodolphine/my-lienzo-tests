@@ -92,7 +92,7 @@ public class ToolboxTests implements MyLienzoTest,
 
                           50,
                           100);
-        shape1.setX(50).setY(100);
+        shape1.setX(400).setY(100);
         buildToolbox1();
 
         layer.batch();
@@ -149,7 +149,7 @@ public class ToolboxTests implements MyLienzoTest,
                         .setFillColor(ColorName.BLACK);
         layer.add(r);
 
-        testTooltip(new Point2D(400,
+        testTooltip(new Point2D(700,
                                 150));*/
     }
 
@@ -224,7 +224,7 @@ public class ToolboxTests implements MyLienzoTest,
                                         String title) {
         final ButtonItem item1 =
                 ItemFactory.buttonFor(bGroup)
-                        //.decorate(DecoratorsFactory.box())
+                        .decorate(DecoratorsFactory.box())
                         .tooltip(tooltip1.createIem(title))
                         .onClick(new NodeMouseClickHandler() {
                             @Override
@@ -316,6 +316,10 @@ public class ToolboxTests implements MyLienzoTest,
 
                             final ButtonItem item1 = createButtonItem(getButtonTitle());
                             final ButtonItem item2 = createButtonItem(getButtonTitle());
+                            final ButtonItem item3 = createButtonItem(getButtonTitle());
+                            final ButtonItem item4 = createButtonItem(getButtonTitle());
+                            final ButtonItem item5 = createButtonItem(getButtonTitle());
+                            final ButtonItem item6 = createButtonItem(getButtonTitle());
 
                             item
                                     .grid(grid)
@@ -326,7 +330,11 @@ public class ToolboxTests implements MyLienzoTest,
                                         }
                                     })
                                     .add(item1,
-                                         item2)
+                                         item2,
+                                         item3,
+                                         item4,
+                                         item5,
+                                         item6)
                                     .decorate(DecoratorsFactory.box());
 
                             itemCount++;

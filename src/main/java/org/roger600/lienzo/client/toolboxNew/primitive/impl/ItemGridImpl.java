@@ -10,6 +10,7 @@ import com.ait.lienzo.client.core.types.Point2D;
 import org.roger600.lienzo.client.toolboxNew.ItemGrid;
 import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
 import org.roger600.lienzo.client.toolboxNew.primitive.AbstractDecoratedItem;
+import org.roger600.lienzo.client.toolboxNew.primitive.AbstractPrimitiveItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratedItem;
 import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
@@ -93,7 +94,6 @@ public class ItemGridImpl
                                   for (final DecoratedItem button : items) {
                                       button.show();
                                   }
-                                  getWrapped().focus();
                                   after.run();
                               }
                           });
@@ -169,6 +169,9 @@ public class ItemGridImpl
         // Update decorator.
         if (null != getWrapped().getDecorator()) {
             getWrapped().getDecorator().setBoundingBox(getBoundingBox().get());
+            if (getWrapped().getDecorator() instanceof AbstractPrimitiveItem) {
+                ((AbstractPrimitiveItem) getWrapped().getDecorator()).asPrimitive().moveToBottom();
+            }
         }
         return this;
     }

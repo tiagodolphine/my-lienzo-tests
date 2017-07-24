@@ -9,7 +9,7 @@ public abstract class AbstractDecoratedItem<T extends DecoratedItem>
         implements DecoratedItem<T> {
 
     @Override
-    public T show() {
+    public final T show() {
         return show(new Runnable() {
                         @Override
                         public void run() {
@@ -23,7 +23,7 @@ public abstract class AbstractDecoratedItem<T extends DecoratedItem>
     }
 
     @Override
-    public T hide() {
+    public final T hide() {
         return hide(new Runnable() {
                         @Override
                         public void run() {

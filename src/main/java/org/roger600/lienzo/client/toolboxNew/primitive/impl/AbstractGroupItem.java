@@ -33,10 +33,19 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
     private final Timer focusDelayTimer = new Timer() {
         @Override
         public void run() {
+            cancelUnFocusTimer();
             doFocus();
         }
     };
-    private int focusDelay = FOCUS_DELAY_MILLIS;
+    private final Timer unFocusDelayTimer = new Timer() {
+        @Override
+        public void run() {
+            cancelFocusTimer();
+            doUnFocus();
+        }
+    };
+    private int focusDelay;
+    private int unFocusDelay;
     private DecoratorItem<?> decorator;
     private TooltipItem<?> tooltip;
     private HandlerRegistration mouseEnterHandlerRegistration;
@@ -44,6 +53,8 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
 
     protected AbstractGroupItem(final GroupItem groupItem) {
         this.groupItem = groupItem;
+        this.focusDelay = FOCUS_DELAY_MILLIS;
+        this.unFocusDelay = 0;
         this.focusGroupExecutor = new FocusGroupExecutor();
         this.groupItem.useShowExecutor(focusGroupExecutor);
     }
@@ -58,13 +69,21 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
     }
 
     T unFocus() {
-        cancelFocusTimer();
-        doUnFocus();
+        if (unFocusDelay > 0) {
+            unFocusDelayTimer.schedule(unFocusDelay);
+        } else {
+            unFocusDelayTimer.run();
+        }
         return cast();
     }
 
     public T setFocusDelay(final int delay) {
         this.focusDelay = delay;
+        return cast();
+    }
+
+    public T setUnFocusDelay(final int delay) {
+        this.unFocusDelay = delay;
         return cast();
     }
 
@@ -149,6 +168,7 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
     @Override
     public void destroy() {
         cancelFocusTimer();
+        cancelUnFocusTimer();
         groupItem.destroy();
         initDecorator(null);
         destroyHandlers();
@@ -214,6 +234,12 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
     private void cancelFocusTimer() {
         if (focusDelayTimer.isRunning()) {
             focusDelayTimer.cancel();
+        }
+    }
+
+    private void cancelUnFocusTimer() {
+        if (unFocusDelayTimer.isRunning()) {
+            unFocusDelayTimer.cancel();
         }
     }
 
