@@ -17,6 +17,8 @@ public class ToolboxImpl
         implements Toolbox<ToolboxImpl, Point2DGrid, DecoratedItem>,
                    DecoratedItem<ToolboxImpl> {
 
+    private static final int PADDING = 5;
+
     private final ItemGridImpl items;
     private Supplier<BoundingBox> boundingBoxSupplier;
     private Direction at;
@@ -145,9 +147,27 @@ public class ToolboxImpl
     }
 
     private void reposition() {
-        final Point2D loc = Positions.anchorFor(boundingBoxSupplier.get(),
-                                                this.at);
-        asPrimitive().setLocation(loc.offset(offset));
+        // Obtain the toolbox's location relative to the cardinal direction.
+        final Point2D location = Positions.anchorFor(boundingBoxSupplier.get(),
+                                                     this.at);
+        // Add some padding.
+        final Point2D pad = new Point2D(0,
+                                        0);
+        switch (this.at) {
+            case EAST:
+            case NORTH_EAST:
+            case SOUTH_EAST:
+                pad.setX(PADDING);
+                break;
+            case SOUTH:
+            case SOUTH_WEST:
+                pad.setY(PADDING);
+                break;
+        }
+        // Set the toolbox primitive's location.
+        asPrimitive().setLocation(location
+                                          .offset(this.offset)
+                                          .offset(pad));
         fireRefresh();
     }
 

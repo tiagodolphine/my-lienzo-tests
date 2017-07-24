@@ -83,11 +83,15 @@ public abstract class AbstractLayoutGrid<T extends AbstractLayoutGrid> implement
 
             final Point2D location = getLocation(row,
                                                  column);
-            int ox = isEast(getTowards()) ? 1 : -1;
-            int oy = isNorth(getTowards()) ? -1 : 1;
+            final boolean isE = isEast(getTowards());
+            final boolean isN = isNorth(getTowards());
+            final int ox = isE ? 1 : -1;
+            final double rx = isE ? 0 : calculateDistance(1);
+            final int oy = isN ? -1 : 1;
+            final double ry = isN ? calculateDistance(1) : 0;
 
-            return new Point2D(location.getX() * ox,
-                               location.getY() * oy);
+            return new Point2D((location.getX() + rx) * ox,
+                               (location.getY() + ry) * oy);
         }
 
         @Override
@@ -104,7 +108,7 @@ public abstract class AbstractLayoutGrid<T extends AbstractLayoutGrid> implement
         }
 
         protected double calculateDistance(final int position) {
-            return getPadding() + (position * (getPadding() + getIconSize()));
+            return position * (getPadding() + getIconSize());
         }
     }
 

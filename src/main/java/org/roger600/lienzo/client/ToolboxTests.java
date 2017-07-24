@@ -114,7 +114,7 @@ public class ToolboxTests implements MyLienzoTest,
         toolbox1 = ToolboxFactory.forWiresShape(shape1)
                 .attachTo(layer.getScene().getTopLayer())
                 .at(iAt)
-                .decorate(DecoratorsFactory.box())
+                //.decorate(DecoratorsFactory.box())
                 .grid(grid1);
 
         tooltip1 = TooltipFactory.forToolbox(toolbox1)
