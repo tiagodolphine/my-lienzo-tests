@@ -14,7 +14,6 @@ import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.shape.Shape;
 import com.ait.lienzo.client.core.types.Point2D;
 import com.ait.lienzo.shared.core.types.Direction;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Timer;
 import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
 import org.roger600.lienzo.client.toolboxNew.primitive.AbstractDecoratedItem;
@@ -247,7 +246,6 @@ public class ButtonGridItemImpl
     private final Runnable itemFocusCallback = new Runnable() {
         @Override
         public void run() {
-            GWT.log("ITEM FOCUS");
             focus();
         }
     };
@@ -255,7 +253,6 @@ public class ButtonGridItemImpl
     private final Runnable itemUnFocusCallback = new Runnable() {
         @Override
         public void run() {
-            GWT.log("ITEM UNFOCUS");
             unFocus();
         }
     };
@@ -263,7 +260,6 @@ public class ButtonGridItemImpl
     private final Runnable focusCallback = new Runnable() {
         @Override
         public void run() {
-            GWT.log("ICON FOCUS");
             focus();
         }
     };
@@ -271,7 +267,6 @@ public class ButtonGridItemImpl
     private final Runnable unFocusCallback = new Runnable() {
         @Override
         public void run() {
-            GWT.log("ICON UNFOCUS");
             unFocus();
         }
     };

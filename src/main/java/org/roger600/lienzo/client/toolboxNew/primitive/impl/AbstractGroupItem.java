@@ -55,7 +55,7 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
     private Supplier<BoundingBox> boundingBoxSupplier = new Supplier<BoundingBox>() {
         @Override
         public BoundingBox get() {
-            return getPrimitive().getBoundingBox();
+            return getPrimitive().getComputedBoundingPoints().getBoundingBox();
         }
     };
 
@@ -304,7 +304,7 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
 
     private BoundingBox computeAbsoluteBoundingBox() {
         final BoundingBox bb = getBoundingBox().get();
-        final Point2D computedLocation = asPrimitive().getAbsoluteLocation();
+        final Point2D computedLocation = asPrimitive().getComputedLocation();
         return new BoundingBox(computedLocation.getX(),
                                computedLocation.getY(),
                                computedLocation.getX() + bb.getWidth(),

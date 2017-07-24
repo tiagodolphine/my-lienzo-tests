@@ -125,8 +125,8 @@ public class PrimitiveTextTooltip
 
         @Override
         public void apply(final Tooltip tooltip) {
-            tooltip.setLocation(Positions.anchorFor(boundingBoxSupplier.get(),
-                                                    this.at));
+            BoundingBox bb = boundingBoxSupplier.get();
+            tooltip.setLocation(Positions.anchorFor(bb, this.at));
         }
     }
 }
