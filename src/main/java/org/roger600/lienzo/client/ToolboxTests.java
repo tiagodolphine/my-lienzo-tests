@@ -156,6 +156,10 @@ public class ToolboxTests implements MyLienzoTest,
                       BUTTON_SIZE,
                       BUTTON_SIZE);
 
+        if (false) {
+            return;
+        }
+
         // Morph toolbox.
         autoGridMorph = buildAutoGrid(Direction.SOUTH_EAST);
         toolboxMorph = ToolboxFactory.forWiresShape(shape1)

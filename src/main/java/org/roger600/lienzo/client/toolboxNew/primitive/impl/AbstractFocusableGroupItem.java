@@ -9,7 +9,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Timer;
 import org.roger600.lienzo.client.toolboxNew.GroupItem;
-import org.roger600.lienzo.client.toolboxNew.GroupItemVisibilityExecutors;
+import org.roger600.lienzo.client.toolboxNew.GroupVisibilityExecutors;
 
 public abstract class AbstractFocusableGroupItem<T extends AbstractFocusableGroupItem>
         extends AbstractGroupItem<T> {
@@ -44,7 +44,7 @@ public abstract class AbstractFocusableGroupItem<T extends AbstractFocusableGrou
         this.focusDelay = FOCUS_DELAY_MILLIS;
         this.unFocusDelay = 0;
         this.focusGroupExecutor = new FocusGroupExecutor();
-        groupItem.useShowExecutor(focusGroupExecutor);
+        useShowExecutor(focusGroupExecutor);
     }
 
     T focus() {
@@ -170,7 +170,7 @@ public abstract class AbstractFocusableGroupItem<T extends AbstractFocusableGrou
     }
 
     private class FocusGroupExecutor
-            extends GroupItemVisibilityExecutors.AnimatedAlphaGroupExecutor {
+            extends GroupVisibilityExecutors.AnimatedAlphaGroupExecutor {
 
         public FocusGroupExecutor() {
             super(ALPHA_UNFOCUSED);

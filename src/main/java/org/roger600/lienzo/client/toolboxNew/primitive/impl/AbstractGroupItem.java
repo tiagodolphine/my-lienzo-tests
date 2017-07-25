@@ -12,6 +12,7 @@ import org.roger600.lienzo.client.toolboxNew.primitive.AbstractDecoratorItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.AbstractPrimitiveItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratorItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.TooltipItem;
+import org.roger600.lienzo.client.toolboxNew.util.BiConsumer;
 import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
 public abstract class AbstractGroupItem<T extends AbstractGroupItem>
@@ -79,6 +80,16 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
         if (hasTooltip()) {
             this.tooltip.hide();
         }
+    }
+
+    public T useShowExecutor(final BiConsumer<Group, Runnable> executor) {
+        this.groupItem.useShowExecutor(executor);
+        return cast();
+    }
+
+    public T useHideExecutor(final BiConsumer<Group, Runnable> executor) {
+        this.groupItem.useHideExecutor(executor);
+        return cast();
     }
 
     public boolean isDecorated() {

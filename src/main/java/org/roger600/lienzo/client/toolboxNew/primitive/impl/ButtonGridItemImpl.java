@@ -23,17 +23,38 @@ import org.roger600.lienzo.client.toolboxNew.primitive.AbstractPrimitiveItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.ButtonGridItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratedItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratorItem;
+import org.roger600.lienzo.client.toolboxNew.util.BiConsumer;
 import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
 public class ButtonGridItemImpl
         extends WrappedItem<ButtonGridItem>
         implements ButtonGridItem {
 
-    private static final int TIMER_DELAY_MILLIS = 1000;
+    private static final int TIMER_DELAY_MILLIS = 2000;
+
+    public static class Builder {
+
+        public static ButtonGridItem dropDown(final Shape<?> shape) {
+            final ButtonGridItemImpl button = new ButtonGridItemImpl(shape);
+            return setupAsDropDown(button);
+        }
+
+        public static ButtonGridItem dropDown(final Group group) {
+            final ButtonGridItemImpl button = new ButtonGridItemImpl(group);
+            return setupAsDropDown(button);
+        }
+
+        private static ButtonGridItem setupAsDropDown(final ButtonGridItemImpl button) {
+            button.at(Direction.SOUTH_WEST);
+            // TODO button.useShowExecutor(GroupVisibilityExecutors.upScaleY().setAnimationDuration(1000));
+            // TODO button.useHideExecutor(GroupVisibilityExecutors.downScaleY().setAnimationDuration(1000));
+            return button;
+        }
+    }
 
     private final ButtonItemImpl button;
     private final ToolboxImpl toolbox;
-    private final Timer itemsGroupFocusTimer =
+    private final Timer unFocusTimer =
             new Timer() {
                 @Override
                 public void run() {
@@ -47,13 +68,13 @@ public class ButtonGridItemImpl
                 }
             };
 
-    public ButtonGridItemImpl(final Shape<?> prim) {
+    private ButtonGridItemImpl(final Shape<?> prim) {
         this.button = new ButtonItemImpl(prim);
         this.toolbox = new ToolboxImpl(new DecoratedButtonBoundingBoxSupplier());
         init();
     }
 
-    public ButtonGridItemImpl(final Group group) {
+    private ButtonGridItemImpl(final Group group) {
         this.button = new ButtonItemImpl(group);
         this.toolbox = new ToolboxImpl(new DecoratedButtonBoundingBoxSupplier());
         init();
@@ -136,6 +157,7 @@ public class ButtonGridItemImpl
 
     @Override
     public ButtonGridItem add(final DecoratedItem... items) {
+        toolbox.add(items);
         for (final DecoratedItem item : items) {
             try {
                 final AbstractDecoratedItem primitiveItem = (AbstractDecoratedItem) item;
@@ -148,7 +170,6 @@ public class ButtonGridItemImpl
                                                                 "of " + AbstractDecoratedItem.class.getName());
             }
         }
-        toolbox.add(items);
         return this;
     }
 
@@ -193,9 +214,16 @@ public class ButtonGridItemImpl
         return button.getWrapped();
     }
 
+    private void useShowExecutor(final BiConsumer<Group, Runnable> executor) {
+        toolbox.getWrapped().getWrapped().useShowExecutor(executor);
+    }
+
+    private void useHideExecutor(final BiConsumer<Group, Runnable> executor) {
+        toolbox.getWrapped().getWrapped().useHideExecutor(executor);
+    }
+
     private void init() {
         button.getWrapped().setUnFocusDelay(TIMER_DELAY_MILLIS);
-        // TODO toolbox.getWrapped().getWrapped().getGroupItem().useShowExecutor(new GroupItemVisibilityExecutors.AnimatedScaleXGroupExecutor().setAnimationDuration(1500));
         // Register custom focus/un-focus behaviors.
         registerItemFocusHandler(button,
                                  focusCallback);
@@ -235,31 +263,17 @@ public class ButtonGridItemImpl
                 );
     }
 
-    public ButtonGridItemImpl focus() {
+    private ButtonGridItemImpl focus() {
+        stopTimer();
         button.getWrapped().focus();
         showGrid();
-        stopTimer();
         return this;
     }
 
-    public ButtonGridItemImpl unFocus() {
+    private ButtonGridItemImpl unFocus() {
         scheduleTimer();
         return this;
     }
-
-    private final Runnable itemFocusCallback = new Runnable() {
-        @Override
-        public void run() {
-            focus();
-        }
-    };
-
-    private final Runnable itemUnFocusCallback = new Runnable() {
-        @Override
-        public void run() {
-            unFocus();
-        }
-    };
 
     private final Runnable focusCallback = new Runnable() {
         @Override
@@ -275,12 +289,26 @@ public class ButtonGridItemImpl
         }
     };
 
+    private final Runnable itemFocusCallback = new Runnable() {
+        @Override
+        public void run() {
+            focus();
+        }
+    };
+
+    private final Runnable itemUnFocusCallback = new Runnable() {
+        @Override
+        public void run() {
+            unFocus();
+        }
+    };
+
     private void scheduleTimer() {
-        itemsGroupFocusTimer.schedule(TIMER_DELAY_MILLIS);
+        unFocusTimer.schedule(TIMER_DELAY_MILLIS);
     }
 
     private void stopTimer() {
-        itemsGroupFocusTimer.cancel();
+        unFocusTimer.cancel();
     }
 
     private void batch() {

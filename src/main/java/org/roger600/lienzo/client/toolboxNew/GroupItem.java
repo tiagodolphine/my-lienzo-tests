@@ -17,19 +17,15 @@ public class GroupItem extends AbstractItem<GroupItem, Group> implements Item<Gr
 
     public GroupItem(final Group group) {
         this.group = group;
-        this.showExecutor = GroupItemVisibilityExecutors.alpha(1)
+        this.showExecutor = GroupVisibilityExecutors.alpha(1)
                 .setAnimationTweener(AnimationTweener.LINEAR)
                 //.setAlpha(1)
                 .setAnimationDuration(150);
-        this.hideExecutor = GroupItemVisibilityExecutors.alpha(0)
+        this.hideExecutor = GroupVisibilityExecutors.alpha(0)
                 .setAnimationTweener(AnimationTweener.LINEAR)
                 //.setAlpha(0)
                 .setAnimationDuration(150);
-        doHide(new Runnable() {
-            @Override
-            public void run() {
-            }
-        });
+        group.setAlpha(0);
     }
 
     public GroupItem useShowExecutor(final BiConsumer<Group, Runnable> executor) {

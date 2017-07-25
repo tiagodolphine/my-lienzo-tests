@@ -2,7 +2,6 @@ package org.roger600.lienzo.client.toolboxNew.primitive.factory;
 
 import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.shape.Shape;
-import com.ait.lienzo.shared.core.types.Direction;
 import org.roger600.lienzo.client.toolboxNew.primitive.ButtonGridItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.ButtonItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.ShapeItem;
@@ -25,22 +24,10 @@ public class ItemFactory {
     }
 
     public static ButtonGridItem dropDownFor(final Shape<?> shape) {
-        return buttonItemsFor(shape, Direction.SOUTH_WEST);
+        return ButtonGridItemImpl.Builder.dropDown(shape);
     }
 
     public static ButtonGridItem dropDownFor(final Group group) {
-        return buttonItemsFor(group, Direction.SOUTH_WEST);
-    }
-
-    private static ButtonGridItem buttonItemsFor(final Shape<?> shape,
-                                                 final Direction at) {
-        return new ButtonGridItemImpl(shape)
-                .at(at);
-    }
-
-    private static ButtonGridItem buttonItemsFor(final Group group,
-                                                 final Direction at) {
-        return new ButtonGridItemImpl(group)
-                .at(at);
+        return ButtonGridItemImpl.Builder.dropDown(group);
     }
 }

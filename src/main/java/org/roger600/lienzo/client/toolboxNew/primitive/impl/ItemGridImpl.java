@@ -44,7 +44,6 @@ public class ItemGridImpl
                 }
             }
         };
-        // TODO groupPrimitiveItem.getGroupItem().useShowExecutor(GroupItemVisibilityExecutors.scaleY(1).setAnimationDuration(1500));
     }
 
     @Override
@@ -91,15 +90,16 @@ public class ItemGridImpl
                               @Override
                               public void run() {
                                   repositionItems();
+                                  for (final DecoratedItem button : items) {
+                                      button.show();
+                                  }
                                   before.run();
                               }
                           },
                           new Runnable() {
                               @Override
                               public void run() {
-                                  for (final DecoratedItem button : items) {
-                                      button.show();
-                                  }
+
                                   after.run();
                               }
                           });
@@ -111,15 +111,15 @@ public class ItemGridImpl
         return super.hide(new Runnable() {
                               @Override
                               public void run() {
-                                  for (final DecoratedItem button : items) {
-                                      button.hide();
-                                  }
                                   before.run();
                               }
                           },
                           new Runnable() {
                               @Override
                               public void run() {
+                                  for (final DecoratedItem button : items) {
+                                      button.hide();
+                                  }
                                   after.run();
                                   fireRefresh();
                               }

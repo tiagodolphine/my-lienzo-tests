@@ -10,18 +10,50 @@ import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.types.Point2D;
 import org.roger600.lienzo.client.toolboxNew.util.BiConsumer;
 
-public class GroupItemVisibilityExecutors {
+public class GroupVisibilityExecutors {
 
     public static AnimatedAlphaGroupExecutor alpha(final double targetAlphaValue) {
         return new AnimatedAlphaGroupExecutor(targetAlphaValue);
     }
 
-    public static AnimatedScaleXGroupExecutor scaleX(final double targetAlphaValue) {
-        return new AnimatedScaleXGroupExecutor(targetAlphaValue);
+    public static AnimatedScaleXGroupExecutor upScaleX() {
+        return scaleX(1,
+                      0.1,
+                      1);
     }
 
-    public static AnimatedScaleYGroupExecutor scaleY(final double targetAlphaValue) {
-        return new AnimatedScaleYGroupExecutor(targetAlphaValue);
+    public static AnimatedScaleXGroupExecutor downScaleX() {
+        return scaleX(0,
+                      1,
+                      0.1);
+    }
+
+    public static AnimatedScaleYGroupExecutor upScaleY() {
+        return scaleY(1,
+                      0.1,
+                      1);
+    }
+
+    public static AnimatedScaleYGroupExecutor downScaleY() {
+        return scaleY(0,
+                      1,
+                      0.1);
+    }
+
+    public static AnimatedScaleXGroupExecutor scaleX(final double targetAlphaValue,
+                                                     final double startScale,
+                                                     final double endScale) {
+        return new AnimatedScaleXGroupExecutor(targetAlphaValue,
+                                               startScale,
+                                               endScale);
+    }
+
+    private static AnimatedScaleYGroupExecutor scaleY(final double targetAlphaValue,
+                                                      final double startScale,
+                                                      final double endScale) {
+        return new AnimatedScaleYGroupExecutor(targetAlphaValue,
+                                               startScale,
+                                               endScale);
     }
 
     public abstract static class AnimatedGroupExecutor<T extends AnimatedGroupExecutor>
@@ -107,10 +139,11 @@ public class GroupItemVisibilityExecutors {
 
         protected abstract Point2D getInitialScale();
 
+        protected abstract Point2D getEndScale();
+
         @Override
         protected AnimationProperties getProperties() {
-            return AnimationProperties.toPropertyList(AnimationProperty.Properties.SCALE(1,
-                                                                                         1));
+            return AnimationProperties.toPropertyList(AnimationProperty.Properties.SCALE(getEndScale()));
         }
 
         @Override
@@ -132,27 +165,53 @@ public class GroupItemVisibilityExecutors {
 
     public static class AnimatedScaleXGroupExecutor extends AnimatedScaleGroupExecutor<AnimatedScaleXGroupExecutor> {
 
-        protected AnimatedScaleXGroupExecutor(final double alpha) {
+        private final double start;
+        private final double end;
+
+        protected AnimatedScaleXGroupExecutor(final double alpha,
+                                              final double start,
+                                              final double end) {
             super(alpha);
+            this.start = start;
+            this.end = end;
         }
 
         @Override
         protected Point2D getInitialScale() {
-            return new Point2D(0.1,
+            return new Point2D(start,
+                               1);
+        }
+
+        @Override
+        protected Point2D getEndScale() {
+            return new Point2D(end,
                                1);
         }
     }
 
     public static class AnimatedScaleYGroupExecutor extends AnimatedScaleGroupExecutor<AnimatedScaleYGroupExecutor> {
 
-        protected AnimatedScaleYGroupExecutor(final double alpha) {
+        private final double start;
+        private final double end;
+
+        protected AnimatedScaleYGroupExecutor(final double alpha,
+                                              final double start,
+                                              final double end) {
             super(alpha);
+            this.start = start;
+            this.end = end;
         }
 
         @Override
         protected Point2D getInitialScale() {
             return new Point2D(1,
-                               0.1);
+                               start);
+        }
+
+        @Override
+        protected Point2D getEndScale() {
+            return new Point2D(1,
+                               end);
         }
     }
 }
