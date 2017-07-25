@@ -78,7 +78,7 @@ public class PrimitiveTextTooltip
     }
 
     @Override
-    public PrimitiveTextTooltip forBoundingBox(final Supplier<BoundingBox> boundingBoxSupplier) {
+    public PrimitiveTextTooltip forComputedBoundingBox(final Supplier<BoundingBox> boundingBoxSupplier) {
         this.locationExecutor
                 .forBoundingBox(boundingBoxSupplier)
                 .apply(tooltip);

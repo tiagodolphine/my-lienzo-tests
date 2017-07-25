@@ -51,8 +51,8 @@ public class ToolboxTextTooltip implements TextTooltipItem<ToolboxTextTooltip> {
     }
 
     @Override
-    public ToolboxTextTooltip forBoundingBox(final Supplier<BoundingBox> boundingBoxSupplier) {
-        delegate.forBoundingBox(boundingBoxSupplier);
+    public ToolboxTextTooltip forComputedBoundingBox(final Supplier<BoundingBox> boundingBoxSupplier) {
+        delegate.forComputedBoundingBox(boundingBoxSupplier);
         return this;
     }
 

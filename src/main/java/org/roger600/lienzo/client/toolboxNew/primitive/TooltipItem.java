@@ -6,5 +6,6 @@ import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
 public interface TooltipItem<T extends TooltipItem> extends Item<T> {
 
-    public T forBoundingBox(Supplier<BoundingBox> boundingBoxSupplier);
+    public T forComputedBoundingBox(Supplier<BoundingBox> boundingBoxSupplier);
+
 }

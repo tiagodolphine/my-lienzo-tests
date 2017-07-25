@@ -291,7 +291,7 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
     }
 
     private void attachTooltip() {
-        tooltip.forBoundingBox(new Supplier<BoundingBox>() {
+        tooltip.forComputedBoundingBox(new Supplier<BoundingBox>() {
             @Override
             public BoundingBox get() {
                 return computeAbsoluteBoundingBox();

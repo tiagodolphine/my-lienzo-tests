@@ -40,7 +40,7 @@ public class TextTooltipItemImpl
     }
 
     @Override
-    public TextTooltipItemImpl forBoundingBox(final Supplier<BoundingBox> boundingBoxSupplier) {
+    public TextTooltipItemImpl forComputedBoundingBox(final Supplier<BoundingBox> boundingBoxSupplier) {
         this.boundingBoxSupplier = boundingBoxSupplier;
         return this;
     }
@@ -50,7 +50,7 @@ public class TextTooltipItemImpl
         hide();
         if (null != text && text.trim().length() > 0) {
             getTextTooltipItem()
-                    .forBoundingBox(boundingBoxSupplier)
+                    .forComputedBoundingBox(boundingBoxSupplier)
                     .at(at)
                     .towards(towards)
                     .setText(text)

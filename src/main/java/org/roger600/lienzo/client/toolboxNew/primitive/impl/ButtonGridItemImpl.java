@@ -12,15 +12,18 @@ import com.ait.lienzo.client.core.event.NodeMouseExitEvent;
 import com.ait.lienzo.client.core.event.NodeMouseExitHandler;
 import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.shape.Shape;
+import com.ait.lienzo.client.core.types.BoundingBox;
 import com.ait.lienzo.client.core.types.Point2D;
 import com.ait.lienzo.shared.core.types.Direction;
 import com.google.gwt.user.client.Timer;
 import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
 import org.roger600.lienzo.client.toolboxNew.primitive.AbstractDecoratedItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.AbstractDecoratorItem;
+import org.roger600.lienzo.client.toolboxNew.primitive.AbstractPrimitiveItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.ButtonGridItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratedItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratorItem;
+import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
 public class ButtonGridItemImpl
         extends WrappedItem<ButtonGridItem>
@@ -46,7 +49,7 @@ public class ButtonGridItemImpl
 
     public ButtonGridItemImpl(final Shape<?> prim) {
         this.button = new ButtonItemImpl(prim);
-        this.toolbox = new ToolboxImpl(button.getBoundingBox());
+        this.toolbox = new ToolboxImpl(new DecoratedButtonBoundingBoxSupplier());
         init();
     }
 
@@ -281,5 +284,18 @@ public class ButtonGridItemImpl
 
     private void batch() {
         button.asPrimitive().batch();
+    }
+
+    // Provides the bounding box of the button plus the decorator, as for further toolbox positioning.
+    private class DecoratedButtonBoundingBoxSupplier implements Supplier<BoundingBox> {
+
+        @Override
+        public BoundingBox get() {
+            final DecoratorItem<?> buttonDecorator = button.getWrapped().getDecorator();
+            if (null != buttonDecorator && buttonDecorator instanceof AbstractPrimitiveItem) {
+                return ((AbstractPrimitiveItem) buttonDecorator).asPrimitive().getBoundingBox();
+            }
+            return button.getBoundingBox().get();
+        }
     }
 }
