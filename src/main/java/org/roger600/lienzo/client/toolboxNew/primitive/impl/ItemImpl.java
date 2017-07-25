@@ -4,7 +4,7 @@ import com.ait.lienzo.client.core.shape.IPrimitive;
 import com.ait.lienzo.client.core.shape.Shape;
 import org.roger600.lienzo.client.toolboxNew.GroupItem;
 
-class ItemImpl extends AbstractGroupItem<ItemImpl> {
+class ItemImpl extends AbstractFocusableGroupItem<ItemImpl> {
 
     private final IPrimitive<?> primitive;
 

@@ -6,7 +6,7 @@ import com.ait.lienzo.client.core.shape.MultiPath;
 import com.ait.lienzo.client.core.types.BoundingBox;
 import org.roger600.lienzo.client.toolboxNew.GroupItem;
 
-class FocusableGroup extends AbstractGroupItem<FocusableGroup> {
+class FocusableGroup extends AbstractFocusableGroupItem<FocusableGroup> {
 
     private final MultiPath primitive;
 

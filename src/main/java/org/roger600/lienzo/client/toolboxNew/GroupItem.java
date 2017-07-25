@@ -1,11 +1,6 @@
 package org.roger600.lienzo.client.toolboxNew;
 
-import com.ait.lienzo.client.core.animation.AnimationCallback;
-import com.ait.lienzo.client.core.animation.AnimationProperties;
-import com.ait.lienzo.client.core.animation.AnimationProperty;
 import com.ait.lienzo.client.core.animation.AnimationTweener;
-import com.ait.lienzo.client.core.animation.IAnimation;
-import com.ait.lienzo.client.core.animation.IAnimationHandle;
 import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.shape.IPrimitive;
 import org.roger600.lienzo.client.toolboxNew.util.BiConsumer;
@@ -22,13 +17,13 @@ public class GroupItem extends AbstractItem<GroupItem, Group> implements Item<Gr
 
     public GroupItem(final Group group) {
         this.group = group;
-        this.showExecutor = new AnimatedGroupExecutor()
+        this.showExecutor = GroupItemVisibilityExecutors.alpha(1)
                 .setAnimationTweener(AnimationTweener.LINEAR)
-                .setAlpha(1)
+                //.setAlpha(1)
                 .setAnimationDuration(150);
-        this.hideExecutor = new AnimatedGroupExecutor()
+        this.hideExecutor = GroupItemVisibilityExecutors.alpha(0)
                 .setAnimationTweener(AnimationTweener.LINEAR)
-                .setAlpha(0)
+                //.setAlpha(0)
                 .setAnimationDuration(150);
         doHide(new Runnable() {
             @Override
@@ -126,49 +121,5 @@ public class GroupItem extends AbstractItem<GroupItem, Group> implements Item<Gr
     private void doHide(final Runnable callback) {
         hideExecutor.apply(group,
                            callback);
-    }
-
-    public static class AnimatedGroupExecutor implements BiConsumer<Group, Runnable> {
-
-        private double animationDuration;
-        private double alpha;
-        private AnimationTweener animationTweener;
-
-        public AnimatedGroupExecutor() {
-            this.animationDuration = 150;
-            this.alpha = 1;
-        }
-
-        @Override
-        public void apply(final Group group,
-                          final Runnable callback) {
-            group.animate(animationTweener,
-                          AnimationProperties.toPropertyList(AnimationProperty.Properties.ALPHA(alpha)),
-                          animationDuration,
-                          new AnimationCallback() {
-                              @Override
-                              public void onClose(IAnimation animation,
-                                                  IAnimationHandle handle) {
-                                  super.onClose(animation,
-                                                handle);
-                                  callback.run();
-                              }
-                          });
-        }
-
-        public AnimatedGroupExecutor setAnimationTweener(final AnimationTweener animationTweener) {
-            this.animationTweener = animationTweener;
-            return this;
-        }
-
-        public AnimatedGroupExecutor setAlpha(final double alpha) {
-            this.alpha = alpha;
-            return this;
-        }
-
-        public AnimatedGroupExecutor setAnimationDuration(final double millis) {
-            this.animationDuration = millis;
-            return this;
-        }
     }
 }

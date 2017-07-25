@@ -1,5 +1,7 @@
 package org.roger600.lienzo.client.toolboxNew.primitive.impl;
 
+import com.ait.lienzo.client.core.event.NodeMouseEnterHandler;
+import com.ait.lienzo.client.core.event.NodeMouseExitHandler;
 import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.shape.IPrimitive;
 import com.ait.lienzo.client.core.types.BoundingBox;
@@ -13,28 +15,34 @@ class GroupImpl extends AbstractGroupItem<GroupImpl> {
     GroupImpl(final Group group) {
         super(new GroupItem(group));
         this.primitive = group;
-        init();
-    }
-
-    GroupImpl(final Group group,
-              final Supplier<BoundingBox> boundingBoxSupplier) {
-        super(new GroupItem(group),
-              boundingBoxSupplier);
-        this.primitive = group;
-        init();
     }
 
     @Override
     public GroupImpl show(final Runnable before,
                           final Runnable after) {
-        return super.show(before,
-                          new Runnable() {
-                              @Override
-                              public void run() {
-                                  focus();
-                                  after.run();
-                              }
-                          });
+        getGroupItem().show(before,
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    showAddOns();
+                                    after.run();
+                                }
+                            });
+        return this;
+    }
+
+    @Override
+    public GroupImpl hide(final Runnable before,
+                          final Runnable after) {
+        getGroupItem().hide(new Runnable() {
+                                @Override
+                                public void run() {
+                                    hideAddOns();
+                                    before.run();
+                                }
+                            },
+                            after);
+        return this;
     }
 
     @Override
@@ -58,7 +66,13 @@ class GroupImpl extends AbstractGroupItem<GroupImpl> {
         };
     }
 
-    private void init() {
-        setFocusDelay(0);
+    @Override
+    public GroupImpl onMouseEnter(NodeMouseEnterHandler handler) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public GroupImpl onMouseExit(NodeMouseExitHandler handler) {
+        throw new UnsupportedOperationException();
     }
 }

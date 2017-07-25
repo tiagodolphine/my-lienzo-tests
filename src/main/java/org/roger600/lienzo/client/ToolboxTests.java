@@ -163,38 +163,48 @@ public class ToolboxTests implements MyLienzoTest,
                 .at(Direction.SOUTH_WEST)
                 .grid(autoGridMorph);
         tooltipMorph = buildTooltip(toolboxMorph);
-        Shape<?> morphIcon = createButtonNode(ColorName.values()[Random.nextInt(ColorName.values().length)]);
-        final ButtonGridItem dropDownItem = ItemFactory.dropDownFor(morphIcon);
-        final FixedLayoutGrid dropDownItemGrid = new FixedLayoutGrid(BUTTON_PADDING,
-                                                                     BUTTON_SIZE,
-                                                                     Direction.SOUTH_EAST,
-                                                                     1,
-                                                                     7);
-        final ButtonItem dropDownItem1 = createButtonItem(getButtonTitle());
-        final ButtonItem dropDownItem2 = createButtonItem(getButtonTitle());
-        final ButtonItem dropDownItem3 = createButtonItem(getButtonTitle());
-        final ButtonItem dropDownItem4 = createButtonItem(getButtonTitle());
-        final ButtonItem dropDownItem5 = createButtonItem(getButtonTitle());
-        final ButtonItem dropDownItem6 = createButtonItem(getButtonTitle());
-        dropDownItem
-                .grid(dropDownItemGrid)
-                .onClick(new NodeMouseClickHandler() {
-                    @Override
-                    public void onNodeMouseClick(NodeMouseClickEvent event) {
-                        GWT.log("MORPHING ITEM GRID CLICK!!");
-                    }
-                })
-                .add(dropDownItem1,
-                     dropDownItem2,
-                     dropDownItem3,
-                     dropDownItem4,
-                     dropDownItem5,
-                     dropDownItem6)
-                .decorate(DecoratorsFactory.box())
-                .decorateGrid(DecoratorsFactory.box()
-                                      .setFillColor(ColorName.WHITE.getColorString())
-                                      .setPadding(15));
-        toolboxMorph.add(dropDownItem);
+        new Picture(LienzoTestsResources.INSTANCE.clockO().getSafeUri().asString(),
+                    new PictureLoadedHandler() {
+                        @Override
+                        public void onPictureLoaded(Picture picture) {
+                            scalePicture(picture,
+                                         BUTTON_SIZE,
+                                         BUTTON_SIZE);
+                            Group picGroup = new Group().add(picture);
+                            final ButtonGridItem dropDownItem = ItemFactory.dropDownFor(picGroup);
+                            final FixedLayoutGrid dropDownItemGrid = new FixedLayoutGrid(BUTTON_PADDING,
+                                                                                         BUTTON_SIZE,
+                                                                                         Direction.SOUTH_EAST,
+                                                                                         1,
+                                                                                         7);
+                            final ButtonItem dropDownItem1 = createButtonItem(getButtonTitle());
+                            final ButtonItem dropDownItem2 = createButtonItem(getButtonTitle());
+                            final ButtonItem dropDownItem3 = createButtonItem(getButtonTitle());
+                            final ButtonItem dropDownItem4 = createButtonItem(getButtonTitle());
+                            final ButtonItem dropDownItem5 = createButtonItem(getButtonTitle());
+                            final ButtonItem dropDownItem6 = createButtonItem(getButtonTitle());
+                            dropDownItem
+                                    .grid(dropDownItemGrid)
+                                    .onClick(new NodeMouseClickHandler() {
+                                        @Override
+                                        public void onNodeMouseClick(NodeMouseClickEvent event) {
+                                            GWT.log("MORPHING ITEM GRID CLICK!!");
+                                        }
+                                    })
+                                    .add(dropDownItem1,
+                                         dropDownItem2,
+                                         dropDownItem3,
+                                         dropDownItem4,
+                                         dropDownItem5,
+                                         dropDownItem6)
+                                    .decorate(DecoratorsFactory.box()
+                                                      .setFillColor(ColorName.WHITE.getColorString()))
+                                    .decorateGrid(DecoratorsFactory.box()
+                                                          .setFillColor(ColorName.WHITE.getColorString())
+                                                          .setPadding(15));
+                            toolboxMorph.add(dropDownItem);
+                        }
+                    });
 
         // Delete toolbox.
         autoGridDelete = buildAutoGrid(Direction.SOUTH_WEST);
@@ -269,15 +279,27 @@ public class ToolboxTests implements MyLienzoTest,
     }
 
     private void show() {
-        toolboxActions.show();
-        toolboxMorph.show();
-        toolboxDelete.show();
+        if (null != toolboxActions) {
+            toolboxActions.show();
+        }
+        if (null != toolboxMorph) {
+            toolboxMorph.show();
+        }
+        if (null != toolboxDelete) {
+            toolboxDelete.show();
+        }
     }
 
     private void hide() {
-        toolboxActions.hide();
-        toolboxMorph.hide();
-        toolboxDelete.hide();
+        if (null != toolboxActions) {
+            toolboxActions.hide();
+        }
+        if (null != toolboxMorph) {
+            toolboxMorph.hide();
+        }
+        if (null != toolboxDelete) {
+            toolboxDelete.hide();
+        }
     }
 
     private ButtonItem createButtonItem(String title) {
@@ -340,6 +362,23 @@ public class ToolboxTests implements MyLienzoTest,
                                final String title,
                                final double w,
                                final double h) {
+        createButtonItem(uri,
+                         title,
+                         w,
+                         h,
+                         new Consumer<ButtonItem>() {
+                             @Override
+                             public void apply(ButtonItem item) {
+                                 toolbox.add(item);
+                             }
+                         });
+    }
+
+    private void createButtonItem(final SafeUri uri,
+                                  final String title,
+                                  final double w,
+                                  final double h,
+                                  final Consumer<ButtonItem> itemConsumer) {
         new Picture(uri.asString(),
                     new PictureLoadedHandler() {
                         @Override
@@ -350,7 +389,7 @@ public class ToolboxTests implements MyLienzoTest,
                             final ButtonItem picItem =
                                     createButtonItem(new Group().add(picture),
                                                      title);
-                            toolbox.add(picItem);
+                            itemConsumer.apply(picItem);
                         }
                     });
     }

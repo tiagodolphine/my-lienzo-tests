@@ -32,8 +32,9 @@ public class ItemGridImpl
     };
 
     public ItemGridImpl() {
-        this.groupPrimitiveItem = new GroupImpl(new Group(),
-                                                boundingBoxSupplier);
+        this.groupPrimitiveItem =
+                new GroupImpl(new Group())
+                        .setBoundingBox(boundingBoxSupplier);
         this.boundingBox = new BoundingBox(groupPrimitiveItem.asPrimitive().getBoundingBox());
         this.refreshCallback = new Runnable() {
             @Override
@@ -43,6 +44,7 @@ public class ItemGridImpl
                 }
             }
         };
+        // TODO groupPrimitiveItem.getGroupItem().useShowExecutor(GroupItemVisibilityExecutors.scaleY(1).setAnimationDuration(1500));
     }
 
     @Override

@@ -40,7 +40,7 @@ public class ButtonGridItemImpl
                     hideGrid(new Runnable() {
                         @Override
                         public void run() {
-                            button.getGroupItem().unFocus();
+                            button.getWrapped().unFocus();
                             batch();
                         }
                     });
@@ -55,7 +55,7 @@ public class ButtonGridItemImpl
 
     public ButtonGridItemImpl(final Group group) {
         this.button = new ButtonItemImpl(group);
-        this.toolbox = new ToolboxImpl(button.getBoundingBox());
+        this.toolbox = new ToolboxImpl(new DecoratedButtonBoundingBoxSupplier());
         init();
     }
 
@@ -190,11 +190,12 @@ public class ButtonGridItemImpl
 
     @Override
     protected AbstractGroupItem<?> getWrapped() {
-        return button.getGroupItem();
+        return button.getWrapped();
     }
 
     private void init() {
-        button.getGroupItem().setUnFocusDelay(TIMER_DELAY_MILLIS);
+        button.getWrapped().setUnFocusDelay(TIMER_DELAY_MILLIS);
+        // TODO toolbox.getWrapped().getWrapped().getGroupItem().useShowExecutor(new GroupItemVisibilityExecutors.AnimatedScaleXGroupExecutor().setAnimationDuration(1500));
         // Register custom focus/un-focus behaviors.
         registerItemFocusHandler(button,
                                  focusCallback);
@@ -208,7 +209,7 @@ public class ButtonGridItemImpl
 
     private void registerItemFocusHandler(final AbstractDecoratedItem item,
                                           final Runnable callback) {
-        button.getGroupItem()
+        button.getWrapped()
                 .registrations()
                 .register(
                         item.getPrimitive().addNodeMouseEnterHandler(new NodeMouseEnterHandler() {
@@ -222,7 +223,7 @@ public class ButtonGridItemImpl
 
     private void registerItemUnFocusHandler(final AbstractDecoratedItem item,
                                             final Runnable callback) {
-        button.getGroupItem()
+        button.getWrapped()
                 .registrations()
                 .register(
                         item.getPrimitive().addNodeMouseExitHandler(new NodeMouseExitHandler() {
@@ -235,7 +236,7 @@ public class ButtonGridItemImpl
     }
 
     public ButtonGridItemImpl focus() {
-        button.getGroupItem().focus();
+        button.getWrapped().focus();
         showGrid();
         stopTimer();
         return this;

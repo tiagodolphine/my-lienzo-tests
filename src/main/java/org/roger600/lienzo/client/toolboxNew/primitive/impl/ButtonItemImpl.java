@@ -13,7 +13,7 @@ public class ButtonItemImpl
         extends WrappedItem<ButtonItem>
         implements ButtonItem {
 
-    private final AbstractGroupItem<?> item;
+    private final AbstractFocusableGroupItem<?> item;
     private HandlerRegistration clickHandlerRegistration;
     private HandlerRegistration dragStartHandlerRegistration;
     private HandlerRegistration dragMoveHandlerRegistration;
@@ -27,7 +27,7 @@ public class ButtonItemImpl
         this(new FocusableGroup(group));
     }
 
-    private ButtonItemImpl(final AbstractGroupItem item) {
+    private ButtonItemImpl(final AbstractFocusableGroupItem<?> item) {
         this.item = item;
     }
 
@@ -86,11 +86,7 @@ public class ButtonItemImpl
     }
 
     @Override
-    protected AbstractGroupItem<?> getWrapped() {
-        return item;
-    }
-
-    AbstractGroupItem<?> getGroupItem() {
+    protected AbstractFocusableGroupItem<?> getWrapped() {
         return item;
     }
 

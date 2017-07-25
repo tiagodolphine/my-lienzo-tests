@@ -8,7 +8,6 @@ import com.ait.lienzo.shared.core.types.Direction;
 import org.roger600.lienzo.client.toolboxNew.Positions;
 import org.roger600.lienzo.client.toolboxNew.Toolbox;
 import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
-import org.roger600.lienzo.client.toolboxNew.primitive.AbstractDecoratedItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.DecoratedItem;
 import org.roger600.lienzo.client.toolboxNew.util.Supplier;
 
@@ -123,7 +122,7 @@ public class ToolboxImpl
     }
 
     @Override
-    protected AbstractDecoratedItem<?> getWrapped() {
+    protected ItemGridImpl getWrapped() {
         return items;
     }
 
