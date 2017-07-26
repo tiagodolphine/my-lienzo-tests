@@ -86,17 +86,17 @@ public class ToolboxTests implements MyLienzoTest,
 
         wiresManager.setContainmentAcceptor(IContainmentAcceptor.ALL);
 
-        /*parent = newShape(ColorName.WHITE,
+        parent = newShape(ColorName.WHITE,
                           400,
                           300);
         parent.getPath().setStrokeWidth(3).setStrokeColor(ColorName.BLACK);
-        parent.setX(150).setY(100);*/
+        parent.setX(600).setY(100);
 
         shape1 = newShape(ColorName.BLUE,
 
                           50,
                           100);
-        shape1.setX(400).setY(100);
+        shape1.setX(300).setY(100);
         buildToolbox1();
 
         layer.batch();
