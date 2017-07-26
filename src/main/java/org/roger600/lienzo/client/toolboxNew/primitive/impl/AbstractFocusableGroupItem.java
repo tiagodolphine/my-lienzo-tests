@@ -6,7 +6,6 @@ import com.ait.lienzo.client.core.event.NodeMouseEnterHandler;
 import com.ait.lienzo.client.core.event.NodeMouseExitEvent;
 import com.ait.lienzo.client.core.event.NodeMouseExitHandler;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Timer;
 import org.roger600.lienzo.client.toolboxNew.GroupItem;
 import org.roger600.lienzo.client.toolboxNew.GroupVisibilityExecutors;
@@ -21,8 +20,6 @@ public abstract class AbstractFocusableGroupItem<T extends AbstractFocusableGrou
     private final FocusGroupExecutor focusGroupExecutor;
     private int focusDelay;
     private int unFocusDelay;
-    private HandlerRegistration mouseEnterHandlerRegistration;
-    private HandlerRegistration mouseExitHandlerRegistration;
 
     private final Timer focusDelayTimer = new Timer() {
         @Override
@@ -98,30 +95,6 @@ public abstract class AbstractFocusableGroupItem<T extends AbstractFocusableGrou
     }
 
     @Override
-    public T onMouseEnter(final NodeMouseEnterHandler handler) {
-        assert null != handler;
-        if (null != mouseEnterHandlerRegistration) {
-            mouseEnterHandlerRegistration.removeHandler();
-        }
-        mouseEnterHandlerRegistration = getPrimitive()
-                .addNodeMouseEnterHandler(handler);
-        register(mouseEnterHandlerRegistration);
-        return cast();
-    }
-
-    @Override
-    public T onMouseExit(final NodeMouseExitHandler handler) {
-        assert null != handler;
-        if (null != mouseExitHandlerRegistration) {
-            mouseExitHandlerRegistration.removeHandler();
-        }
-        mouseExitHandlerRegistration = getPrimitive()
-                .addNodeMouseExitHandler(handler);
-        register(mouseExitHandlerRegistration);
-        return cast();
-    }
-
-    @Override
     public void destroy() {
         cancelFocusTimer();
         cancelUnFocusTimer();
@@ -129,23 +102,18 @@ public abstract class AbstractFocusableGroupItem<T extends AbstractFocusableGrou
     }
 
     protected T setupFocusingHandlers() {
-        getPrimitive().setListening(true);
-        registrations().register(
-                getPrimitive().addNodeMouseEnterHandler(new NodeMouseEnterHandler() {
-                    @Override
-                    public void onNodeMouseEnter(NodeMouseEnterEvent event) {
-                        focus();
-                    }
-                })
-        );
-        registrations().register(
-                getPrimitive().addNodeMouseExitHandler(new NodeMouseExitHandler() {
-                    @Override
-                    public void onNodeMouseExit(NodeMouseExitEvent event) {
-                        unFocus();
-                    }
-                })
-        );
+        registerMouseEnterHandler(new NodeMouseEnterHandler() {
+            @Override
+            public void onNodeMouseEnter(NodeMouseEnterEvent event) {
+                focus();
+            }
+        });
+        registerMouseExitHandler(new NodeMouseExitHandler() {
+            @Override
+            public void onNodeMouseExit(NodeMouseExitEvent event) {
+                unFocus();
+            }
+        });
         return cast();
     }
 

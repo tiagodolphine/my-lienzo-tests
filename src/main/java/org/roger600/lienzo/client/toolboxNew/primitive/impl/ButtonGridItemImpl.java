@@ -15,7 +15,10 @@ import com.ait.lienzo.client.core.shape.Shape;
 import com.ait.lienzo.client.core.types.BoundingBox;
 import com.ait.lienzo.client.core.types.Point2D;
 import com.ait.lienzo.shared.core.types.Direction;
+import com.ait.tooling.nativetools.client.event.HandlerRegistrationManager;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Timer;
+import org.roger600.lienzo.client.toolboxNew.GroupVisibilityExecutors;
 import org.roger600.lienzo.client.toolboxNew.grid.Point2DGrid;
 import org.roger600.lienzo.client.toolboxNew.primitive.AbstractDecoratedItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.AbstractDecoratorItem;
@@ -30,7 +33,7 @@ public class ButtonGridItemImpl
         extends WrappedItem<ButtonGridItem>
         implements ButtonGridItem {
 
-    private static final int TIMER_DELAY_MILLIS = 2000;
+    private static final int TIMER_DELAY_MILLIS = 500;
 
     public static class Builder {
 
@@ -46,8 +49,8 @@ public class ButtonGridItemImpl
 
         private static ButtonGridItem setupAsDropDown(final ButtonGridItemImpl button) {
             button.at(Direction.SOUTH_WEST);
-            // TODO button.useShowExecutor(GroupVisibilityExecutors.upScaleY().setAnimationDuration(1000));
-            // TODO button.useHideExecutor(GroupVisibilityExecutors.downScaleY().setAnimationDuration(1000));
+            button.useShowExecutor(GroupVisibilityExecutors.upScaleY().setAnimationDuration(250));
+            button.useHideExecutor(GroupVisibilityExecutors.downScaleY().setAnimationDuration(250));
             return button;
         }
     }
@@ -67,6 +70,7 @@ public class ButtonGridItemImpl
                     });
                 }
             };
+    private final HandlerRegistration[] decoratorHandlers = new HandlerRegistration[2];
 
     private ButtonGridItemImpl(final Shape<?> prim) {
         this.button = new ButtonItemImpl(prim);
@@ -100,7 +104,26 @@ public class ButtonGridItemImpl
     public ButtonGridItem decorateGrid(final DecoratorItem<?> decorator) {
         if (toolbox.getItems().size() > 0) {
             if (decorator instanceof AbstractDecoratorItem) {
+                removeDecoratorHandlers();
+                final AbstractDecoratorItem instance = (AbstractDecoratorItem) decorator;
                 toolbox.decorate(decorator);
+                decoratorHandlers[0] = instance
+                        .asPrimitive()
+                        .setListening(true)
+                        .addNodeMouseEnterHandler(new NodeMouseEnterHandler() {
+                            @Override
+                            public void onNodeMouseEnter(NodeMouseEnterEvent event) {
+                                itemFocusCallback.run();
+                            }
+                        });
+                decoratorHandlers[1] = instance.asPrimitive().addNodeMouseExitHandler(new NodeMouseExitHandler() {
+                    @Override
+                    public void onNodeMouseExit(NodeMouseExitEvent event) {
+                        itemUnFocusCallback.run();
+                    }
+                });
+                registrations().register(decoratorHandlers[0]);
+                registrations().register(decoratorHandlers[1]);
             }
         } else {
             throw new IllegalStateException("Cannot decorate until no items added.");
@@ -205,6 +228,7 @@ public class ButtonGridItemImpl
     @Override
     public void destroy() {
         super.destroy();
+        removeDecoratorHandlers();
         button.destroy();
         toolbox.destroy();
     }
@@ -237,8 +261,7 @@ public class ButtonGridItemImpl
 
     private void registerItemFocusHandler(final AbstractDecoratedItem item,
                                           final Runnable callback) {
-        button.getWrapped()
-                .registrations()
+        registrations()
                 .register(
                         item.getPrimitive().addNodeMouseEnterHandler(new NodeMouseEnterHandler() {
                             @Override
@@ -251,8 +274,7 @@ public class ButtonGridItemImpl
 
     private void registerItemUnFocusHandler(final AbstractDecoratedItem item,
                                             final Runnable callback) {
-        button.getWrapped()
-                .registrations()
+        registrations()
                 .register(
                         item.getPrimitive().addNodeMouseExitHandler(new NodeMouseExitHandler() {
                             @Override
@@ -261,6 +283,11 @@ public class ButtonGridItemImpl
                             }
                         })
                 );
+    }
+
+    private HandlerRegistrationManager registrations() {
+        return button.getWrapped()
+                .registrations();
     }
 
     private ButtonGridItemImpl focus() {
@@ -313,6 +340,15 @@ public class ButtonGridItemImpl
 
     private void batch() {
         button.asPrimitive().batch();
+    }
+
+    private void removeDecoratorHandlers() {
+        if (null != decoratorHandlers[0]) {
+            decoratorHandlers[0].removeHandler();
+        }
+        if (null != decoratorHandlers[1]) {
+            decoratorHandlers[1].removeHandler();
+        }
     }
 
     // Provides the bounding box of the button plus the decorator, as for further toolbox positioning.

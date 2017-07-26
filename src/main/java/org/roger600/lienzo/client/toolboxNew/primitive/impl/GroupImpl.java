@@ -1,7 +1,5 @@
 package org.roger600.lienzo.client.toolboxNew.primitive.impl;
 
-import com.ait.lienzo.client.core.event.NodeMouseEnterHandler;
-import com.ait.lienzo.client.core.event.NodeMouseExitHandler;
 import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.shape.IPrimitive;
 import com.ait.lienzo.client.core.types.BoundingBox;
@@ -64,15 +62,5 @@ class GroupImpl extends AbstractGroupItem<GroupImpl> {
                 return GroupImpl.super.getBoundingBox().get();
             }
         };
-    }
-
-    @Override
-    public GroupImpl onMouseEnter(NodeMouseEnterHandler handler) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public GroupImpl onMouseExit(NodeMouseExitHandler handler) {
-        throw new UnsupportedOperationException();
     }
 }

@@ -1,5 +1,7 @@
 package org.roger600.lienzo.client.toolboxNew.primitive.impl;
 
+import com.ait.lienzo.client.core.event.NodeMouseEnterHandler;
+import com.ait.lienzo.client.core.event.NodeMouseExitHandler;
 import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.shape.IPrimitive;
 import com.ait.lienzo.client.core.types.BoundingBox;
@@ -22,6 +24,8 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
     private final HandlerRegistrationManager registrations = new HandlerRegistrationManager();
     private DecoratorItem<?> decorator;
     private TooltipItem<?> tooltip;
+    private HandlerRegistration mouseEnterHandlerRegistration;
+    private HandlerRegistration mouseExitHandlerRegistration;
 
     private Supplier<BoundingBox> boundingBoxSupplier = new Supplier<BoundingBox>() {
         @Override
@@ -127,9 +131,48 @@ public abstract class AbstractGroupItem<T extends AbstractGroupItem>
         return boundingBoxSupplier;
     }
 
+    @Override
+    public T onMouseEnter(final NodeMouseEnterHandler handler) {
+        if (null != mouseEnterHandlerRegistration) {
+            mouseEnterHandlerRegistration.removeHandler();
+        }
+        mouseEnterHandlerRegistration = registerMouseEnterHandler(handler);
+        return cast();
+    }
+
+    @Override
+    public T onMouseExit(final NodeMouseExitHandler handler) {
+        assert null != handler;
+        if (null != mouseExitHandlerRegistration) {
+            mouseExitHandlerRegistration.removeHandler();
+        }
+        mouseExitHandlerRegistration = registerMouseExitHandler(handler);
+        return cast();
+    }
+
     protected T setBoundingBox(final Supplier<BoundingBox> supplier) {
         this.boundingBoxSupplier = supplier;
         return cast();
+    }
+
+    protected HandlerRegistration registerMouseEnterHandler(final NodeMouseEnterHandler handler) {
+        assert null != handler;
+        HandlerRegistration reg =
+                getPrimitive()
+                        .setListening(true)
+                        .addNodeMouseEnterHandler(handler);
+        register(reg);
+        return reg;
+    }
+
+    protected HandlerRegistration registerMouseExitHandler(final NodeMouseExitHandler handler) {
+        assert null != handler;
+        HandlerRegistration reg =
+                getPrimitive()
+                        .setListening(true)
+                        .addNodeMouseExitHandler(handler);
+        register(reg);
+        return reg;
     }
 
     protected GroupItem getGroupItem() {
