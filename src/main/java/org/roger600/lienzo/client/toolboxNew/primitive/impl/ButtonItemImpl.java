@@ -19,11 +19,22 @@ public class ButtonItemImpl
     private HandlerRegistration dragMoveHandlerRegistration;
     private HandlerRegistration dragEndHandlerRegistration;
 
-    public ButtonItemImpl(final Shape<?> prim) {
+    public static class ButtonFactory {
+
+        public static ButtonItemImpl forShape(final Shape<?> prim) {
+            return new ButtonItemImpl(prim);
+        }
+
+        public static ButtonItemImpl forGroup(final Group group) {
+            return new ButtonItemImpl(group);
+        }
+    }
+
+    protected ButtonItemImpl(final Shape<?> prim) {
         this(new ItemImpl(prim));
     }
 
-    public ButtonItemImpl(final Group group) {
+    protected ButtonItemImpl(final Group group) {
         this(new FocusableGroup(group));
     }
 

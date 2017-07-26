@@ -1,8 +1,7 @@
-package org.roger600.lienzo.client.toolboxNew.primitive.factory;
+package org.roger600.lienzo.client.toolboxNew.primitive.impl;
 
 import com.ait.lienzo.client.core.shape.wires.WiresShape;
 import org.roger600.lienzo.client.toolboxNew.primitive.LayerToolbox;
-import org.roger600.lienzo.client.toolboxNew.primitive.impl.WiresShapeToolbox;
 
 public class ToolboxFactory {
 

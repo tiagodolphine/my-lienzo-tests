@@ -1,9 +1,6 @@
-package org.roger600.lienzo.client.toolboxNew.primitive.factory;
+package org.roger600.lienzo.client.toolboxNew.primitive.tooltip;
 
 import org.roger600.lienzo.client.toolboxNew.primitive.LayerToolbox;
-import org.roger600.lienzo.client.toolboxNew.primitive.tooltip.PrimitiveTextTooltip;
-import org.roger600.lienzo.client.toolboxNew.primitive.tooltip.TextTooltipItem;
-import org.roger600.lienzo.client.toolboxNew.primitive.tooltip.ToolboxTextTooltip;
 
 public class TooltipFactory {
 

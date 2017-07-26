@@ -9,7 +9,6 @@ import com.ait.lienzo.client.core.event.NodeDragStartHandler;
 import com.ait.lienzo.client.core.event.NodeMouseClickEvent;
 import com.ait.lienzo.client.core.event.NodeMouseClickHandler;
 import com.ait.lienzo.client.core.image.PictureLoadedHandler;
-import com.ait.lienzo.client.core.shape.Circle;
 import com.ait.lienzo.client.core.shape.Group;
 import com.ait.lienzo.client.core.shape.Layer;
 import com.ait.lienzo.client.core.shape.MultiPath;
@@ -44,11 +43,11 @@ import org.roger600.lienzo.client.toolboxNew.grid.FixedLayoutGrid;
 import org.roger600.lienzo.client.toolboxNew.primitive.ButtonGridItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.ButtonItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.LayerToolbox;
-import org.roger600.lienzo.client.toolboxNew.primitive.factory.DecoratorsFactory;
-import org.roger600.lienzo.client.toolboxNew.primitive.factory.ItemFactory;
-import org.roger600.lienzo.client.toolboxNew.primitive.factory.ToolboxFactory;
-import org.roger600.lienzo.client.toolboxNew.primitive.factory.TooltipFactory;
+import org.roger600.lienzo.client.toolboxNew.primitive.impl.DecoratorsFactory;
+import org.roger600.lienzo.client.toolboxNew.primitive.impl.ItemFactory;
+import org.roger600.lienzo.client.toolboxNew.primitive.impl.ToolboxFactory;
 import org.roger600.lienzo.client.toolboxNew.primitive.tooltip.ToolboxTextTooltip;
+import org.roger600.lienzo.client.toolboxNew.primitive.tooltip.TooltipFactory;
 import org.roger600.lienzo.client.toolboxNew.util.Consumer;
 import org.roger600.lienzo.client.toolboxNew.util.Tooltip;
 
@@ -178,7 +177,7 @@ public class ToolboxTests implements MyLienzoTest,
                                              BUTTON_SIZE,
                                              BUTTON_SIZE);
                                 Group picGroup = new Group().add(picture);
-                                final ButtonGridItem dropDownItem = ItemFactory.dropDownFor(picGroup);
+                                final ButtonGridItem dropDownItem = ItemFactory.DROP_DOWN_FACTORY.dropDown(picGroup);
                                 final FixedLayoutGrid dropDownItemGrid = new FixedLayoutGrid(BUTTON_PADDING,
                                                                                              BUTTON_SIZE,
                                                                                              Direction.SOUTH_EAST,
@@ -327,7 +326,7 @@ public class ToolboxTests implements MyLienzoTest,
     private ButtonItem createButtonItem(Group bGroup,
                                         String title) {
         final ButtonItem item1 =
-                ItemFactory.buttonFor(bGroup)
+                ItemFactory.BUTTON_FACTORY.forGroup(bGroup)
                         .decorate(DecoratorsFactory.box())
                         .tooltip(tooltipActions.createIem(title))
                         .onClick(new NodeMouseClickHandler() {
@@ -410,16 +409,8 @@ public class ToolboxTests implements MyLienzoTest,
         toolbox.add(item1);
     }
 
-    private void addDropDownItem(String title) {
-
-        final double radius = BUTTON_SIZE / 2;
-        final Circle circle = new Circle(radius)
-                .setX(radius)
-                .setY(radius)
-                .setStrokeWidth(0)
-                .setStrokeColor(ColorName.BLACK)
-                .setFillColor(ColorName.GREEN)
-                .setFillAlpha(0.8d);
+    private void addDropDownItem(String title,
+                                 final boolean downOrRight) {
 
         new Picture(LienzoTestsResources.INSTANCE.taskUserComposite().getSafeUri().asString(),
                     new PictureLoadedHandler() {
@@ -429,8 +420,11 @@ public class ToolboxTests implements MyLienzoTest,
                                          BUTTON_SIZE,
                                          BUTTON_SIZE);
 
-                            final ButtonGridItem item =
-                                    ItemFactory.dropDownFor(new Group().add(picture));
+                            final Group itemContaienr = new Group().add(picture);
+
+                            final ButtonGridItem item = downOrRight ?
+                                    ItemFactory.DROP_DOWN_FACTORY.dropDown(itemContaienr) :
+                                    ItemFactory.DROP_DOWN_FACTORY.dropRight(itemContaienr);
 
                             final FixedLayoutGrid grid = new FixedLayoutGrid(BUTTON_PADDING,
                                                                              BUTTON_SIZE,
@@ -541,14 +535,25 @@ public class ToolboxTests implements MyLienzoTest,
         });
         hPanel1.add(addItemButton);
 
-        com.google.gwt.user.client.ui.Button addItemDropDown = new com.google.gwt.user.client.ui.Button("Add drop-down");
+        com.google.gwt.user.client.ui.Button addItemDropDown = new com.google.gwt.user.client.ui.Button("Add drop-DOWN");
         addItemDropDown.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                addDropDownItem("DropDown" + getButtonTitle());
+                addDropDownItem("DropDown" + getButtonTitle(),
+                                true);
             }
         });
         hPanel1.add(addItemDropDown);
+
+        com.google.gwt.user.client.ui.Button addItemDropRight = new com.google.gwt.user.client.ui.Button("Add drop-RIGHT");
+        addItemDropRight.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                addDropDownItem("DropRight" + getButtonTitle(),
+                                false);
+            }
+        });
+        hPanel1.add(addItemDropRight);
 
         com.google.gwt.user.client.ui.Button removeItemButton = new com.google.gwt.user.client.ui.Button("Remove");
         removeItemButton.addClickHandler(new ClickHandler() {

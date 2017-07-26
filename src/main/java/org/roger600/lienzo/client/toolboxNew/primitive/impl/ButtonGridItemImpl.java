@@ -35,7 +35,9 @@ public class ButtonGridItemImpl
 
     private static final int TIMER_DELAY_MILLIS = 500;
 
-    public static class Builder {
+    public static class DropDownFactory {
+
+        private static final double ANIMATION_DELAY_MILLIS = 250;
 
         public static ButtonGridItem dropDown(final Shape<?> shape) {
             final ButtonGridItemImpl button = new ButtonGridItemImpl(shape);
@@ -47,10 +49,27 @@ public class ButtonGridItemImpl
             return setupAsDropDown(button);
         }
 
+        public static ButtonGridItem dropRight(final Shape<?> shape) {
+            final ButtonGridItemImpl button = new ButtonGridItemImpl(shape);
+            return setupAsDropRight(button);
+        }
+
+        public static ButtonGridItem dropRight(final Group group) {
+            final ButtonGridItemImpl button = new ButtonGridItemImpl(group);
+            return setupAsDropRight(button);
+        }
+
         private static ButtonGridItem setupAsDropDown(final ButtonGridItemImpl button) {
             button.at(Direction.SOUTH_WEST);
-            button.useShowExecutor(GroupVisibilityExecutors.upScaleY().setAnimationDuration(250));
-            button.useHideExecutor(GroupVisibilityExecutors.downScaleY().setAnimationDuration(250));
+            button.useShowExecutor(GroupVisibilityExecutors.upScaleY().setAnimationDuration(ANIMATION_DELAY_MILLIS));
+            button.useHideExecutor(GroupVisibilityExecutors.downScaleY().setAnimationDuration(ANIMATION_DELAY_MILLIS));
+            return button;
+        }
+
+        private static ButtonGridItem setupAsDropRight(final ButtonGridItemImpl button) {
+            button.at(Direction.EAST);
+            button.useShowExecutor(GroupVisibilityExecutors.upScaleX().setAnimationDuration(ANIMATION_DELAY_MILLIS));
+            button.useHideExecutor(GroupVisibilityExecutors.downScaleX().setAnimationDuration(ANIMATION_DELAY_MILLIS));
             return button;
         }
     }

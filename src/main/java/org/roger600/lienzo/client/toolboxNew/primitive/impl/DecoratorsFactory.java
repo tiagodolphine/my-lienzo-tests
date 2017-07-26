@@ -1,4 +1,4 @@
-package org.roger600.lienzo.client.toolboxNew.primitive.factory;
+package org.roger600.lienzo.client.toolboxNew.primitive.impl;
 
 import com.ait.lienzo.client.core.shape.MultiPath;
 import com.ait.lienzo.client.core.types.BoundingBox;
