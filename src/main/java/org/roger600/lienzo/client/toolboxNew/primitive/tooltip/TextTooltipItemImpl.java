@@ -15,10 +15,20 @@ public class TextTooltipItemImpl
 
     TextTooltipItemImpl(final Supplier<TextTooltipItem> textTooltipSupplier,
                         final String text) {
+        this(textTooltipSupplier,
+             text,
+             Direction.EAST,
+             Direction.EAST);
+    }
+
+    TextTooltipItemImpl(final Supplier<TextTooltipItem> textTooltipSupplier,
+                        final String text,
+                        final Direction at,
+                        final Direction towards) {
         this.textTooltipSupplier = textTooltipSupplier;
         this.text = text;
-        this.at = Direction.EAST;
-        this.towards = Direction.EAST;
+        this.at = at;
+        this.towards = towards;
     }
 
     @Override
@@ -69,6 +79,14 @@ public class TextTooltipItemImpl
     public void destroy() {
         this.text = null;
         this.boundingBoxSupplier = null;
+    }
+
+    Direction getAt() {
+        return at;
+    }
+
+    Direction getTowards() {
+        return towards;
     }
 
     @SuppressWarnings("unchecked")

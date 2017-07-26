@@ -18,13 +18,16 @@ public class ToolboxTextTooltip implements TextTooltipItem<ToolboxTextTooltip> {
         attachTo(toolbox);
     }
 
-    public TextTooltipItemImpl createIem(final String text) {
+    public TextTooltipItemImpl createItem(final String text) {
         return new TextTooltipItemImpl(new Supplier<TextTooltipItem>() {
             @Override
             public TextTooltipItem get() {
                 return tooltip;
             }
-        }, text);
+        },
+                                       text,
+                                       delegate.getAt(),
+                                       delegate.getTowards());
     }
 
     @Override

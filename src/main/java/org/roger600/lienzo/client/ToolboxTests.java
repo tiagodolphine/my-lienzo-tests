@@ -43,13 +43,13 @@ import org.roger600.lienzo.client.toolboxNew.grid.FixedLayoutGrid;
 import org.roger600.lienzo.client.toolboxNew.primitive.ButtonGridItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.ButtonItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.LayerToolbox;
+import org.roger600.lienzo.client.toolboxNew.primitive.TooltipItem;
 import org.roger600.lienzo.client.toolboxNew.primitive.impl.DecoratorsFactory;
 import org.roger600.lienzo.client.toolboxNew.primitive.impl.ItemFactory;
 import org.roger600.lienzo.client.toolboxNew.primitive.impl.ToolboxFactory;
 import org.roger600.lienzo.client.toolboxNew.primitive.tooltip.ToolboxTextTooltip;
 import org.roger600.lienzo.client.toolboxNew.primitive.tooltip.TooltipFactory;
 import org.roger600.lienzo.client.toolboxNew.util.Consumer;
-import org.roger600.lienzo.client.toolboxNew.util.Tooltip;
 
 public class ToolboxTests implements MyLienzoTest,
                                      HasMediators,
@@ -79,7 +79,6 @@ public class ToolboxTests implements MyLienzoTest,
     private ToolboxTextTooltip tooltipMorph;
     private ToolboxTextTooltip tooltipDelete;
     private int itemCount = 0;
-    private Tooltip tooltip;
 
     public void test(Layer layer) {
         this.layer = layer;
@@ -146,17 +145,17 @@ public class ToolboxTests implements MyLienzoTest,
                     .grid(autoGridActions);
             tooltipActions = buildTooltip(toolboxActions);
             addButtonItem(toolboxActions,
-                          getButtonTitle());
+                          tooltipActions.createItem(getButtonTitle()));
             addButtonItem(toolboxActions,
-                          getButtonTitle());
+                          tooltipActions.createItem(getButtonTitle()));
             addButtonItem(toolboxActions,
                           LienzoTestsResources.INSTANCE.taskUserComposite().getSafeUri(),
-                          "USER",
+                          tooltipActions.createItem("USER"),
                           BUTTON_SIZE,
                           BUTTON_SIZE);
             addButtonItem(toolboxActions,
                           LienzoTestsResources.INSTANCE.taskScriptComposite().getSafeUri(),
-                          "SCRIPT",
+                          tooltipActions.createItem("SCRIPT"),
                           BUTTON_SIZE,
                           BUTTON_SIZE);
         }
@@ -168,7 +167,9 @@ public class ToolboxTests implements MyLienzoTest,
                     .attachTo(layer.getScene().getTopLayer())
                     .at(Direction.SOUTH_WEST)
                     .grid(autoGridMorph);
-            tooltipMorph = buildTooltip(toolboxMorph);
+            tooltipMorph = buildTooltip(toolboxMorph)
+                    .at(Direction.SOUTH)
+                    .towards(Direction.SOUTH);
             new Picture(LienzoTestsResources.INSTANCE.clockO().getSafeUri().asString(),
                         new PictureLoadedHandler() {
                             @Override
@@ -183,12 +184,13 @@ public class ToolboxTests implements MyLienzoTest,
                                                                                              Direction.SOUTH_EAST,
                                                                                              1,
                                                                                              7);
-                                final ButtonItem dropDownItem1 = createButtonItem(getButtonTitle());
-                                final ButtonItem dropDownItem2 = createButtonItem(getButtonTitle());
-                                final ButtonItem dropDownItem3 = createButtonItem(getButtonTitle());
-                                final ButtonItem dropDownItem4 = createButtonItem(getButtonTitle());
-                                final ButtonItem dropDownItem5 = createButtonItem(getButtonTitle());
-                                final ButtonItem dropDownItem6 = createButtonItem(getButtonTitle());
+                                final ButtonItem dropDownItem1 = createButtonItem(tooltipMorph.createItem(getButtonTitle()));
+                                final ButtonItem dropDownItem2 = createButtonItem(tooltipMorph.createItem(getButtonTitle()));
+                                ;
+                                final ButtonItem dropDownItem3 = createButtonItem(tooltipMorph.createItem(getButtonTitle()));
+                                final ButtonItem dropDownItem4 = createButtonItem(tooltipMorph.createItem(getButtonTitle()));
+                                final ButtonItem dropDownItem5 = createButtonItem(tooltipMorph.createItem(getButtonTitle()));
+                                final ButtonItem dropDownItem6 = createButtonItem(tooltipMorph.createItem(getButtonTitle()));
                                 dropDownItem
                                         .grid(dropDownItemGrid)
                                         .onClick(new NodeMouseClickHandler() {
@@ -220,9 +222,11 @@ public class ToolboxTests implements MyLienzoTest,
                     .attachTo(layer.getScene().getTopLayer())
                     .at(Direction.NORTH_WEST)
                     .grid(autoGridDelete);
-            tooltipDelete = buildTooltip(toolboxDelete);
+            tooltipDelete = buildTooltip(toolboxDelete)
+                    .at(Direction.NORTH)
+                    .towards(Direction.NORTH);
             addButtonItem(toolboxDelete,
-                          "Delete");
+                          tooltipDelete.createItem("Delete"));
         }
 
 
@@ -241,7 +245,7 @@ public class ToolboxTests implements MyLienzoTest,
     }
 
     private void testTooltip(final Point2D location) {
-        tooltip = new Tooltip();
+       /* tooltip = new Tooltip();
         layer.add(tooltip.asPrimitive());
 
         tooltip
@@ -259,12 +263,12 @@ public class ToolboxTests implements MyLienzoTest,
                 })
                 .show()
                 .asPrimitive()
-                .setDraggable(true);
+                .setDraggable(true);*/
     }
 
     private void tooltipDirection(Direction direction) {
-        tooltip.setDirection(direction);
-        layer.batch();
+       /* tooltip.setDirection(direction);
+        layer.batch();*/
     }
 
     private void autoDirection(Direction direction) {
@@ -311,12 +315,12 @@ public class ToolboxTests implements MyLienzoTest,
         }
     }
 
-    private ButtonItem createButtonItem(String title) {
+    private ButtonItem createButtonItem(TooltipItem<?> tooltip) {
         Shape<?> prim = createButtonNode(ColorName.values()[Random.nextInt(ColorName.values().length)]);
         Group bGroup = new Group()
                 .add(prim);
         return createButtonItem(bGroup,
-                                title);
+                                tooltip);
     }
 
     private String getButtonTitle() {
@@ -324,11 +328,11 @@ public class ToolboxTests implements MyLienzoTest,
     }
 
     private ButtonItem createButtonItem(Group bGroup,
-                                        String title) {
+                                        TooltipItem<?> tooltip) {
         final ButtonItem item1 =
                 ItemFactory.BUTTON_FACTORY.forGroup(bGroup)
                         .decorate(DecoratorsFactory.box())
-                        .tooltip(tooltipActions.createIem(title))
+                        .tooltip(tooltip)
                         .onClick(new NodeMouseClickHandler() {
                             @Override
                             public void onNodeMouseClick(NodeMouseClickEvent event) {
@@ -359,20 +363,12 @@ public class ToolboxTests implements MyLienzoTest,
     }
 
     private void addButtonItem(final LayerToolbox toolbox,
-                               final Group bGroup,
-                               final String title) {
-        final ButtonItem item1 = createButtonItem(bGroup,
-                                                  title);
-        toolbox.add(item1);
-    }
-
-    private void addButtonItem(final LayerToolbox toolbox,
                                final SafeUri uri,
-                               final String title,
+                               final TooltipItem<?> tooltip,
                                final double w,
                                final double h) {
         createButtonItem(uri,
-                         title,
+                         tooltip,
                          w,
                          h,
                          new Consumer<ButtonItem>() {
@@ -384,7 +380,7 @@ public class ToolboxTests implements MyLienzoTest,
     }
 
     private void createButtonItem(final SafeUri uri,
-                                  final String title,
+                                  final TooltipItem<?> tooltip,
                                   final double w,
                                   final double h,
                                   final Consumer<ButtonItem> itemConsumer) {
@@ -397,15 +393,15 @@ public class ToolboxTests implements MyLienzoTest,
                                          h);
                             final ButtonItem picItem =
                                     createButtonItem(new Group().add(picture),
-                                                     title);
+                                                     tooltip);
                             itemConsumer.apply(picItem);
                         }
                     });
     }
 
     private void addButtonItem(final LayerToolbox toolbox,
-                               final String title) {
-        final ButtonItem item1 = createButtonItem(title);
+                               final TooltipItem<?> tooltip) {
+        final ButtonItem item1 = createButtonItem(tooltip);
         toolbox.add(item1);
     }
 
@@ -432,12 +428,12 @@ public class ToolboxTests implements MyLienzoTest,
                                                                              iRows,
                                                                              iCols);
 
-                            final ButtonItem item1 = createButtonItem(getButtonTitle());
-                            final ButtonItem item2 = createButtonItem(getButtonTitle());
-                            final ButtonItem item3 = createButtonItem(getButtonTitle());
-                            final ButtonItem item4 = createButtonItem(getButtonTitle());
-                            final ButtonItem item5 = createButtonItem(getButtonTitle());
-                            final ButtonItem item6 = createButtonItem(getButtonTitle());
+                            final ButtonItem item1 = createButtonItem(tooltipActions.createItem(getButtonTitle()));
+                            final ButtonItem item2 = createButtonItem(tooltipActions.createItem(getButtonTitle()));
+                            final ButtonItem item3 = createButtonItem(tooltipActions.createItem(getButtonTitle()));
+                            final ButtonItem item4 = createButtonItem(tooltipActions.createItem(getButtonTitle()));
+                            final ButtonItem item5 = createButtonItem(tooltipActions.createItem(getButtonTitle()));
+                            final ButtonItem item6 = createButtonItem(tooltipActions.createItem(getButtonTitle()));
 
                             item
                                     .grid(grid)
@@ -530,7 +526,7 @@ public class ToolboxTests implements MyLienzoTest,
             @Override
             public void onClick(ClickEvent event) {
                 addButtonItem(toolboxActions,
-                              getButtonTitle());
+                              tooltipActions.createItem(getButtonTitle()));
             }
         });
         hPanel1.add(addItemButton);
