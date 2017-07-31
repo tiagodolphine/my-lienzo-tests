@@ -133,6 +133,10 @@ public class WiresShapeToolbox
         return toolbox.asPrimitive().getLayer();
     }
 
+    public BoundingBox getBoundingBox() {
+        return toolbox.getBoundingBox().get();
+    }
+
     @Override
     public void destroy() {
         toolbox.destroy();

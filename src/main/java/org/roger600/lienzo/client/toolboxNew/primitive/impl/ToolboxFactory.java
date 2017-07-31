@@ -5,7 +5,7 @@ import org.roger600.lienzo.client.toolboxNew.primitive.LayerToolbox;
 
 public class ToolboxFactory {
 
-    public static LayerToolbox forWiresShape(final WiresShape shape) {
+    public static WiresShapeToolbox forWiresShape(final WiresShape shape) {
         return new WiresShapeToolbox(shape);
     }
 }

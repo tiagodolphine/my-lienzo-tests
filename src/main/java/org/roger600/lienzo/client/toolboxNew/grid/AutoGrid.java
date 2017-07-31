@@ -22,6 +22,7 @@ public class AutoGrid extends AbstractLayoutGrid<AutoGrid> implements SizeConstr
         private double size = 15d;
         private Direction direction = Direction.SOUTH;
         private WiresShape shape = null;
+        private BoundingBox boundingBox = null;
 
         public Builder withPadding(double size) {
             this.pad = size;
@@ -43,9 +44,16 @@ public class AutoGrid extends AbstractLayoutGrid<AutoGrid> implements SizeConstr
             return this;
         }
 
+        public Builder forBoundingBox(BoundingBox boundingBox) {
+            this.boundingBox = boundingBox;
+            return this;
+        }
+
         public AutoGrid build() {
-            assert null != shape;
-            final BoundingBox boundingBox = shape.getPath().getBoundingBox();
+            if (null == boundingBox) {
+                assert null != shape;
+                boundingBox = shape.getPath().getBoundingBox();
+            }
             final double max = isHorizontal(direction) ?
                     boundingBox.getWidth() :
                     boundingBox.getHeight();
