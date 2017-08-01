@@ -49,6 +49,8 @@ public class WiresShapeToolbox
             }
         });
         initHandlers(shape);
+        offset(shape);
+        resize();
         hide();
     }
 
@@ -204,13 +206,8 @@ public class WiresShapeToolbox
 
     private void onResize(final AbstractWiresResizeEvent event) {
         offset((WiresContainer) event.getShape());
-        // If the grid is constrained by size, update it.
-        final Point2DGrid grid = toolbox.getGrid();
-        if (grid instanceof SizeConstrainedGrid) {
-            ((SizeConstrainedGrid) grid).setSize(event.getWidth(),
-                                                 event.getHeight());
-        }
-        toolbox.refresh();
+        resize(event.getWidth(),
+               event.getHeight());
     }
 
     private void onMove(final WiresMoveEvent event) {
@@ -223,5 +220,22 @@ public class WiresShapeToolbox
 
     private void offset(final WiresContainer shape) {
         offset(shape.getGroup().getComputedLocation());
+    }
+
+    private void resize() {
+        final BoundingBox boundingBox = getBoundingBox();
+        resize(boundingBox.getWidth(),
+               boundingBox.getHeight());
+    }
+
+    private void resize(final double width,
+                        final double height) {
+        // If the grid is constrained by size, update it.
+        final Point2DGrid grid = toolbox.getGrid();
+        if (grid instanceof SizeConstrainedGrid) {
+            ((SizeConstrainedGrid) grid).setSize(width,
+                                                 height);
+        }
+        toolbox.refresh();
     }
 }

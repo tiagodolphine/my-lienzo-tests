@@ -135,7 +135,8 @@ public class AutoGrid extends AbstractLayoutGrid<AutoGrid> implements SizeConstr
             this.towards = direction;
 
             final double d1 = getPadding() + getIconSize();
-            final int maxItems = (int) (maxSize / d1); // Round down to an integer index value.
+            final int _maxItems = (int) (maxSize / d1); // Round down to an integer index value.
+            final int maxItems = _maxItems > 0 ? _maxItems : 1;
             if (isHorizontal(direction)) {
                 maxRows = -1;
                 currentRow = 0;
@@ -187,5 +188,4 @@ public class AutoGrid extends AbstractLayoutGrid<AutoGrid> implements SizeConstr
             return new int[]{currentRow, currentColumn};
         }
     }
-
 }
