@@ -8,6 +8,8 @@ import com.ait.lienzo.client.core.shape.wires.ILocationAcceptor;
 import com.ait.lienzo.client.core.shape.wires.WiresContainer;
 import com.ait.lienzo.client.core.shape.wires.WiresManager;
 import com.ait.lienzo.client.core.shape.wires.WiresShape;
+import com.ait.lienzo.client.core.shape.wires.event.WiresResizeStepEvent;
+import com.ait.lienzo.client.core.shape.wires.event.WiresResizeStepHandler;
 import com.ait.lienzo.client.core.types.Point2D;
 import com.ait.lienzo.shared.core.types.ColorName;
 import com.google.gwt.core.client.GWT;
@@ -95,12 +97,24 @@ public class WiresDockingTests extends FlowPanel implements MyLienzoTest,
                 .setStrokeColor("#000000")
                 .setFillColor(ColorName.WHITE);
         final WiresShape parentShape = new WiresShape(parentMultiPath);
+        parentShape.setResizable(true);
         parentShape.getContainer().setUserData("parent");
         wires_manager.register(parentShape);
         parentShape.setLocation(new Point2D(500d, 200d));
         parentShape.setDraggable(true);
         wires_manager.getMagnetManager().createMagnets(parentShape);
         TestsUtils.addResizeHandlers(parentShape);
+
+//        parentShape.addWiresResizeStepHandler( new WiresResizeStepHandler() {
+//            @Override
+//            public void onShapeResizeStep( WiresResizeStepEvent event ) {
+//                GWT.log( "onShapeResizeStep [x=" + event.getX() + ", y=" + event.getY()
+//                             + ", width=" + event.getWidth()
+//                             + ", height=" + event.getHeight() + "]" );
+//            }
+//        } );
+
+
 
         MultiPath childMultiPath = new MultiPath().rect(0,
                                                         0,

@@ -72,6 +72,7 @@ public class DockingTests extends FlowPanel implements MyLienzoTest, HasMediator
         MultiPath parentMultiPath = new MultiPath().rect(0, 0, 300, 300).setStrokeColor("#000000");
         final WiresShape parentShape = new WiresShape(parentMultiPath);
         parentShape.getContainer().setUserData( "dock-source" );
+        parentShape.setResizable(true);
         wires_manager.register( parentShape );
         parentShape.setDraggable(true).setLocation(new Point2D(200, 200));
         wires_manager.getMagnetManager().createMagnets(parentShape);

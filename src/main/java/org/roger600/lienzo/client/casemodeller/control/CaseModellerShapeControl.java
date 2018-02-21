@@ -120,4 +120,14 @@ public class CaseModellerShapeControl implements WiresShapeControl {
     public Point2D getAdjust() {
         return shapeControl.getAdjust();
     }
+
+    @Override
+    public boolean accept() {
+        return false;
+    }
+
+    @Override
+    public boolean isOutOfBounds(double dx, double dy) {
+        return false;
+    }
 }

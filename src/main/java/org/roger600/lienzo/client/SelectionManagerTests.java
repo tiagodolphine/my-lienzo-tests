@@ -19,6 +19,7 @@ import com.ait.lienzo.client.core.shape.wires.WiresLayer;
 import com.ait.lienzo.client.core.shape.wires.WiresMagnet;
 import com.ait.lienzo.client.core.shape.wires.WiresManager;
 import com.ait.lienzo.client.core.shape.wires.WiresShape;
+import com.ait.lienzo.client.core.shape.wires.handlers.WiresConnectorControl;
 import com.ait.lienzo.client.core.types.Point2D;
 import com.ait.lienzo.client.core.types.Point2DArray;
 import com.google.gwt.core.client.GWT;
@@ -161,42 +162,51 @@ public class SelectionManagerTests extends FlowPanel implements MyLienzoTest, Ha
 
         WiresShape greenShape  = new WiresShape(new MultiPath().rect(0, 0, w, h).setFillColor("#00CC00"));
         wires_manager.register( greenShape );
-        greenShape.setLocation(new Point2D(startX + 200, startY));
+        greenShape.setLocation(new Point2D(startX + 700, startY));
         greenShape.setDraggable(true).getContainer().setUserData("green");
 
-        WiresShape blueShape = new WiresShape(new MultiPath().rect(0, 0, w, h).setFillColor("#0000FF"));
-        wires_manager.register( blueShape );
-        blueShape.setLocation(new Point2D(startX + 400, startY));
-        blueShape.setDraggable(true).getContainer().setUserData("blue");
+//        WiresShape blueShape = new WiresShape(new MultiPath().rect(0, 0, w, h).setFillColor("#0000FF"));
+//        wires_manager.register( blueShape );
+//        blueShape.setLocation(new Point2D(startX + 400, startY));
+//        blueShape.setDraggable(true).getContainer().setUserData("blue");
 
-        WiresShape parentShape  = new WiresShape(new MultiPath().rect(0, 0, 300, 300)
-                                                         .setFillColor("#FFFFFF")
-                                                         .setStrokeColor("#000000"));
-        wires_manager.register( parentShape );
-        parentShape.setLocation(new Point2D(startX + 200, startY + 200));
-        parentShape.setDraggable(true).getContainer().setUserData("parent");
+//        WiresShape parentShape  = new WiresShape(new MultiPath().rect(0, 0, 300, 300)
+//                                                         .setFillColor("#FFFFFF")
+//                                                         .setStrokeColor("#000000"));
+//        wires_manager.register( parentShape );
+//        parentShape.setLocation(new Point2D(startX + 200, startY + 200));
+//        parentShape.setDraggable(true).getContainer().setUserData("parent");
 
         wires_manager.getMagnetManager().createMagnets(redShape);
         wires_manager.getMagnetManager().createMagnets(greenShape);
-        wires_manager.getMagnetManager().createMagnets(blueShape);
-        wires_manager.getMagnetManager().createMagnets(parentShape);
+//        wires_manager.getMagnetManager().createMagnets(blueShape);
+//        wires_manager.getMagnetManager().createMagnets(parentShape);
 
         TestsUtils.addResizeHandlers( redShape );
         TestsUtils.addResizeHandlers( greenShape );
-        TestsUtils.addResizeHandlers( blueShape );
-        TestsUtils.addResizeHandlers( parentShape );
+//        TestsUtils.addResizeHandlers( blueShape );
+//        TestsUtils.addResizeHandlers( parentShape );
 
         connect(layer,
                 redShape.getMagnets(),
-                3,
+                1,
                 greenShape.getMagnets(),
-                7,
+                1,
                 wires_manager);
 
     }
 
     @Override
     public void setButtonsPanel(Panel panel) {
+
+        final Button controlPointsButton = new Button("Show Control Points");
+//        controlPointsButton.addClickHandler(new ClickHandler() {
+//            @Override
+//            public void onClick(ClickEvent event) {
+//                Window.alert("CP: " + connector.getControlPoints());            }
+//        });
+//        panel.add(controlPointsButton);
+
         final Button button1 = new Button("Log selected shapes locations");
         button1.addClickHandler(new ClickHandler() {
             @Override
@@ -369,6 +379,7 @@ public class SelectionManagerTests extends FlowPanel implements MyLienzoTest, Ha
         }
     }
 
+    WiresConnector connector;
     private void connect(Layer layer,
                          MagnetManager.Magnets magnets0,
                          int i0_1,
@@ -403,35 +414,47 @@ public class SelectionManagerTests extends FlowPanel implements MyLienzoTest, Ha
         y0 = m0_1.getControl().getY();
         x1 = m1_1.getControl().getX();
         y1 = m1_1.getControl().getY();
-        line = createLine(layer,
-                          0,
-                          0,
-                          x0,
-                          y0,
-                          (x0 + ((x1 - x0) / 2)),
-                          (y0 + ((y1 - y0) / 2)),
-                          x1,
-                          y1);
-        line.setHeadOffset(head.getBoundingBox().getHeight());
-        line.setTailOffset(tail.getBoundingBox().getHeight());
-        line.setSelectionStrokeOffset(25);
 
-        WiresConnector connector = new WiresConnector(m0_1,
+        line = createLine(
+//                layer,
+                            x0,
+                          y0,
+                          //800d,500d,
+                            x1,
+                            y1
+
+//                          (x0 + ((x1 - x0) / 2)),
+//                          (y0 + ((y1 - y0) / 2)),
+//                          x1,
+//                          y1
+        );
+
+        line.setHeadOffset(head.getBoundingBox().getHeight());
+        line.setSelectionStrokeOffset(25);
+        line.setTailOffset(tail.getBoundingBox().getHeight());
+
+        //line.getPoint2DArray().push(new Point2D(800d, 500d), new Point2D(0,0));
+
+        //line.refresh();
+
+        connector = new WiresConnector(m0_1,
                                                       m1_1,
                                                       line,
                                                       new MultiPathDecorator(head),
                                                       new MultiPathDecorator(tail));
-        wiresManager.register(connector);
 
-        head.setStrokeWidth(5).setStrokeColor("#0000CC");
-        tail.setStrokeWidth(5).setStrokeColor("#0000CC");
-        line.setStrokeWidth(5).setStrokeColor("#0000CC");
+        head.setStrokeWidth(1).setStrokeColor("#0000CC");
+        tail.setStrokeWidth(1).setStrokeColor("#0000CC");
+        line.setStrokeWidth(1).setStrokeColor("#0000CC");
+
+
+
+        WiresConnectorControl wiresConnectorControl = wiresManager.register(connector);
+        //wiresConnectorControl.addNewControlPoint(800d, 500d);
+        wiresConnectorControl.showControlPoints();
     }
 
-    private final OrthogonalPolyLine createLine(Layer layer,
-                                                double x,
-                                                double y,
-                                                final double... points) {
+    private final OrthogonalPolyLine createLine(final double... points) {
         return new OrthogonalPolyLine(Point2DArray.fromArrayOfDouble(points)).setCornerRadius(5).setDraggable(true);
     }
 
